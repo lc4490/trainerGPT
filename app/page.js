@@ -67,13 +67,13 @@ export default function Home() {
   // page nav
   const [value, setValue] = useState(0);
   const pages = [
-    <MyInfoPage />,
-    <EquipmentPage />,
-    <TrainerGPTPage />,
-    <NutritionPage />,
-    <PlanPage />,
-    // <FriendsPage />
-  ];
+    <MyInfoPage key="myInfo" />,
+    <EquipmentPage key="equipment" />,
+    <TrainerGPTPage key="trainerGPT" />,
+    <NutritionPage key="nutrition" />,
+    <PlanPage key="plan" />,
+    // <FriendsPage key="friends" />
+  ];  
   return (
     <ThemeProvider theme={currentTheme}>
       <CssBaseline />

@@ -825,6 +825,7 @@ const NutritionPage = () => {
             display="flex"
             justifyContent="space-between"
             paddingX={2.5}
+            paddingY={2.5}
             alignItems="center"
             position="relative"
           >

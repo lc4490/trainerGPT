@@ -91,14 +91,14 @@ export default function Home() {
       <Box width="100%" height="100%" bgcolor="background.default">
         
         <Box 
-        flexGrow={1} 
+        // flexGrow={1} 
         display="flex" 
         justifyContent="center" 
         alignItems="center" >
         {pages[value]}
         </Box>
 
-    
+        {/* <Box backgroundColor = "red" height = "100px"></Box> */}
         <BottomNavigation
           showLabels
           value={value}

@@ -47,6 +47,88 @@ const darkTheme = createTheme({
   },
 });
 
+const exerciseData = [
+  {
+    name: 'Push-Up',
+    youtubeLinks: [
+      'https://youtu.be/IODxDxX7oi4',
+      'https://youtu.be/_l3ySVKYVJ8',
+    ],
+  },
+  {
+    name: 'Squat',
+    youtubeLinks: [
+      'https://youtu.be/aclHkVaku9U',
+      'https://youtu.be/YaXPRqUwItQ',
+    ],
+  },
+  {
+    name: 'Plank',
+    youtubeLinks: [
+      'https://youtu.be/BQu26ABuVS0',
+      'https://youtu.be/pSHjTRCQxIw',
+    ],
+  },
+  {
+    name: 'Burpee',
+    youtubeLinks: [
+      'https://youtu.be/TU8QYVW0gDU',
+      'https://youtu.be/JZQA08SlJnM',
+    ],
+  },
+  {
+    name: 'Lunge',
+    youtubeLinks: [
+      'https://youtu.be/QOVaHwm-Q6U',
+      'https://youtu.be/D7KaRcUTQeE',
+    ],
+  },
+  {
+    name: 'Deadlift',
+    youtubeLinks: [
+      'https://youtu.be/op9kVnSso6Q',
+      'https://youtu.be/r4MzxtBKyNE',
+    ],
+  },
+  {
+    name: 'Bench Press',
+    youtubeLinks: [
+      'https://youtu.be/gRVjAtPip0Y',
+      'https://youtu.be/vthMCtgVtFw',
+    ],
+  },
+  {
+    name: 'Bicep Curl',
+    youtubeLinks: [
+      'https://youtu.be/ykJmrZ5v0Oo',
+      'https://youtu.be/sAq_ocpRh_I',
+    ],
+  },
+  {
+    name: 'Pull-Up',
+    youtubeLinks: [
+      'https://youtu.be/eGo4IYlbE5g',
+      'https://youtu.be/COQusflW6zA',
+    ],
+  },
+  {
+    name: 'Mountain Climber',
+    youtubeLinks: [
+      'https://youtu.be/1w9VuNgBnAQ',
+      'https://youtu.be/cnyTQDSE884',
+    ],
+  },
+  {
+    name: 'Tricep Dip',
+    youtubeLinks: [
+      'https://www.youtube.com/watch?v=6kALZikXxLc',
+      'https://www.youtube.com/watch?v=89_spgcdQlw',
+      // n-sync
+      'https://www.youtube.com/watch?v=Eo-KmOd3i7s',
+    ],
+  },
+];
+
 // link color
 const customComponents = {
   a: ({ href, children }) => (
@@ -57,8 +139,7 @@ const customComponents = {
 };
 
 const TrainerGPTPage = () => {
-  // translation
-  // declare for translation
+  // Implementing multi-languages
   const { t, i18n } = useTranslation();
   // change languages
   const changeLanguage = (lng) => {
@@ -83,7 +164,8 @@ const TrainerGPTPage = () => {
     const newLanguage = event.target.value;
     changeLanguage(newLanguage);
   };
-  // detect light/dark mode, set light dark mode
+
+  // Implementing theming
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [darkMode, setDarkMode] = useState(prefersDarkMode);
   useEffect(() => {
@@ -116,7 +198,7 @@ const TrainerGPTPage = () => {
       try {
         // RAGS FOR LINKS
         // Extract the exercise name
-        const exerciseNames = extractExerciseName(message); // Implement this as needed
+        const exerciseNames = extractExerciseName(message);
         let responseContent = ``;
         for(let i = 0; i < exerciseNames.length; i++){
           let links = getYouTubeLinksForExercise(exerciseNames[i])
@@ -193,15 +275,15 @@ const TrainerGPTPage = () => {
     
       setIsLoading(false);
     };
-  
+  // If press enter, send message
   const handleKeyPress = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       sendMessage();
     }
   };
-  // google auth
-  // sign in function for google auth
+
+  // Google Auth
   const handleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
@@ -213,7 +295,6 @@ const TrainerGPTPage = () => {
       alert('Sign in failed: ' + error.message);
     }
   };
-  // sign out function for google auth
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -225,11 +306,11 @@ const TrainerGPTPage = () => {
       alert('Sign out failed: ' + error.message);
     }
   };
-
-  // declareables for user and guest mode
+  // Set User
   const [user, setUser] = useState(null);
   const [guestMode, setGuestMode] = useState(false);
   const [name, setName] = useState(null);
+  // Check at all times who the user is
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -246,7 +327,7 @@ const TrainerGPTPage = () => {
     });
     return () => unsubscribe();
   }, []);
-  // change welcome message based on custom user
+  // Change welcome message based on user
   useEffect(() => {
     if (user) {
       const displayName = " " + user.displayName || 'User';
@@ -272,96 +353,8 @@ const TrainerGPTPage = () => {
     }
   }, [user]); // This useEffect will run whenever the user state changes
 
-  // scroll chat down as search
-  useEffect(() => {
-    const chatLog = document.querySelector('.chat-log');
-    if (chatLog) {
-      chatLog.scrollTop = chatLog.scrollHeight;
-    }
-  }, [messages]);
-
-  // custom exercise links RAG
-  const exerciseData = [
-    {
-      name: 'Push-Up',
-      youtubeLinks: [
-        'https://youtu.be/IODxDxX7oi4',
-        'https://youtu.be/_l3ySVKYVJ8',
-      ],
-    },
-    {
-      name: 'Squat',
-      youtubeLinks: [
-        'https://youtu.be/aclHkVaku9U',
-        'https://youtu.be/YaXPRqUwItQ',
-      ],
-    },
-    {
-      name: 'Plank',
-      youtubeLinks: [
-        'https://youtu.be/BQu26ABuVS0',
-        'https://youtu.be/pSHjTRCQxIw',
-      ],
-    },
-    {
-      name: 'Burpee',
-      youtubeLinks: [
-        'https://youtu.be/TU8QYVW0gDU',
-        'https://youtu.be/JZQA08SlJnM',
-      ],
-    },
-    {
-      name: 'Lunge',
-      youtubeLinks: [
-        'https://youtu.be/QOVaHwm-Q6U',
-        'https://youtu.be/D7KaRcUTQeE',
-      ],
-    },
-    {
-      name: 'Deadlift',
-      youtubeLinks: [
-        'https://youtu.be/op9kVnSso6Q',
-        'https://youtu.be/r4MzxtBKyNE',
-      ],
-    },
-    {
-      name: 'Bench Press',
-      youtubeLinks: [
-        'https://youtu.be/gRVjAtPip0Y',
-        'https://youtu.be/vthMCtgVtFw',
-      ],
-    },
-    {
-      name: 'Bicep Curl',
-      youtubeLinks: [
-        'https://youtu.be/ykJmrZ5v0Oo',
-        'https://youtu.be/sAq_ocpRh_I',
-      ],
-    },
-    {
-      name: 'Pull-Up',
-      youtubeLinks: [
-        'https://youtu.be/eGo4IYlbE5g',
-        'https://youtu.be/COQusflW6zA',
-      ],
-    },
-    {
-      name: 'Mountain Climber',
-      youtubeLinks: [
-        'https://youtu.be/1w9VuNgBnAQ',
-        'https://youtu.be/cnyTQDSE884',
-      ],
-    },
-    {
-      name: 'Tricep Dip',
-      youtubeLinks: [
-        'https://www.youtube.com/watch?v=6kALZikXxLc',
-        'https://www.youtube.com/watch?v=89_spgcdQlw',
-        // n-sync
-        'https://www.youtube.com/watch?v=Eo-KmOd3i7s',
-      ],
-    },
-  ];
+  // Utilizing RAG for custom YouTube links
+  
   const getYouTubeLinksForExercise = (exerciseName) => {
     const exercise = exerciseData.find(
       (ex) => ex.name.toLowerCase() === exerciseName.toLowerCase()
@@ -393,7 +386,7 @@ const TrainerGPTPage = () => {
     return ret;
   };
 
-  // save chat logs function
+  // Logging chat history
   const saveChatLog = async (userId, languageCode, messages) => {
     try {
       const docRef = doc(firestore, 'users', userId, 'chat', languageCode);
@@ -405,7 +398,6 @@ const TrainerGPTPage = () => {
       console.error("Error saving chat log:", error);
     }
   };  
-  // loading chat logs
   const loadChatLog = async (userId, languageCode) => {
     try {
       const docRef = doc(firestore, 'users', userId, 'chat', languageCode);
@@ -430,14 +422,12 @@ const TrainerGPTPage = () => {
       console.error("Error loading chat log:", error);
     }
   };  
-  // clear chat log
   const clearChatLog = async () => {
     try {
       // const docRef = doc(firestore, 'chatLogs', user.uid, 'languages', i18n.language);
-      const docRef = doc(firestore, 'users', user.uid, 'chat', i18n.language);
-      await deleteDoc(docRef);
-  
       if (user) {
+        const docRef = doc(firestore, 'users', user.uid, 'chat', i18n.language);
+        await deleteDoc(docRef);
         const displayName = user.displayName || 'User';
         const personalizedWelcome = t('welcome', { name: displayName });
     
@@ -451,47 +441,8 @@ const TrainerGPTPage = () => {
       console.error("Error clearing chat log:", error);
     }
   };
-  
 
-  // // chat logging guest
-  // const saveChatLogLocal = (languageCode, messages) => {
-  //   localStorage.setItem(`chatLog_${languageCode}`, JSON.stringify(messages));
-  // };
-  // // chat loading guest
-  // const loadChatLogLocal = (languageCode) => {
-  //   const savedMessages = localStorage.getItem(`chatLog_${languageCode}`);
-  //   if (savedMessages) {
-  //     setMessages(JSON.parse(savedMessages));
-  //   } else {
-  //     if (user) {
-  //       const displayName = user.displayName || 'User';
-  //       const personalizedWelcome = t('welcome', { name: displayName });
-    
-  //       setMessages([
-  //         { role: 'assistant', content: personalizedWelcome }
-  //       ]);
-  //     }
-  //     else{
-  //       setMessages([{ role: 'assistant', content: t('welcome', {name: t('guest')}) }]);
-  //     }
-  //   }
-  // };
-  // // clear chat log guest
-  // const clearChatLogLocal = () => {
-  //   localStorage.removeItem(`chatLog_${i18n.language}`);
-  //   if (user) {
-  //     const displayName = user.displayName || 'User';
-  //     const personalizedWelcome = t('welcome', { name: displayName });
-  
-  //     setMessages([
-  //       { role: 'assistant', content: personalizedWelcome }
-  //     ]);
-  //   }
-  //   else{
-  //     setMessages([{ role: 'assistant', content: t('welcome', {name: t('guest')}) }]);
-  //   }
-  // };
-
+  // Miscellaneous
   // if user change or language change
   useEffect(() => {
     if (user) {
@@ -501,7 +452,13 @@ const TrainerGPTPage = () => {
     //   loadChatLogLocal(i18n.language);
     // }
   }, [user, i18n.language]);
-
+  // scroll chat down as search
+  useEffect(() => {
+    const chatLog = document.querySelector('.chat-log');
+    if (chatLog) {
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+  }, [messages]);
   // ismobile
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
@@ -511,7 +468,7 @@ const TrainerGPTPage = () => {
       {/* og box */}
       <Box
         width="100vw"
-        height= {isMobile ? "100vh" : "100vh"}
+        height= {isMobile ? "100vh" : "90vh"}
         display="flex"
         flexDirection="column"
       >
@@ -699,7 +656,7 @@ const TrainerGPTPage = () => {
             </Button>
           </Stack>
         </Stack>
-        <Box height = "50px"></Box>
+        {/* <Box height = {isMobile ? "50px" : "0px"}></Box> */}
       </Box>
     </ThemeProvider>
   );

@@ -370,12 +370,16 @@ const NutritionPage = () => {
   }, [prefersDarkMode]);
 
   const theme = darkMode ? darkTheme : lightTheme;
+
+  // ismobile
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box 
         width="100vw" 
-        height="100vh"
+        // height="100vh"
+        height= {isMobile ? "100vh" : "90vh"}
         display="flex" 
         justifyContent="center" 
         alignItems="center"
@@ -906,14 +910,14 @@ const NutritionPage = () => {
           <Divider />
           
           {/* banner image */}
-          <Image 
+          {/* <Image 
             src= {prefersDarkMode ? "/banner_dark.png" : "/banner.png"} 
             alt="banner"
             // layout="responsive"
             width={800}
             height={200}
             style={{ width: '100%', height: 'auto'}}
-          />
+          /> */}
 
           {/* recipes */}
           <Stack flexDirection="row">

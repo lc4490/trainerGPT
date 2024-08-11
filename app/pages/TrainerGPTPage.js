@@ -511,7 +511,7 @@ const TrainerGPTPage = () => {
       {/* og box */}
       <Box
         width="100vw"
-        height= {isMobile ? "80vh" : "90vh"}
+        height= {isMobile ? "100vh" : "100vh"}
         display="flex"
         flexDirection="column"
       >
@@ -620,7 +620,7 @@ const TrainerGPTPage = () => {
         <Stack
           direction="column"
           width="100vw"
-          height={isMobile ? "90%" : "90%"}
+          height={isMobile ? "70%" : "90%"}
         >
           {/* previous messages log */}
 
@@ -699,6 +699,7 @@ const TrainerGPTPage = () => {
             </Button>
           </Stack>
         </Stack>
+        <Box height = "50px"></Box>
       </Box>
     </ThemeProvider>
   );

@@ -90,7 +90,11 @@ export default function Home() {
     >
       <Box width="100%" height="100%" bgcolor="background.default">
         
-        <Box flexGrow={1} display="flex" justifyContent="center" alignItems="center" >
+        <Box 
+        flexGrow={1} 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center" >
         {pages[value]}
         </Box>
 
@@ -104,9 +108,9 @@ export default function Home() {
           sx={{ width: '100%', position: 'fixed', bottom: 0 }}
         >
           <BottomNavigationAction label="My Info" icon = {<HomeIcon />} />
-          <BottomNavigationAction label="Equipment" icon={<FitnessCenter />} />
-          <BottomNavigationAction label="TrainerGPT" icon={<Person />} />
-          <BottomNavigationAction label="Nutrition" icon={<LocalDiningIcon />} />
+          <BottomNavigationAction label="myEquipment" icon={<FitnessCenter />} />
+          <BottomNavigationAction label="trainerGPT" icon={<Person />} />
+          <BottomNavigationAction label="myPantry" icon={<LocalDiningIcon />} />
           <BottomNavigationAction label="Plan" icon={<CalendarToday />} />
           {/* <BottomNavigationAction label="Friends" icon={<Group />} /> */}
         </BottomNavigation>

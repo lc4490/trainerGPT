@@ -858,7 +858,7 @@ const NutritionPage = () => {
                   {darkMode ? <Brightness7 /> : <Brightness4 />}
                 </IconButton> */}
               <Typography variant="h6" color="text.primary" textAlign="center">
-                Nutrition Page
+                myPantry
               </Typography>
             </Box>
             {/* sign in */}

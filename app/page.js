@@ -135,11 +135,11 @@ export default function Home() {
           }}
           sx={{ width: '100%', position: 'fixed', bottom: 0 }}
         >
-          <BottomNavigationAction label="My Info" icon = {<HomeIcon />} />
-          <BottomNavigationAction label="myEquipment" icon={<FitnessCenter />} />
+          <BottomNavigationAction label={t("My Info")} icon = {<HomeIcon />} />
+          <BottomNavigationAction label={t("myEquipment")} icon={<FitnessCenter />} />
           <BottomNavigationAction label={t("trainerGPT")} icon={<Person />} />
           <BottomNavigationAction label={t("myPantry")} icon={<LocalDiningIcon />} />
-          <BottomNavigationAction label="Plan" icon={<CalendarToday />} />
+          <BottomNavigationAction label={t("Plan")} icon={<CalendarToday />} />
           {/* <BottomNavigationAction label="Friends" icon={<Group />} /> */}
         </BottomNavigation>
       </Box>

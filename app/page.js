@@ -2,6 +2,8 @@
 
 import { Box, Stack, Typography, Button, Modal, TextField, Grid, Autocomplete, Divider, AppBar, Toolbar, BottomNavigation, BottomNavigationAction } from '@mui/material'
 import { useEffect, useState, useRef } from 'react'
+import { firestore, auth, provider, signInWithPopup, signOut } from './firebase'
+import { collection, getDocs, query, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 
 // theme imports
 import { createTheme, ThemeProvider, useTheme, CssBaseline, useMediaQuery, IconButton } from '@mui/material';
@@ -20,7 +22,9 @@ import PlanPage from './pages/PlanPage';
 import FriendsPage from './pages/FriendsPage';
 import NutritionPage from './pages/NutritionPage';
 
-
+// translations
+import { useTranslation } from 'react-i18next';
+import i18n from './i18n'; // Adjust the path as necessary
 
 const lightTheme = createTheme({
   palette: {
@@ -49,6 +53,30 @@ const darkTheme = createTheme({
 });
 
 export default function Home() {
+  // Implementing multi-languages
+  const { t, i18n } = useTranslation();
+  // change languages
+  const getPreferredLanguage = async () => {
+    if (auth.currentUser) {
+      const userUID = auth.currentUser.uid;
+      const userDocRef = doc(firestore, 'users', userUID);
+      const userDoc = await getDoc(userDocRef);
+      return userDoc.exists() ? userDoc.data().preferredLanguage : null;
+    }
+    return null;
+  };
+  // fetch/set languages at all tiimes
+  useEffect(() => {
+    const fetchAndSetLanguage = async () => {
+      const preferredLanguage = await getPreferredLanguage();
+      if (preferredLanguage) {
+        i18n.changeLanguage(preferredLanguage);
+      }
+    };
+
+    fetchAndSetLanguage();
+  }, []);
+
   // toggle dark mode
   // Detect user's preferred color scheme
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -109,8 +137,8 @@ export default function Home() {
         >
           <BottomNavigationAction label="My Info" icon = {<HomeIcon />} />
           <BottomNavigationAction label="myEquipment" icon={<FitnessCenter />} />
-          <BottomNavigationAction label="trainerGPT" icon={<Person />} />
-          <BottomNavigationAction label="myPantry" icon={<LocalDiningIcon />} />
+          <BottomNavigationAction label={t("trainerGPT")} icon={<Person />} />
+          <BottomNavigationAction label={t("myPantry")} icon={<LocalDiningIcon />} />
           <BottomNavigationAction label="Plan" icon={<CalendarToday />} />
           {/* <BottomNavigationAction label="Friends" icon={<Group />} /> */}
         </BottomNavigation>

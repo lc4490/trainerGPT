@@ -141,6 +141,7 @@ const customComponents = {
 const TrainerGPTPage = () => {
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
+  const [prefLanguage, setPrefLanguage] = useState('');
   // change languages
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
@@ -162,8 +163,39 @@ const TrainerGPTPage = () => {
   };
   const handleLanguageChange = (event) => {
     const newLanguage = event.target.value;
+    setPrefLanguage(newLanguage)
     changeLanguage(newLanguage);
+    setPreferredLanguage(newLanguage);
   };
+  // Store preferred language
+  const setPreferredLanguage = async (language) => {
+    if (auth.currentUser) {
+      const userUID = auth.currentUser.uid;
+      const userDocRef = doc(firestore, 'users', userUID);
+      await setDoc(userDocRef, { preferredLanguage: language }, { merge: true });
+    }
+  };
+  const getPreferredLanguage = async () => {
+    if (auth.currentUser) {
+      const userUID = auth.currentUser.uid;
+      const userDocRef = doc(firestore, 'users', userUID);
+      const userDoc = await getDoc(userDocRef);
+      return userDoc.exists() ? userDoc.data().preferredLanguage : null;
+    }
+    return null;
+  };
+  // fetch/set languages at all tiimes
+  useEffect(() => {
+    const fetchAndSetLanguage = async () => {
+      const preferredLanguage = await getPreferredLanguage();
+      if (preferredLanguage) {
+        setPrefLanguage(preferredLanguage)
+        i18n.changeLanguage(preferredLanguage);
+      }
+    };
+
+    fetchAndSetLanguage();
+  }, []);
 
   // Implementing theming
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -494,7 +526,7 @@ const TrainerGPTPage = () => {
               {t('language')}
             </InputLabel>
             <NativeSelect
-              defaultValue={'en'}
+              defaultValue={t('en')}
               onChange={handleLanguageChange}
               inputProps={{
                 name: t('language'),

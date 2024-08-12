@@ -26,6 +26,10 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { createTheme, ThemeProvider, useTheme, CssBaseline, useMediaQuery, IconButton } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
 
+// translations
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n'; // Adjust the path as necessary
+
 const lightTheme = createTheme({
   palette: {
     mode: 'light',
@@ -57,6 +61,30 @@ const darkTheme = createTheme({
 });
 
 const NutritionPage = () => {
+  // Implementing multi-languages
+  const { t, i18n } = useTranslation();
+  // change languages
+  const getPreferredLanguage = async () => {
+    if (auth.currentUser) {
+      const userUID = auth.currentUser.uid;
+      const userDocRef = doc(firestore, 'users', userUID);
+      const userDoc = await getDoc(userDocRef);
+      return userDoc.exists() ? userDoc.data().preferredLanguage : null;
+    }
+    return null;
+  };
+  // fetch/set languages at all tiimes
+  useEffect(() => {
+    const fetchAndSetLanguage = async () => {
+      const preferredLanguage = await getPreferredLanguage();
+      if (preferredLanguage) {
+        i18n.changeLanguage(preferredLanguage);
+      }
+    };
+
+    fetchAndSetLanguage();
+  }, []);
+
   // declare
   const [pantry, setPantry] = useState([])
   const [recipes, setRecipes] = useState([])
@@ -119,7 +147,7 @@ const NutritionPage = () => {
             content: [
               {
                 type: "text",
-                text: "Identify the main object in this picture in as few words as possible",
+                text: t("Identify"),
               },
               {
                 type: "image_url",
@@ -142,13 +170,14 @@ const NutritionPage = () => {
   async function craftRecipes(pantry) {
     if (pantry.length !== 0) {
         const ingredients = pantry.map(item => item.name).join(', ');
+        const translatedPrompt =  t('Generate', { ingredients });
 
         const response = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
             messages: [
                 {
                     role: 'user',
-                    content: `Here is a list of ingredients: ${ingredients}. Classify them into foods and non-foods. Create recipes only using the foods provided. Do not use foods that are not in the ingredients list. Only print the recipes. Format it like this: Recipe: Fish & Ham Sandwich (linebreak) Ingredients: Fish, Ham (linebreak) Instructions: Layer slices of ham and cooked fish between two pieces of bread. Serve chilled or grilled.`,
+                    content: translatedPrompt,
                 },
             ],
         });
@@ -456,7 +485,7 @@ const NutritionPage = () => {
                     },
                   }}
                 >
-                  Open Camera
+                  {t('Open Camera')}
                 </Button>
                 {/* upload photo */}
                 <Button 
@@ -472,7 +501,7 @@ const NutritionPage = () => {
                     },
                   }}
                 >
-                  Upload Photo
+                  {t('Upload Photo')}
                   <input
                     type="file"
                     hidden
@@ -635,7 +664,7 @@ const NutritionPage = () => {
                   },
                 }}
               >
-                Add
+                {t("Add")}
               </Button>
             </Stack>
           </Box>
@@ -705,7 +734,7 @@ const NutritionPage = () => {
                     marginTop: 1,
                   }}
                 >
-                  Take Photo
+                  {t("Take Photo")}
                 </Button>
                 <Button
                   onClick={switchCamera}
@@ -721,7 +750,7 @@ const NutritionPage = () => {
                     marginTop: 1,
                   }}
                 >
-                  Switch Camera
+                  {t("Switch Camera")}
                 </Button>
                 <Button 
                   variant="outlined"
@@ -740,7 +769,7 @@ const NutritionPage = () => {
                     marginTop: 1,
                   }}
                 >
-                  Exit
+                  {t('Exit')}
                 </Button>
               </Stack>
             </Stack>
@@ -797,10 +826,10 @@ const NutritionPage = () => {
                   {recipes[selectedRecipe].recipe}
                 </Typography>
                 <Typography sx={{ mt: 2 }}>
-                  <strong>Ingredients:</strong> {recipes[selectedRecipe].ingredients}
+                  <strong>{t('Ingredients')}</strong> {recipes[selectedRecipe].ingredients}
                 </Typography>
                 <Typography sx={{ mt: 2 }}>
-                  <strong>Instructions:</strong> {recipes[selectedRecipe].instructions}
+                  <strong>{t('Instructions')}</strong> {recipes[selectedRecipe].instructions}
                 </Typography>
                 <Box sx={{ flexGrow: 1 }} />
                 <Button 
@@ -819,7 +848,7 @@ const NutritionPage = () => {
                     },
                   }}
                 >
-                  Close
+                  {t('Close')}
                 </Button>
               </>
             )}
@@ -869,7 +898,7 @@ const NutritionPage = () => {
                   {darkMode ? <Brightness7 /> : <Brightness4 />}
                 </IconButton> */}
               <Typography variant="h6" color="text.primary" textAlign="center">
-                myPantry
+                {t('myPantry')}
               </Typography>
             </Box>
             {/* sign in */}
@@ -890,7 +919,7 @@ const NutritionPage = () => {
                     },
                   }}
                 >
-                  Sign In
+                  {t('signIn')}
                 </Button>
               ) : (
                 <Button 
@@ -907,7 +936,7 @@ const NutritionPage = () => {
                     },
                   }}
                 >
-                  Sign Out
+                  {t('signOut')}
                 </Button>
               )}
             </Box>
@@ -928,7 +957,7 @@ const NutritionPage = () => {
           {/* recipes */}
           <Stack flexDirection="row">
             {/* title */}
-            <Typography padding={2} variant="h4" color="text.primary" fontWeight="bold">Recipes</Typography>
+            <Typography padding={2} variant="h4" color="text.primary" fontWeight="bold">{t("Recipes")}</Typography>
             {/* search bar */}
             <Autocomplete
               freeSolo
@@ -1056,7 +1085,7 @@ const NutritionPage = () => {
           {/* pantry */}
           <Stack flexDirection="row">
             {/* title */}
-            <Typography padding={2} variant="h4" color="text.primary" fontWeight="bold">In your Pantry</Typography>
+            <Typography padding={2} variant="h4" color="text.primary" fontWeight="bold">{t('Pantry')}</Typography>
             {/* search bar */}
             <Autocomplete
               freeSolo

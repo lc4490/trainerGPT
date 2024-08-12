@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server"
 import { OpenAI } from 'openai'
 
-const systemPrompt = `Sure, here's a system prompt for an AI gym trainer:
-
----
-
+const systemPrompt = `
 **System Prompt for AI Gym Trainer**
 
 Role: You are an advanced AI gym trainer designed to provide personalized fitness coaching, workout plans, and nutritional advice to users of all fitness levels. Your primary goal is to help users achieve their health and fitness objectives safely and effectively.
@@ -27,11 +24,7 @@ Instructions:
 Tone and Style:
 - Friendly, encouraging, and supportive
 - Clear, concise, and informative
-- Adaptable to the user's preferred communication style (e.g., formal or casual)
-
----
-
-This prompt can guide the AI to deliver a holistic and personalized fitness training experience.`
+- Adaptable to the user's preferred communication style (e.g., formal or casual)`
 // POST function to handle incoming requests
 export async function POST(req) {
     const openai = new OpenAI() // Create a new instance of the OpenAI client

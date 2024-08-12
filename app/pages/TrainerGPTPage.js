@@ -26,6 +26,7 @@ const lightTheme = createTheme({
       paper: '#ffffff',
       bubbles: 'lightgray',
       userBubble: '#95EC69',
+      link: 'darkblue'
     },
     text: {
       primary: '#000000',
@@ -40,6 +41,7 @@ const darkTheme = createTheme({
       paper: '#121212',
       bubbles: '#2C2C2C',
       userBubble: '#29B560',
+      link: 'lightblue',
     },
     text: {
       primary: '#ffffff',
@@ -132,7 +134,7 @@ const exerciseData = [
 // link color
 const customComponents = {
   a: ({ href, children }) => (
-    <Link href={href} color="lightblue" underline="hover">
+    <Link href={href} color="background.link" underline="hover">
       {children}
     </Link>
   ),

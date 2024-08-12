@@ -1,6 +1,6 @@
 // src/pages/trainerGPTPage.js
 "use client"
-import { Box, Stack, Typography, Button, TextField, CssBaseline, ThemeProvider, useMediaQuery, FormControl, InputLabel, NativeSelect, Link } from '@mui/material'
+import { Box, Stack, Typography, Button, TextField, CssBaseline, ThemeProvider, useMediaQuery, FormControl, InputLabel, NativeSelect, Link, Divider } from '@mui/material'
 import { useEffect, useState } from 'react'
 // light/dark mode
 import { createTheme } from '@mui/material';
@@ -604,6 +604,8 @@ const TrainerGPTPage = () => {
             )}
           </Box>
         </Box>
+
+        <Divider />
 
         {/* chat */}
         <Stack

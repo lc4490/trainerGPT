@@ -166,6 +166,11 @@ const NutritionPage = () => {
       return result;
     }
   }
+  // helper function to craft and set recipes
+  const generateRecipes = async () => {
+    const recipes = await craftRecipes(pantry);
+    setRecipes(recipes);
+  };
   // function to craft ai recipes from list of pantry items (ai)
   async function craftRecipes(pantry) {
     if (pantry.length !== 0) {
@@ -210,6 +215,8 @@ const NutritionPage = () => {
         });
 
         const recipes = await Promise.all(recipePromises);
+        console.log(recipes)
+        console.log(pantry)
         return recipes.filter(recipe => recipe !== null);
     }
     return [];
@@ -271,20 +278,6 @@ const NutritionPage = () => {
       setPantry(pantryList);
     }
   };
-
-  useEffect(() => {
-    updatePantry()
-  }, [])
-  // helper function to craft and set recipes
-  const generateRecipes = async () => {
-    const recipes = await craftRecipes(pantry);
-    setRecipes(recipes);
-  };
-
-  useEffect(() => {
-    generateRecipes()
-  }, [pantry])
-
   // add item function
   const addItem = async (item, quantity, image) => {
     if (guestMode) {
@@ -311,7 +304,6 @@ const NutritionPage = () => {
       }
     }
   }
-
   // change quantity function
   const handleQuantityChange = async (item, quantity) => {
     if (guestMode) {
@@ -334,6 +326,13 @@ const NutritionPage = () => {
       await updatePantry();
     }
   };
+  useEffect(() => {
+    updatePantry()
+  }, [])
+
+  useEffect(() => {
+    generateRecipes()
+  }, [pantry])
 
   // open add modal and open camera at the same time
   const handleOpenAddAndOpenCamera = () => {

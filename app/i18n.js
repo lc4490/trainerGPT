@@ -33,7 +33,8 @@ const resources = {
       'Generate':'Here is a list of ingredients: {{ingredients}}. Classify them into foods and non-foods. Create recipes only using the foods provided. Do not use foods that are not in the ingredients list. Only print the recipes. Format it like this: Recipe: Fish & Ham Sandwich (linebreak) Ingredients: Fish, Ham (linebreak) Instructions: Layer slices of ham and cooked fish between two pieces of bread. Serve chilled or grilled.',
       // equipmentPage
       "myEquipment":"myEquipment",
-      "Equipment":"Equipment"
+      "Equipment":"Equipment",
+      "Summary":"Summary",
     }
   },
   cn: {
@@ -65,7 +66,7 @@ const resources = {
       'Generate':'这里有一个成分列表：{{ingredients}}。将它们分为食物和非食物。只使用提供的食物创建食谱。不要使用成分列表中没有的食物。只打印食谱。格式如下：食谱：鱼和火腿三明治 (linebreak) 成分：鱼，火腿 (linebreak) 说明：在两片面包之间夹上火腿和煮熟的鱼片。冷藏或烤制后食用。',
       // equipmentPage
       "myEquipment":"我的设备",
-      "Equipment":"设备"
+      "Equipment":"设备",
     }
   },
   tc: {

@@ -143,6 +143,7 @@ const customComponents = {
 const TrainerGPTPage = () => {
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
+  // set preferred language locally
   const [prefLanguage, setPrefLanguage] = useState('');
   // change languages
   const changeLanguage = (lng) => {
@@ -169,7 +170,7 @@ const TrainerGPTPage = () => {
     changeLanguage(newLanguage);
     setPreferredLanguage(newLanguage);
   };
-  // Store preferred language
+  // Store preferred language on firebase
   const setPreferredLanguage = async (language) => {
     if (auth.currentUser) {
       const userUID = auth.currentUser.uid;

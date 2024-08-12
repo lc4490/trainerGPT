@@ -754,7 +754,7 @@ const EquipmentPage = () => {
                     },
                   }}
                 >
-                  {t('signIn')}
+                  {t('signOut')}
                 </Button>
               )}
             </Box>

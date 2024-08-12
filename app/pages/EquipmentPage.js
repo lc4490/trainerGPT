@@ -22,6 +22,10 @@ import { OpenAI } from 'openai';
 // use googlesignin
 import { onAuthStateChanged } from 'firebase/auth';
 
+// translations
+import { useTranslation } from 'react-i18next';
+import i18n from '../i18n'; // Adjust the path as necessary
+
 // theme imports
 import { createTheme, ThemeProvider, useTheme, CssBaseline, useMediaQuery, IconButton } from '@mui/material';
 import { Brightness4, Brightness7 } from '@mui/icons-material';
@@ -57,6 +61,29 @@ const darkTheme = createTheme({
 });
 
 const EquipmentPage = () => {
+  // Implementing multi-languages
+  const { t, i18n } = useTranslation();
+  // change languages
+  const getPreferredLanguage = async () => {
+    if (auth.currentUser) {
+      const userUID = auth.currentUser.uid;
+      const userDocRef = doc(firestore, 'users', userUID);
+      const userDoc = await getDoc(userDocRef);
+      return userDoc.exists() ? userDoc.data().preferredLanguage : null;
+    }
+    return null;
+  };
+  // fetch/set languages at all tiimes
+  useEffect(() => {
+    const fetchAndSetLanguage = async () => {
+      const preferredLanguage = await getPreferredLanguage();
+      if (preferredLanguage) {
+        i18n.changeLanguage(preferredLanguage);
+      }
+    };
+
+    fetchAndSetLanguage();
+  }, []);
   // declare
   const [pantry, setPantry] = useState([])
   const [equipmentList, setEquipmentList] = useState([])
@@ -355,7 +382,7 @@ const EquipmentPage = () => {
                     },
                   }}
                 >
-                  Open Camera
+                  {t("Open Camera")}
                 </Button>
                 {/* upload photo */}
                 <Button 
@@ -371,7 +398,7 @@ const EquipmentPage = () => {
                     },
                   }}
                 >
-                  Upload Photo
+                  {t("Upload Photo")}
                   <input
                     type="file"
                     hidden
@@ -534,7 +561,7 @@ const EquipmentPage = () => {
                   },
                 }}
               >
-                Add
+                {t("Add")}
               </Button>
             </Stack>
           </Box>
@@ -604,7 +631,7 @@ const EquipmentPage = () => {
                     marginTop: 1,
                   }}
                 >
-                  Take Photo
+                  {t("Take Photo")}
                 </Button>
                 <Button
                   onClick={switchCamera}
@@ -620,7 +647,7 @@ const EquipmentPage = () => {
                     marginTop: 1,
                   }}
                 >
-                  Switch Camera
+                  {t("Switch Camera")}
                 </Button>
                 <Button 
                   variant="outlined"
@@ -639,7 +666,7 @@ const EquipmentPage = () => {
                     marginTop: 1,
                   }}
                 >
-                  Exit
+                  {t("Exit")}
                 </Button>
               </Stack>
             </Stack>
@@ -689,7 +716,7 @@ const EquipmentPage = () => {
                   {darkMode ? <Brightness7 /> : <Brightness4 />}
                 </IconButton> */}
               <Typography variant="h6" color="text.primary" textAlign="center">
-                myEquipment
+                {t("myEquipment")}
               </Typography>
             </Box>
             {/* sign in */}
@@ -710,7 +737,7 @@ const EquipmentPage = () => {
                     },
                   }}
                 >
-                  Sign In
+                  {t('signIn')}
                 </Button>
               ) : (
                 <Button 
@@ -727,7 +754,7 @@ const EquipmentPage = () => {
                     },
                   }}
                 >
-                  Sign Out
+                  {t('signIn')}
                 </Button>
               )}
             </Box>
@@ -748,7 +775,7 @@ const EquipmentPage = () => {
           {/* equipment */}
           <Stack flexDirection="row">
             {/* title */}
-            <Typography padding={2} variant="h4" color="text.primary" fontWeight="bold">Available Equipment</Typography>
+            <Typography padding={2} variant="h4" color="text.primary" fontWeight="bold">{t("Equipment")}</Typography>
             {/* search bar */}
             <Autocomplete
               freeSolo

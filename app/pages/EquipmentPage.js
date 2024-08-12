@@ -12,7 +12,8 @@ import SearchIcon from '@mui/icons-material/Search';
 
 // use image and camera
 import Image from 'next/image';
-import { Camera, switchCamera } from 'react-camera-pro';
+// import { Camera, switchCamera } from 'react-camera-pro';
+import Webcam from 'react-webcam';
 
 // use openai
 const openaiApiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
@@ -82,8 +83,17 @@ const EquipmentPage = () => {
   // camera/image
   const [cameraOpen, setCameraOpen] = useState(false);
   const [image, setImage] = useState(null);
-  const cameraRef = useRef(null);
-  const [numberOfCameras, setNumberOfCameras] = useState(0);
+  const webcamRef = useRef(null);
+  const [facingMode, setFacingMode] = useState('user'); // 'user' is the front camera, 'environment' is the back camera
+  const captureImage = () => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    setImage(imageSrc);
+    predictItem(imageSrc).then(setItemName);  // Assuming predictItem is a function you have defined
+    setCameraOpen(false);
+  };
+  const switchCamera = () => {
+    setFacingMode((prevFacingMode) => (prevFacingMode === 'user' ? 'environment' : 'user'));
+  };
   
   // ai
   const openai = new OpenAI({
@@ -536,48 +546,52 @@ const EquipmentPage = () => {
             <Stack display="flex" justifyContent="center" alignItems="center" flexDirection="column" sx={{ transform: 'translate(0%,25%)' }}>
               <Box
                 sx={{
-                  position: 'absolute',
+                  // position: 'absolute',
                   top: '50%',
                   bgcolor: 'black',
                   width: 350,
                   height: 350,
-                  bgcolor: 'black',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
-                  position: 'relative',
                   paddingY: 2,
+                  position: 'relative'
                 }}
               >
                 <Box
                   sx={{
-                    flex: 1,
-                    width: '100%',
+                    // width: '50%', // This makes the width of the container 50% of its parent
+                    maxWidth: 350, // Optional: Limit the maximum width
+                    aspectRatio: '1/1', // Ensures the box is a square
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
+                    position: 'relative', // Allows the button to be positioned over the video feed
+                    backgroundColor: 'black', // Background color for the box
+                    borderRadius: '16px', // Optional: adds rounded corners
+                    overflow: 'hidden', // Ensures the video doesn't overflow the container
                   }}
                 >
-                  <Camera
-                    ref={cameraRef}
-                    onTakePhoto={(dataUri) => {
-                      setImage(dataUri);
-                      setCameraOpen(false);
+                  <Webcam
+                    ref={webcamRef}
+                    screenshotFormat="image/jpeg"
+                    videoConstraints={{
+                      facingMode: facingMode,
+                      // aspectRatio: 4/3,
+                    }}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover', // Ensures the video covers the square without distortion
                     }}
                   />
                 </Box>
+
               </Box>
               <Stack flexDirection="row" gap={2} position="relative">
                 <Button 
                   variant="outlined"
-                  onClick={() => {
-                    if (cameraRef.current) {
-                      const photo = cameraRef.current.takePhoto();
-                      setImage(photo);
-                      setCameraOpen(false);
-                      predictItem(photo).then(setItemName);
-                    }
-                  }}
+                  onClick={captureImage}
                   sx={{
                     color: 'black',
                     borderColor: 'white',
@@ -593,15 +607,7 @@ const EquipmentPage = () => {
                   Take Photo
                 </Button>
                 <Button
-                  hidden={numberOfCameras <= 1}
-                  onClick={() => {
-                    if (cameraRef.current) {
-                      const result = cameraRef.current.switchCamera();
-                      cameraRef.current.setFacingMode(result)
-                      console.log(numberOfCameras)
-                      console.log(result)
-                    }
-                  }}
+                  onClick={switchCamera}
                   sx={{
                     color: 'black',
                     borderColor: 'white',

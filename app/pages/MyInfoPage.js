@@ -48,6 +48,7 @@ const MyInfoPage = () => {
   // Handle form submission and save data to Firestore
   const handleSubmit = async () => {
     await saveUserData(formData);  // Save form data to Firestore
+    handleSignIn();
     setIsSummary(true);            // Show summary page
   };
 

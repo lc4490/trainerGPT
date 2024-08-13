@@ -11,11 +11,15 @@ import i18n from '../i18n'; // Adjust the path as necessary
 
 const steps = [
   { title: 'Tell Us About Yourself', content: 'Select your gender', options: ['Male', 'Female'] },
-  { title: 'How Old Are You?', content: 'Age is important', inputType: 'number' },
-  { title: 'What is Your Weight?', content: 'Enter your weight', inputType: 'number' },
-  { title: 'What is Your Height?', content: 'Enter your height', inputType: 'number' },
+  { title: 'How Old Are You?', content: 'Age is important', inputType: 'string' },
+  { title: 'What is Your Weight?', content: 'Enter your weight', inputType: 'string' },
+  { title: 'What is Your Height?', content: 'Enter your height', inputType: 'string' },
   { title: 'What is Your Goal?', content: 'Select your goal', options: ['Get Fitter', 'Gain Weight', 'Lose Weight', 'Building Muscles', 'Improving Endurance'] },
   { title: 'Physical Activity Level?', content: 'Select your activity level', options: ['Beginner', 'Intermediate', 'Advanced'] },
+  { title: 'Do you have any existing health issues or injuries?', content: 'Enter any existing health issues or injuries',inputType: 'string'},
+  { title: 'Do you have any workout preferences', content: 'Enter any workout preferences',inputType: 'string'},
+  { title: 'How many days a week can you commit to working out?', content: 'When can you workout?',inputType: 'string'},
+  
 ];
 
 const MyInfoPage = () => {
@@ -34,7 +38,7 @@ const MyInfoPage = () => {
 
   const handleInputChange = (key, value) => {
     setFormData({ ...formData, [key]: value });
-  };
+  }
 
   // Save user form data to Firestore
   const saveUserData = async (data) => {
@@ -47,7 +51,8 @@ const MyInfoPage = () => {
 
   // Handle form submission and save data to Firestore
   const handleSubmit = async () => {
-    await saveUserData(formData);  // Save form data to Firestore
+    await saveUserData(unpackData(formData));  // Save form data to Firestore
+    setFormData(unpackData(formData))
     handleSignIn();
     setIsSummary(true);            // Show summary page
   };
@@ -145,6 +150,34 @@ const MyInfoPage = () => {
     fetchAndSetLanguage();
   }, []);
 
+  function unpackData(data) {
+    const ret = {
+        "Sex":data["Tell Us About Yourself"],
+        "Age":data['How Old Are You?'],
+        "Weight":data['What is Your Weight?'],
+        "Height":data['What is Your Height?'],
+        "Goals":data['What is Your Goal?'],
+        "Activity level": data['Physical Activity Level?'],
+        "Health issues or injuries": data['Do you have any existing health issues or injuries?'],
+        "Availability": data['How many days a week can you commit to working out?']
+
+    }
+    return ret
+
+  }
+
+    //   handle enter key
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      if (currentStep === steps.length - 1) {
+        handleSubmit();
+      } else {
+        nextStep();
+      }
+    }
+  };
+
   // Display a loading spinner while the app is initializing
   if (loading) {
     return (
@@ -207,6 +240,7 @@ const MyInfoPage = () => {
                   exclusive
                   value={formData[step.title] || ''}
                   onChange={(e, value) => handleInputChange(step.title, value)}
+                  onKeyDown={handleKeyPress}
                   sx={{ mb: 4 }}
                 >
                   {step.options.map((option) => (
@@ -223,11 +257,13 @@ const MyInfoPage = () => {
                   fullWidth
                   variant="outlined"
                   onChange={(e) => handleInputChange(step.title, e.target.value)}
+                  onKeyDown={handleKeyPress} 
                   sx={{ mb: 4 }}
                 />
               )}
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+              <Box 
+              sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
                 <Button
                   variant="contained"
                   color="secondary"

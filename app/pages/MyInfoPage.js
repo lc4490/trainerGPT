@@ -88,11 +88,17 @@ const MyInfoPage = () => {
 
   // Handle form submission and save data to Firestore
   const handleSubmit = async () => {
-    await saveUserData(unpackData(formData));  // Save form data to Firestore
-    setFormData(unpackData(formData))
-    handleSignIn();
-    setIsSummary(true);            // Show summary page
-  };
+    if (isEditing) {
+      // Save the updated form data to Firestore
+      await saveUserData(unpackData(formData));
+      setIsEditing(false);
+    } else {
+      await saveUserData(unpackData(formData)); // Save form data to Firestore
+      setFormData(unpackData(formData));
+      handleSignIn();
+      setIsSummary(true); // Show summary page
+    }
+  };  
 
   // Retrieve user data from Firestore
   const getUserData = async () => {
@@ -236,9 +242,6 @@ const MyInfoPage = () => {
   const theme = darkMode ? darkTheme : lightTheme;
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-//   open editor modal
-  const [openEditor, setOpenEditor] = useState(false);
-
   // add and camera modals
   // camera/image
   const [cameraOpen, setCameraOpen] = useState(false);
@@ -273,6 +276,13 @@ const MyInfoPage = () => {
       return userDoc.exists() ? userDoc.data().profilePic : null;
     }
     return null;
+  }
+  // edit mode
+  const [isEditing, setIsEditing] = useState(false);
+
+  const handleEdit = () => {
+    saveUserData(formData)
+    setIsEditing(!isEditing)
   }
   
 
@@ -437,7 +447,7 @@ const MyInfoPage = () => {
                         position="relative"
                         >
                             <Button
-                            onClick={() => setOpenEditor(true)}
+                            onClick={handleEdit}
                             sx={{
                                 height: "55px",
                                 fontSize: '1rem',
@@ -451,7 +461,7 @@ const MyInfoPage = () => {
                                   borderColor: 'text.primary',
                                 },
                               }}
-                            >Edit</Button>
+                            >{isEditing ? "Save" : "Edit"}</Button>
                             {/* title */}
                             <Box display="flex" flexDirection={"row"} alignItems={"center"}>
                                 <Typography variant="h6" color="text.primary" textAlign="center">
@@ -554,10 +564,23 @@ const MyInfoPage = () => {
                             {/* <Typography variant="h4" gutterBottom>{t("Summary")}</Typography> */}
                             {orderedKeys.map((key) => (
                             <Grid item xs={6} sm={6} key={key}>
-                              {/* <Box key={key} sx={{ mb: 2 }}> */}
+                              {isEditing ? (
+                                 <Box key={key} sx={{ }}>
                                   <Typography variant="h6" display = "flex" >{key}</Typography>
-                                  <Typography variant="body1" color="textSecondary" display = "flex" >{formData[key] || 'N/A'}</Typography>
-                              {/* </Box> */}
+                                  <TextField
+                                    variant="outlined"
+                                    fullWidth
+                                    value={formData[key] || ''}
+                                    onChange={(e) => handleInputChange(key, e.target.value)}
+                                    sx={{ }}
+                                  />
+                                </Box>
+                              ) : (
+                                <Box key={key} sx={{ }}>
+                                  <Typography variant="h6" display = "flex" >{key}</Typography>
+                                  <Typography variant="body1" color="textSecondary" display="flex">{formData[key] || 'N/A'}</Typography>
+                                </Box>
+                              )}
                             </Grid>
                             ))}
                         </Grid>

@@ -625,7 +625,7 @@ const MyInfoPage = () => {
                         },
                       }}
                       >
-                        {t("Add photo")}
+                        {image ? (t("Change photo")) : (t("Add photo"))}
                       </Button>
                       
                       {/* <Box> */}

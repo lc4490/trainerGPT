@@ -363,7 +363,7 @@ const EquipmentPage = () => {
                   alt={"Captured"}
                   width={300}
                   height={300}
-                  style={{ borderRadius: '16px' }}
+                  style={{ borderRadius: '16px', objectFit: 'cover' }}
                 />
               </Box>
             )}

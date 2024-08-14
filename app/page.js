@@ -91,6 +91,7 @@ export default function Home() {
   // declareables for user and guest mode
   const [user, setUser] = useState(null);
   const [guestMode, setGuestMode] = useState(false);
+  const [hasPremiumAccess, setHasPremiumAccess] = useState(false); // New state for payment status
 
   // page nav
   const [value, setValue] = useState(0);
@@ -98,10 +99,39 @@ export default function Home() {
     <MyInfoPage key="myInfo" />,
     <EquipmentPage key="equipment" />,
     <TrainerGPTPage key="trainerGPT" />,
-    <NutritionPage key="nutrition" />,
-    <PlanPage key="plan" />,
+    hasPremiumAccess ? <NutritionPage key="nutrition" /> : <PaywallPage key="paywall" />, // Check payment status
+    hasPremiumAccess ? <PlanPage key="plan" /> : <PaywallPage key="paywall" />, // Check payment status
     // <FriendsPage key="friends" />
-  ];  
+  ];
+  // Fetch user payment status when component mounts
+  // useEffect(() => {
+  //   const fetchPaymentStatus = async () => {
+  //     if (auth.currentUser) {
+  //       const userUID = auth.currentUser.uid;
+  //       const userDocRef = doc(firestore, 'users', userUID);
+  //       const userDoc = await getDoc(userDocRef);
+  //       if (userDoc.exists()) {
+  //         setHasPremiumAccess(userDoc.data().hasPremiumAccess || false);
+  //       }
+  //     }
+  //   };
+
+  //   fetchPaymentStatus();
+  // }, []);
+  function PaywallPage() {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <Typography variant="h5" textAlign="center">
+          This feature is available to premium users only.
+          <br />
+          <Button variant="contained" color="primary">
+            Upgrade Now
+          </Button>
+        </Typography>
+      </Box>
+    );
+  }
+  
   return (
     <ThemeProvider theme={currentTheme}>
       <CssBaseline />

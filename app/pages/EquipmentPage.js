@@ -363,7 +363,7 @@ const EquipmentPage = () => {
                   alt={"Captured"}
                   width={300}
                   height={300}
-                  style={{ borderRadius: '16px', objectFit: 'cover' }}
+                  style={{ borderRadius: '16px', objectFit: 'cover', transform: "scaleX(-1)" }}
                 />
               </Box>
             )}
@@ -610,6 +610,7 @@ const EquipmentPage = () => {
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover', // Ensures the video covers the square without distortion
+                      transform: "scaleX(-1)"
                     }}
                   />
                 </Box>
@@ -948,7 +949,7 @@ const EquipmentPage = () => {
                         alt={name}
                         width={100}
                         height={100}
-                        style={{ borderRadius: '10px' }}
+                        style={{ borderRadius: '10px', objectFit: 'cover', transform: "scaleX(-1)" }}
                       />
                     ) : (
                       <Image
@@ -956,7 +957,7 @@ const EquipmentPage = () => {
                         alt={name}
                         width={100}
                         height={100}
-                        style={{ borderRadius: '10px', objectFit: 'cover'}}
+                        style={{ borderRadius: '10px', objectFit: 'cover', transform: "scaleX(-1)"}}
                       />
                     )}
                   </Stack>

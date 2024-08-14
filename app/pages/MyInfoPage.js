@@ -514,6 +514,7 @@ const MyInfoPage = () => {
                                   width: '100%',
                                   height: '100%',
                                   objectFit: 'cover', // Ensures the video covers the square without distortion
+                                  transform: 'scaleX(-1)',
                                 }}
                               />
                             </Box>
@@ -594,7 +595,7 @@ const MyInfoPage = () => {
                         alt={t("image")}
                         width={250}
                         height={250}
-                        style={{ borderRadius: "30px", objectFit: 'cover'}}
+                        style={{ borderRadius: "30px", objectFit: 'cover',transform: "scaleX(-1)"}}
                       />
                       ) : (
                         <Image 

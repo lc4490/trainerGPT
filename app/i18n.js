@@ -34,6 +34,8 @@ const resources = {
       // equipmentPage
       "myEquipment":"myEquipment",
       "Equipment":"Equipment",
+      "Welcome to myEquipment":"Welcome to myEquipment",
+      "Take or upload pictures of gym equipment you have access to using the + in the top left corner.":"Take or upload pictures of gym equipment you have access to using the + in the top left corner.",
       // myInfo Page
       "Summary":"Summary",
       "Tell Us About Yourself": "Tell Us About Yourself",
@@ -87,6 +89,10 @@ const resources = {
       "Activity level":"Activity level",
       "Health issues": "Health issues",
       "Availability": "Availability",
+      // premium
+      "This feature is available to premium users only.":"This feature is available to premium users only.",
+      "Upgrade Now":"Upgrade Now",
+
     }
   },
   cn: {
@@ -119,6 +125,8 @@ const resources = {
       // equipmentPage
       "myEquipment":"我的设备",
       "Equipment":"设备",
+      "Welcome to myEquipment": "欢迎来到我的设备",
+      "Take or upload pictures of gym equipment you have access to using the + in the top left corner.": "使用左上角的 + 拍摄或上传您可以使用的健身设备的照片。",
       // myInfo Page
       "Summary": "总结",
       "Tell Us About Yourself": "告诉我们关于你的信息",
@@ -172,6 +180,10 @@ const resources = {
       "Activity level":"活动水平",
       "Health issues": "健康问题",
       "Availability": "可用性",
+      // premium
+      "This feature is available to premium users only.": "此功能仅对高级用户开放。",
+      "Upgrade Now": "立即升级",
+
     }
   },
   tc: {
@@ -205,6 +217,8 @@ const resources = {
       "myEquipment": "我的設備",
       "Equipment": "設備",
       "Summary": "總結",
+      "Welcome to myEquipment": "歡迎來到我的設備",
+      "Take or upload pictures of gym equipment you have access to using the + in the top left corner.": "使用左上角的 + 拍攝或上傳您可以使用的健身設備的照片。",
       // myInfo Page
       "Tell Us About Yourself": "告訴我們有關你的信息",
       "Select your gender": "選擇您的性別",
@@ -257,6 +271,9 @@ const resources = {
       "Activity level":"活動水平",
       "Health issues": "健康問題",
       "Availability": "可用性",
+      // premium
+      "This feature is available to premium users only.": "此功能僅對高級用戶開放。",
+      "Upgrade Now": "立即升級",
     }
   },
   es: {
@@ -289,6 +306,8 @@ const resources = {
       // equipmentPage
       "myEquipment": "miEquipo",
       "Equipment": "Equipo",
+      "Welcome to myEquipment": "Bienvenido a miEquipo",
+      "Take or upload pictures of gym equipment you have access to using the + in the top left corner.": "Toma o sube fotos del equipo de gimnasio al que tienes acceso usando el + en la esquina superior izquierda.",
       // myInfo Page
       "Summary": "Resumen",
       "Tell Us About Yourself": "Cuéntanos sobre ti",
@@ -342,6 +361,9 @@ const resources = {
       "Activity level":"Nivel de actividad",
       "Health issues": "Problemas de salud",
       "Availability": "Disponibilidad",
+      // premium
+      "This feature is available to premium users only.": "Esta función está disponible solo para usuarios premium.",
+      "Upgrade Now": "Actualizar ahora",
     }
   },
   fr: {
@@ -374,6 +396,8 @@ const resources = {
       // equipmentPage
       "myEquipment": "monÉquipement",
       "Equipment": "Équipement",
+      "Welcome to myEquipment": "Bienvenue dans monÉquipement",
+      "Take or upload pictures of gym equipment you have access to using the + in the top left corner.": "Prenez ou téléchargez des photos de l'équipement de gym auquel vous avez accès en utilisant le + dans le coin supérieur gauche.",
       // myInfo Page
       "Summary": "Résumé",
       "Tell Us About Yourself": "Parlez-nous de vous",
@@ -427,6 +451,9 @@ const resources = {
       "Activity level":"Niveau d'activité",
       "Health issues": "Problèmes de santé",
       "Availability": "Disponibilité",
+      // premium
+      "This feature is available to premium users only.": "Cette fonctionnalité est disponible uniquement pour les utilisateurs premium.",
+      "Upgrade Now": "Mettre à niveau maintenant",
     }
   },
   de: {
@@ -459,6 +486,8 @@ const resources = {
       // equipmentPage
       "myEquipment": "meineAusrüstung",
       "Equipment": "Ausrüstung",
+      "Welcome to myEquipment": "Willkommen bei meinerAusrüstung",
+      "Take or upload pictures of gym equipment you have access to using the + in the top left corner.": "Machen oder laden Sie Bilder von Fitnessgeräten hoch, auf die Sie Zugriff haben, indem Sie das + in der oberen linken Ecke verwenden.",
       // myInfo Page
       "Summary": "Zusammenfassung",
       "Tell Us About Yourself": "Erzählen Sie uns von sich",
@@ -512,6 +541,9 @@ const resources = {
       "Activity level":"Aktivitätslevel",
       "Health issues": "Gesundheitsprobleme",
       "Availability": "Verfügbarkeit",
+      // premium
+      "This feature is available to premium users only.": "Diese Funktion ist nur für Premium-Nutzer verfügbar.",
+      "Upgrade Now": "Jetzt upgraden",
     }
   },
   jp: {
@@ -544,6 +576,8 @@ const resources = {
       // equipmentPage
       "myEquipment": "私の装置",
       "Equipment": "装置",
+      "Welcome to myEquipment": "私の装置へようこそ",
+      "Take or upload pictures of gym equipment you have access to using the + in the top left corner.": "左上の + を使用して、利用可能なジム機器の写真を撮影またはアップロードしてください。",
       // myInfo Page
       "Summary": "概要",
       "Tell Us About Yourself": "あなた自身について教えてください",
@@ -597,6 +631,9 @@ const resources = {
       "Activity level":"活動レベル",
       "Health issues": "健康問題",
       "Availability": "利用可能性",
+      // premium
+      "This feature is available to premium users only.": "この機能はプレミアムユーザーのみ利用可能です。",
+      "Upgrade Now": "今すぐアップグレード",
     }
   },
   kr: {
@@ -629,6 +666,8 @@ const resources = {
       // equipmentPage
       "myEquipment": "내 장비",
       "Equipment": "장비",
+      "Welcome to myEquipment": "내 장비에 오신 것을 환영합니다",
+      "Take or upload pictures of gym equipment you have access to using the + in the top left corner.": "왼쪽 상단 모서리에 있는 +를 사용하여 사용 가능한 체육관 장비의 사진을 찍거나 업로드하세요.",
       // myInfo Page
       "Summary": "요약",
       "Tell Us About Yourself": "자신에 대해 알려주세요",
@@ -682,6 +721,9 @@ const resources = {
       "Activity level":"활동 수준",
       "Health issues": "건강 문제",
       "Availability": "이용 가능성",
+      // premium
+      "This feature is available to premium users only.": "이 기능은 프리미엄 사용자만 사용할 수 있습니다.",
+      "Upgrade Now": "지금 업그레이드",
       
     }
   }

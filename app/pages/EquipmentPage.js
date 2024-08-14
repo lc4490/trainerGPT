@@ -822,7 +822,7 @@ const EquipmentPage = () => {
           <Typography
           sx={{
             fontSize: "6.5rem",
-          }}>Welcome to myEquipment</Typography>
+          }}>{t("Welcome to myEquipment")}</Typography>
           <Typography
           sx={{
             width: "100%",
@@ -832,7 +832,7 @@ const EquipmentPage = () => {
             fontSize: "1.5rem",
           }}
           >
-            Take or upload pictures of gym equipment you have access to using the + in the top left corner.
+            {t("Take or upload pictures of gym equipment you have access to using the + in the top left corner.")}
           </Typography>
 
             </Box>

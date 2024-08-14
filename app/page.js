@@ -122,10 +122,10 @@ export default function Home() {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
         <Typography variant="h5" textAlign="center">
-          This feature is available to premium users only.
+          {t("This feature is available to premium users only.")}
           <br />
           <Button variant="contained" color="primary">
-            Upgrade Now
+            {t("Upgrade Now")}
           </Button>
         </Typography>
       </Box>

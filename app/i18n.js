@@ -6,7 +6,7 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 const resources = {
   en: {
     translation: {
-      "welcome": "Hi {{name}}! I am your AI gym trainer. How can I help you today? Try asking me how to do a workout plan or how to do specific exercises!",
+      "welcome": "Hi {{name}}! I am your AI gym trainer. How can I help you today? Try asking me to make a workout plan or how to do specific exercises!",
       "send": "Send",
       "signIn": "Sign In",
       "signOut": "Sign Out",
@@ -91,7 +91,7 @@ const resources = {
   },
   cn: {
     translation: {
-      "welcome": "嗨{{name}}！我是您的AI健身教练。今天有什么可以帮你的吗？试着问我如何制定锻炼计划或如何做特定的练习！",
+      "welcome": "嗨{{name}}！我是您的AI健身教练。今天有什么可以帮你的吗？试着让我为你制定一个锻炼计划，或询问如何做特定的练习！",
       "send": "发",
       "signIn": "登入",
       "signOut": "登出",
@@ -176,7 +176,7 @@ const resources = {
   },
   tc: {
     translation: {
-      "welcome": "嗨{{name}}！我是您的AI健身教練。今天有什麼可以幫你的吗？試著問我如何制定锻炼计划或如何做特定的練習！",
+      "welcome": "嗨{{name}}！我是您的AI健身教練。今天有什麼可以幫你的吗？試著讓我為你制定一個锻炼计划，或詢問如何做特定的練習！",
       "send": "發送",
       "signIn": "登入",
       "signOut": "登出",
@@ -261,7 +261,7 @@ const resources = {
   },
   es: {
     translation: {
-      "welcome": "¡Hola {{name}}! Soy tu entrenador de gimnasio AI. ¿Cómo puedo ayudarte hoy? ¡Intenta preguntarme cómo hacer un plan de entrenamiento o cómo hacer ejercicios específicos!",
+      "welcome": "¡Hola {{name}}! Soy tu entrenador de gimnasio AI. ¿Cómo puedo ayudarte hoy? ¡Intenta pedirme que haga un plan de entrenamiento o cómo hacer ejercicios específicos!",
       "send": "Enviar",
       "signIn": "Iniciar sesión",
       "signOut": "Cerrar sesión",
@@ -346,7 +346,7 @@ const resources = {
   },
   fr: {
     translation: {
-      "welcome": "Salut {{name}}! Je suis votre entraîneur de gym IA. Comment puis-je vous aider aujourd'hui? Essayez de me demander comment faire un plan d'entraînement ou comment faire des exercices spécifiques !",
+      "welcome": "Salut {{name}}! Je suis votre entraîneur de gym IA. Comment puis-je vous aider aujourd'hui? Essayez de me demander de créer un plan d'entraînement ou comment faire des exercices spécifiques !",
       "send": "Envoyer",
       "signIn": "Se connecter",
       "signOut": "Se déconnecter",
@@ -431,7 +431,7 @@ const resources = {
   },
   de: {
     translation: {
-      "welcome": "Hallo {{name}}! Ich bin Ihr KI-Fitnesstrainer. Wie kann ich Ihnen heute helfen? Versuchen Sie, mich zu fragen, wie man einen Trainingsplan erstellt oder wie man bestimmte Übungen macht!",
+      "welcome": "Hallo {{name}}! Ich bin Ihr KI-Fitnesstrainer. Wie kann ich Ihnen heute helfen? Versuchen Sie, mich zu bitten, einen Trainingsplan zu erstellen oder wie man bestimmte Übungen macht!",
       "send": "Senden",
       "signIn": "Anmelden",
       "signOut": "Abmelden",
@@ -516,7 +516,7 @@ const resources = {
   },
   jp: {
     translation: {
-      "welcome": "こんにちは {{name}}！私はあなたのAIジムトレーナーです。今日はどうされましたか？ トレーニングプランの作成方法や特定のエクササイズの方法を聞いてみてください！",
+      "welcome": "こんにちは {{name}}！私はあなたのAIジムトレーナーです。今日はどうされましたか？ トレーニングプランを作成したり、特定のエクササイズの方法を聞いてみてください！",
       "send": "送信",
       "signIn": "サインイン",
       "signOut": "サインアウト",
@@ -601,7 +601,7 @@ const resources = {
   },
   kr: {
     translation: {
-      "welcome": "안녕하세요 {{name}}! 저는 당신의 AI 체육관 트레이너입니다. 오늘 어떻게 도와드릴까요? 운동 계획을 세우거나 특정 운동을 하는 방법을 저에게 물어보세요!",
+      "welcome": "안녕하세요 {{name}}! 저는 당신의 AI 체육관 트레이너입니다. 오늘 어떻게 도와드릴까요? 운동 계획을 세우거나 특정 운동을 하는 방법을 물어보세요!",
       "send": "보내다",
       "signIn": "로그인",
       "signOut": "로그아웃",

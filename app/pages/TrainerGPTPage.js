@@ -231,10 +231,34 @@ const TrainerGPTPage = () => {
       setMessage(''); // Clear the input field
     
       try {
+        // RAGS FOR INFO
+        // Retrieve personalized data
+        const resolvedData = await data;
+        let responseContent = ``;
+        const { Age, Sex, Weight, Height, Goals, ActivityLevel, Health, Availability } = resolvedData || {};
+        // Build the response
+        responseContent += `Based on your profile:
+        - Age: ${Age || 'Not provided'}
+        - Sex: ${Sex || 'Not provided'}
+        - Weight: ${Weight || 'Not provided'}
+        - Height: ${Height || 'Not provided'}
+        - Goals: ${Goals || 'Not provided'}
+        - Activity Level: ${ActivityLevel || 'Not provided'}
+        - Health issues or injuries: ${Health || 'Not provided'}
+        - Availability: ${Availability || 'Not provided'}
+
+        `;
+        // RAGS FOR EQUIPMENT
+        const resolvedEquipmentList = await equipmentList;
+        let equipmentContent = `Available Equipment:\n`;
+        for(let i = 0; i < resolvedEquipmentList.length; i++){
+          equipmentContent += `${resolvedEquipmentList[i].name}\n`
+        }
+        responseContent += equipmentContent
         // RAGS FOR LINKS
         // Extract the exercise name
         const exerciseNames = extractExerciseName(message);
-        let responseContent = ``;
+        
         for(let i = 0; i < exerciseNames.length; i++){
           let links = getYouTubeLinksForExercise(exerciseNames[i])
           responseContent += `Here are some YouTube links for ${exerciseNames[i]}: \n\n`;
@@ -244,7 +268,7 @@ const TrainerGPTPage = () => {
         }
     
         // Combine with AI-generated response (if applicable)
-        const combinedInput = `User: ${message}\nYouTube Links: ${responseContent}`;
+        const combinedInput = `User: ${message}\nPersonalized Data: ${responseContent}`;
     
         // Generate response from the AI model
         const response = await fetch('../api/chat', {
@@ -351,12 +375,10 @@ const TrainerGPTPage = () => {
       if (user) {
         setUser(user);
         setName(user.displayName);
-        // updateEquipment();
         setGuestMode(false);
       } else {
         setUser(null);
         setName("Guest");
-        // setEquipment([]);
         setGuestMode(true);
       }
     });
@@ -477,12 +499,44 @@ const TrainerGPTPage = () => {
     }
   };
 
+  // DATA RAG
+  const [data, setData] = useState('');
+  // Retrieve user data from Firestore
+  const getUserData = async () => {
+    if (auth.currentUser) {
+      const userUID = auth.currentUser.uid;
+      const userDocRef = doc(firestore, 'users', userUID);
+      const userDoc = await getDoc(userDocRef);
+      return userDoc.exists() ? userDoc.data().userData : null;
+    }
+    return null;
+  };
+  // EQUIPMENT RAG
+  const [equipmentList, setEquipmentList] = useState([])
+  // update pantry based on firebase
+  const updateEquipment = async () => {
+    if (auth.currentUser) {
+      const userUID = auth.currentUser.uid;
+      // const snapshot = query(collection(firestore, `pantry_${userUID}`));
+      // const snapshot = query(collection((firestore, 'users', userUID, 'pantry')));
+      const docRef = collection(firestore, 'users', userUID, 'equipment');
+      const docs = await getDocs(docRef);
+      const equipment = [];
+      docs.forEach((doc) => {
+        equipment.push({ name: doc.id});
+      });
+      setEquipmentList(equipment);
+    }
+  };
+
   // Miscellaneous
   // if user change or language change
   useEffect(() => {
     if (user) {
       loadChatLog(user.uid, i18n.language);
-    } 
+      setData(getUserData())
+      updateEquipment()
+      } 
     // else {
     //   loadChatLogLocal(i18n.language);
     // }

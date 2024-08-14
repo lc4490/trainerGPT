@@ -36,29 +36,31 @@ const lightTheme = createTheme({
     background: {
       default: '#ffffff',
       paper: '#ffffff',
-      gray: 'lightgray',
-      banner: 'banner.png',
+      bubbles: 'lightgray',
+      userBubble: '#95EC69',
+      link: 'darkblue'
     },
     text: {
       primary: '#000000',
     },
   },
 });
-
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     background: {
       default: '#121212',
       paper: '#121212',
-      gray: 'darkgray',
-      banner: 'banner.png',
+      bubbles: '#2C2C2C',
+      userBubble: '#29B560',
+      link: 'lightblue',
     },
     text: {
       primary: '#ffffff',
     },
   },
 });
+
 
 const EquipmentPage = () => {
   // Implementing multi-languages
@@ -764,6 +766,78 @@ const EquipmentPage = () => {
           <Divider />
           
           {/* banner image */}
+          {isMobile ? (<Box sx={{
+            backgroundImage: `url(${prefersDarkMode ? "/gym_dark.jpg" : "/gym.jpg"})`,
+            backgroundSize: '160%', // Stretch the image to cover the entire Box
+            backgroundPosition: 'center', // Center the image in the Box
+            backgroundRepeat: 'no-repeat', // Prevent the image from repeating
+            width:"100%",
+            height: "120px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: 'center',
+            flexDirection: 'column',
+          }}>
+          <Typography
+          sx={{
+            fontSize: "1.75rem",
+          }}>Welcome to myEquipment</Typography>
+          <Typography
+          sx={{
+            width: "75%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: 'center',
+            textAlign: 'center',
+            fontSize: "0.7rem",
+          }}
+          >
+            Take or upload pictures of gym equipment you have access to using the + in the top left corner.
+          </Typography>
+
+          </Box>) : 
+          (
+            <Box sx={{
+            // backgroundColor: "blue",
+            // backgroundColor: "background.bubbles",
+            backgroundImage: `url(${prefersDarkMode ? "/gym_dark.jpg" : "/gym.jpg"})`,
+            backgroundSize: '125%', // Stretch the image to cover the entire Box
+            backgroundPosition: 'left', // Center the image in the Box
+            backgroundRepeat: 'no-repeat', // Prevent the image from repeating
+            width:"100%",
+            height: "450px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: 'center',
+            flexDirection: 'column',
+          }}>
+            {/* <Image 
+            src= {prefersDarkMode ? "/banner_dark.png" : "/banner.png"} 
+            alt="banner"
+            // layout="responsive"
+            width={800}
+            height={200}
+            style={{ width: '100%', height: 'auto'}}
+          /> */}
+          <Typography
+          sx={{
+            fontSize: "6.5rem",
+          }}>Welcome to myEquipment</Typography>
+          <Typography
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: 'center',
+            fontSize: "1.5rem",
+          }}
+          >
+            Take or upload pictures of gym equipment you have access to using the + in the top left corner.
+          </Typography>
+
+            </Box>
+          )}
+          
           {/* <Image 
             src= {prefersDarkMode ? "/banner_dark.png" : "/banner.png"} 
             alt="banner"
@@ -941,7 +1015,7 @@ const EquipmentPage = () => {
                       </Button>
                     </Stack>
                   </Stack>
-                  {/* equipment ingredient image */}
+                  {/* equipment image */}
                   <Stack width="100%" direction="column" justifyContent="space-between" alignItems="flex-end">
                     {image ? (
                       <Image

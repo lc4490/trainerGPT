@@ -944,14 +944,14 @@ const NutritionPage = () => {
           <Divider />
           
           {/* banner image */}
-          {/* <Image 
-            src= {prefersDarkMode ? "/banner_dark.png" : "/banner.png"} 
+          <Image 
+            src= {prefersDarkMode ? "/banner_pantry_dark.png" : "/banner_pantry.png"} 
             alt="banner"
             // layout="responsive"
             width={800}
             height={200}
             style={{ width: '100%', height: 'auto'}}
-          /> */}
+          />
 
           {/* recipes */}
           <Stack flexDirection="row">

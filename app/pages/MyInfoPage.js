@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { motion } from 'framer-motion';
-import { Container, Box, Typography, Button, TextField, ToggleButtonGroup, ToggleButton, CircularProgress, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal} from '@mui/material';
+import { Container, Box, Typography, Button, TextField, ToggleButtonGroup, ToggleButton, CircularProgress, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack, Grid} from '@mui/material';
 // Firebase imports
 import { firestore, auth, provider, signInWithPopup, signOut } from '../firebase';
 import { collection, getDocs, query, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
@@ -10,6 +10,9 @@ import { useTranslation } from 'react-i18next';
 import i18n from '../i18n'; // Adjust the path as necessary
 // light/dark mode
 import { createTheme } from '@mui/material';
+// images
+import Image from 'next/image';
+import Webcam from 'react-webcam';
 
 // light/dark themes
 const lightTheme = createTheme({
@@ -51,7 +54,7 @@ const steps = [
   { title: 'What is Your Goal?', content: 'Select your goal', options: ['Weight Loss', 'Muscle Gain', 'Improved Endurance', 'General Fitness'] },
   { title: 'Physical Activity Level?', content: 'Select your activity level', options: ['Sedentary', 'Moderate', 'Active'] },
   { title: 'Do you have any existing health issues or injuries?', content: 'Enter any existing health issues or injuries',inputType: 'string'},
-  { title: 'Do you have any workout preferences', content: 'Enter any workout preferences',inputType: 'string'},
+  // { title: 'Do you have any workout preferences', content: 'Enter any workout preferences',inputType: 'string'},
   { title: 'How many days a week can you commit to working out?', content: 'When can you workout?',inputType: 'string'},
   
 ];
@@ -140,8 +143,10 @@ const MyInfoPage = () => {
         setName(user.displayName);
         setGuestMode(false);
         const data = await getUserData();
+        const img = await getImage();
         if (data) {
           setFormData(data);  // Set form data from Firestore if available
+          setImage(img);
           setIsSummary(true);
         }
       } else {
@@ -192,14 +197,23 @@ const MyInfoPage = () => {
         "Height":data['What is Your Height?'],
         "Goals":data['What is Your Goal?'],
         "Activity level": data['Physical Activity Level?'],
-        "Health issues or injuries": data['Do you have any existing health issues or injuries?'],
-        "Preferences": data['Do you have any workout preferences'],
+        "Health issues": data['Do you have any existing health issues or injuries?'],
+        // "Preferences": data['Do you have any workout preferences'],
         "Availability": data['How many days a week can you commit to working out?']
 
     }
     return ret
-
   }
+  const orderedKeys = [
+    'Sex',
+    'Age',
+    'Weight',
+    'Height',
+    'Goals',
+    'Activity level',
+    'Health issues',
+    'Availability',
+  ];
 
     //   handle enter key
   const handleKeyPress = (event) => {
@@ -224,6 +238,42 @@ const MyInfoPage = () => {
 
 //   open editor modal
   const [openEditor, setOpenEditor] = useState(false);
+
+  // add and camera modals
+  // camera/image
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [image, setImage] = useState(null);
+  const webcamRef = useRef(null);
+  const [facingMode, setFacingMode] = useState('user'); // 'user' is the front camera, 'environment' is the back camera
+  const captureImage = () => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    setImage(imageSrc);
+    sendImage(imageSrc)
+    setCameraOpen(false);
+  };
+  const switchCamera = () => {
+    setFacingMode((prevFacingMode) => (prevFacingMode === 'user' ? 'environment' : 'user'));
+  };
+  // open add modal and open camera at the same time
+  const handleOpenCamera = () => {
+    setCameraOpen(true);
+  };
+  const sendImage = async (image) =>{
+    if (auth.currentUser && image){
+      const userUID = auth.currentUser.uid;
+      const userDocRef = doc(firestore, 'users', userUID)
+      await setDoc(userDocRef, {profilePic: image}, {merge: true})
+    }
+  }
+  const getImage = async () => {
+    if (auth.currentUser) {
+      const userUID = auth.currentUser.uid;
+      const userDocRef = doc(firestore, 'users', userUID);
+      const userDoc = await getDoc(userDocRef);
+      return userDoc.exists() ? userDoc.data().profilePic : null;
+    }
+    return null;
+  }
   
 
   // Display a loading spinner while the app is initializing
@@ -271,47 +321,110 @@ const MyInfoPage = () => {
                     width="100vw"
                     height= {isMobile ? "100vh" : "90vh"}
                     >
-                        {/* edit modal */}
-                        <Modal
-                        open={openEditor}
-                        onClose={() => setOpenEditor(false)} 
-                        
-                        >
-                            {/* rest */}
+                      <Modal open={cameraOpen} onClose={() => setCameraOpen(false)}>
+                        <Box width="100vw" height="100vh" backgroundColor="black">
+                          <Stack display="flex" justifyContent="center" alignItems="center" flexDirection="column" sx={{ transform: 'translate(0%,25%)' }}>
                             <Box
-                            width = "100%"
-                            height="100%"
-                            display="flex"
-                            flexDirection="column"
-                            justifyContent={"center"}
-                            alignItems={"center"}
+                              sx={{
+                                // position: 'absolute',
+                                top: '50%',
+                                bgcolor: 'black',
+                                width: 350,
+                                height: 350,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                paddingY: 2,
+                                position: 'relative'
+                              }}
                             >
-                                
-                                <Box>
-                                    <Typography variant="h4" gutterBottom>{t("Summary")}</Typography>
-                                    {Object.entries(formData).map(([key, value]) => (
-                                    <Box key={key} sx={{ mb: 2 }}>
-                                        <Typography variant="h6">{key}</Typography>
-                                        <Typography variant="body1" color="textSecondary">{value || 'N/A'}</Typography>
-                                    </Box>
-                                    ))}
-                                </Box>
-                                <Button
-                                onClick={() => setOpenEditor(false)}
+                              <Box
                                 sx={{
-                                backgroundColor: 'text.primary',
-                                color: 'background.default',
-                                borderColor: 'text.primary',
-                                '&:hover': {
-                                    backgroundColor: 'background.default',
-                                    color: 'text.primary',
-                                    borderColor: 'text.primary',
-                                },
+                                  // width: '50%', // This makes the width of the container 50% of its parent
+                                  maxWidth: 350, // Optional: Limit the maximum width
+                                  aspectRatio: '1/1', // Ensures the box is a square
+                                  display: 'flex',
+                                  justifyContent: 'center',
+                                  alignItems: 'center',
+                                  position: 'relative', // Allows the button to be positioned over the video feed
+                                  backgroundColor: 'black', // Background color for the box
+                                  borderRadius: '16px', // Optional: adds rounded corners
+                                  overflow: 'hidden', // Ensures the video doesn't overflow the container
                                 }}
-                                >
-                                Close</Button>
+                              >
+                                <Webcam
+                                  ref={webcamRef}
+                                  screenshotFormat="image/jpeg"
+                                  videoConstraints={{
+                                    facingMode: facingMode,
+                                    // aspectRatio: 4/3,
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover', // Ensures the video covers the square without distortion
+                                  }}
+                                />
+                              </Box>
+
                             </Box>
-                        </Modal>
+                            <Stack flexDirection="row" gap={2} position="relative">
+                              <Button 
+                                variant="outlined"
+                                onClick={captureImage}
+                                sx={{
+                                  color: 'black',
+                                  borderColor: 'white',
+                                  backgroundColor: 'white',
+                                  '&:hover': {
+                                    backgroundColor: 'white',
+                                    color: 'black',
+                                    borderColor: 'white',
+                                  },
+                                  marginTop: 1,
+                                }}
+                              >
+                                {t("Take Photo")}
+                              </Button>
+                              <Button
+                                onClick={switchCamera}
+                                sx={{
+                                  color: 'black',
+                                  borderColor: 'white',
+                                  backgroundColor: 'white',
+                                  '&:hover': {
+                                    backgroundColor: 'white',
+                                    color: 'black',
+                                    borderColor: 'white',
+                                  },
+                                  marginTop: 1,
+                                }}
+                              >
+                                {t("Switch Camera")}
+                              </Button>
+                              <Button 
+                                variant="outlined"
+                                onClick={() => {
+                                  setCameraOpen(false);
+                                }}
+                                sx={{
+                                  color: 'black',
+                                  borderColor: 'white',
+                                  backgroundColor: 'white',
+                                  '&:hover': {
+                                    backgroundColor: 'white',
+                                    color: 'black',
+                                    borderColor: 'white',
+                                  },
+                                  marginTop: 1,
+                                }}
+                              >
+                                {t('Exit')}
+                              </Button>
+                            </Stack>
+                          </Stack>
+                        </Box>
+                      </Modal>
                         {/* header box */}
                         <Box
                         height="10%"
@@ -385,6 +498,71 @@ const MyInfoPage = () => {
                                 )}
                             </Box>
                         </Box>
+                        {/* other info */}
+                        {/* rest */}
+                        
+                        <Box
+                        width = "100%"
+                        height="100%"
+                        display="flex"
+                        flexDirection="column"
+                        // justifyContent={"center"}
+                        alignItems={"center"}
+                        >
+                        {image ? (
+                          <Image
+                          src={image}
+                          alt="image"
+                          width={250}
+                          height={250}
+                          style={{ borderRadius: "30px", objectFit: 'cover'}}
+                        />
+                        ) : (
+                          <Image 
+                          src= "/profile.jpg"
+                          alt="banner"
+                          // layout="responsive"
+                          width={300}
+                          height={300}
+                          style={{ borderRadius: "30px"}}
+                        />
+                        )}
+                        {/* add photo button */}
+                        <Button
+                        variant="outlined" 
+                        onClick={handleOpenCamera}
+                        sx={{
+                          width: "150px",
+                          height: "40px",
+                          fontSize: '0.75rem',
+                          backgroundColor: 'text.primary',
+                          color: 'background.default',
+                          borderColor: 'background.default',
+                          borderRadius: '10px',
+                          '&:hover': {
+                            backgroundColor: 'background.default',
+                            color: 'text.primary',
+                            borderColor: 'text.primary',
+                          },
+                        }}
+                        >
+                          Add photo
+                        </Button>
+                        
+                        {/* <Box> */}
+                        <Grid container spacing={2} paddingX={1} style={{ justifyContent: 'center', width: "300px",height: '50%', overflow: 'scroll' }}>
+                            {/* <Typography variant="h4" gutterBottom>{t("Summary")}</Typography> */}
+                            {orderedKeys.map((key) => (
+                            <Grid item xs={6} sm={6} key={key}>
+                              {/* <Box key={key} sx={{ mb: 2 }}> */}
+                                  <Typography variant="h6" display = "flex" >{key}</Typography>
+                                  <Typography variant="body1" color="textSecondary" display = "flex" >{formData[key] || 'N/A'}</Typography>
+                              {/* </Box> */}
+                            </Grid>
+                            ))}
+                        </Grid>
+                        </Box>
+
 
                         <Divider />
                         

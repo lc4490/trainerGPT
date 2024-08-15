@@ -595,7 +595,7 @@ const MyInfoPage = () => {
                         alt={t("image")}
                         width={250}
                         height={250}
-                        style={{ borderRadius: "30px", objectFit: 'cover',transform: "scaleX(-1)"}}
+                        style={{ borderRadius: "30px", objectFit: 'cover',transform: facingMode === 'user' ? "scaleX(-1)" : "none"}}
                       />
                       ) : (
                         <Image 

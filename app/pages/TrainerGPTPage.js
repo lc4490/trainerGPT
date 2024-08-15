@@ -53,81 +53,133 @@ const exerciseData = [
   {
     name: 'Push-Up',
     youtubeLinks: [
-      'https://youtu.be/IODxDxX7oi4',
-      'https://youtu.be/_l3ySVKYVJ8',
+      'https://youtube.com/shorts/0RdBA5ntIy0',
+    ],
+  },
+  {
+    name: 'Push Up',
+    youtubeLinks: [
+      'https://youtube.com/shorts/0RdBA5ntIy0',
     ],
   },
   {
     name: 'Squat',
     youtubeLinks: [
-      'https://youtu.be/aclHkVaku9U',
-      'https://youtu.be/YaXPRqUwItQ',
+      'https://youtube.com/shorts/LnMFhMJ70HM',
     ],
   },
   {
     name: 'Plank',
     youtubeLinks: [
-      'https://youtu.be/BQu26ABuVS0',
-      'https://youtu.be/pSHjTRCQxIw',
+      'https://youtube.com/shorts/SoC0faVmmrk',
     ],
   },
   {
     name: 'Burpee',
     youtubeLinks: [
-      'https://youtu.be/TU8QYVW0gDU',
-      'https://youtu.be/JZQA08SlJnM',
+      'https://youtube.com/shorts/jGuv9WphUw0',
     ],
   },
   {
     name: 'Lunge',
     youtubeLinks: [
-      'https://youtu.be/QOVaHwm-Q6U',
-      'https://youtu.be/D7KaRcUTQeE',
+      'https://youtube.com/shorts/LDTnaPmU9HE',
     ],
   },
   {
     name: 'Deadlift',
     youtubeLinks: [
-      'https://youtu.be/op9kVnSso6Q',
-      'https://youtu.be/r4MzxtBKyNE',
+      'https://youtube.com/shorts/gxHZ0OYRBjI',
     ],
   },
   {
     name: 'Bench Press',
     youtubeLinks: [
-      'https://youtu.be/gRVjAtPip0Y',
-      'https://youtu.be/vthMCtgVtFw',
+      'https://youtube.com/shorts/YGHJgHB4PIU',
+    ],
+  },
+  {
+    name: 'Dumbbell Press',
+    youtubeLinks: [
+      'https://youtube.com/shorts/teARc9E-WW4',
+    ],
+  },
+  {
+    name: 'Dumbbell Flyes',
+    youtubeLinks: [
+      'https://youtube.com/shorts/Wkqk3WMIAeY',
+    ],
+  },
+  {
+    name: 'Barbell Curl',
+    youtubeLinks: [
+      'https://youtube.com/shorts/mpEFR1-v12s',
+      
+    ],
+  },
+  {
+    name: 'Dumbbell Curl',
+    youtubeLinks: [
+      'https://youtube.com/shorts/Im1l3OrPRp4',
+      
     ],
   },
   {
     name: 'Bicep Curl',
     youtubeLinks: [
-      'https://youtu.be/ykJmrZ5v0Oo',
-      'https://youtu.be/sAq_ocpRh_I',
+      'https://youtube.com/shorts/mpEFR1-v12s',
+      'https://youtube.com/shorts/Im1l3OrPRp4',
+      
     ],
   },
   {
     name: 'Pull-Up',
     youtubeLinks: [
-      'https://youtu.be/eGo4IYlbE5g',
-      'https://youtu.be/COQusflW6zA',
+      'https://www.youtube.com/shorts/bdRkHBBfDMs',
+    ],
+  },
+  {
+    name: 'Pull Up',
+    youtubeLinks: [
+      'https://www.youtube.com/shorts/bdRkHBBfDMs',
     ],
   },
   {
     name: 'Mountain Climber',
     youtubeLinks: [
-      'https://youtu.be/1w9VuNgBnAQ',
-      'https://youtu.be/cnyTQDSE884',
+      'https://youtube.com/shorts/SADXvZWs7Ac',
     ],
   },
   {
     name: 'Tricep Dip',
     youtubeLinks: [
-      'https://www.youtube.com/watch?v=6kALZikXxLc',
-      'https://www.youtube.com/watch?v=89_spgcdQlw',
-      // n-sync
-      'https://www.youtube.com/watch?v=Eo-KmOd3i7s',
+      'https://youtube.com/shorts/1bZE5aJfvVc',
     ],
+  },
+  {
+    name: 'Shoulder Press',
+    youtubeLinks: [
+      'https://youtube.com/shorts/gNhSyjiNy0c',
+      'https://youtube.com/shorts/vYG-77uMSaY',
+    ]
+  },
+  {
+    name: 'Dumbbell Shoulder Press',
+    youtubeLinks: [
+      'https://youtube.com/shorts/vYG-77uMSaY',
+    ]
+  },
+  {
+    name: 'Overhead Press',
+    youtubeLinks: [
+      'https://youtube.com/shorts/gNhSyjiNy0c',
+    ]
+  },
+  {
+    name: 'Face Pulls',
+    youtubeLinks: [
+      'https://youtube.com/shorts/F3lsQMekW-4',
+    ]
   },
 ];
 

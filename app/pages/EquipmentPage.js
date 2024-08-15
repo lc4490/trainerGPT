@@ -193,6 +193,11 @@ const EquipmentPage = () => {
   useEffect(() => {
     updateEquipment()
   }, [])
+  // Function to sanitize item name for Firebase document IDs
+  const sanitizeItemName = (name) => {
+    return name.replace(/\//g, ' and '); // Replace slash with a hyphen
+    // Alternatively, you could use: return encodeURIComponent(name);
+  }
   // add item function
   const addItem = async (item, quantity, image) => {
     if (guestMode) {
@@ -205,9 +210,10 @@ const EquipmentPage = () => {
       if (isNaN(quantity) || quantity < 0) {
         setOpenWarningAdd(true);
       } else if (quantity >= 1 && item != '') {
+        const sanitizedItemName = sanitizeItemName(item);
         const userUID = auth.currentUser.uid;
         // const docRef = doc(collection(firestore, `pantry_${userUID}`), item);
-        const docRef = doc(firestore, 'users', userUID, 'equipment', item);
+        const docRef = doc(firestore, 'users', userUID, 'equipment', sanitizedItemName);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const { count, image: existingImage } = docSnap.data();

@@ -465,7 +465,7 @@ const NutritionPage = () => {
                   alt={"Captured"}
                   width={300}
                   height={300}
-                  style={{ borderRadius: '16px', objectFit: 'cover',transform: "scaleX(-1)" }}
+                  style={{ borderRadius: '16px', objectFit: 'cover'}}
                 />
               </Box>
             )}
@@ -712,7 +712,7 @@ const NutritionPage = () => {
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover', // Ensures the video covers the square without distortion
-                      transform: "scaleX(-1)",
+                      transform: facingMode === 'user' ? "scaleX(-1)" : "none"
                     }}
                   />
                 </Box>
@@ -1258,7 +1258,7 @@ const NutritionPage = () => {
                         alt={name}
                         width={100}
                         height={100}
-                        style={{ borderRadius: '10px', objectFit: 'cover',transform: "scaleX(-1)" }}
+                        style={{ borderRadius: '10px', objectFit: 'cover', }}
                       />
                     ) : (
                       <Image

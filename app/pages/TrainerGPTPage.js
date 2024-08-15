@@ -90,6 +90,7 @@ const exerciseData = [
     name: 'Deadlift',
     youtubeLinks: [
       'https://youtube.com/shorts/gxHZ0OYRBjI',
+      'https://www.youtube.com/watch?v=bsII141KWpI&t=94s',
     ],
   },
   {

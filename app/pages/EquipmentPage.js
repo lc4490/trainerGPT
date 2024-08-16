@@ -2,8 +2,8 @@
 
 // base imports
 import { Box, Stack, Typography, Button, Modal, TextField, Grid, Autocomplete, Divider } from '@mui/material'
-import { firestore, auth, provider, signInWithPopup, signOut } from '../firebase'
-import { collection, getDocs, query, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { firestore } from '../firebase'
+import { collection, getDocs, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { useEffect, useState, useRef } from 'react'
 
 // search icon
@@ -12,23 +12,20 @@ import SearchIcon from '@mui/icons-material/Search';
 
 // use image and camera
 import Image from 'next/image';
-// import { Camera, switchCamera } from 'react-camera-pro';
 import Webcam from 'react-webcam';
 
-// use openai
-const openaiApiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-import { OpenAI } from 'openai';
-
-// use googlesignin
-import { onAuthStateChanged } from 'firebase/auth';
+// use Clerk
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 
 // translations
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n'; // Adjust the path as necessary
 
 // theme imports
-import { createTheme, ThemeProvider, useTheme, CssBaseline, useMediaQuery, IconButton } from '@mui/material';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
+import { createTheme, ThemeProvider, CssBaseline, useMediaQuery } from '@mui/material';
+
+// openai
+import OpenAI from 'openai';
 
 const lightTheme = createTheme({
   palette: {
@@ -61,75 +58,50 @@ const darkTheme = createTheme({
   },
 });
 
-
 const EquipmentPage = () => {
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
-  // change languages
-  const getPreferredLanguage = async () => {
-    if (auth.currentUser) {
-      const userUID = auth.currentUser.uid;
-      const userDocRef = doc(firestore, 'users', userUID);
-      const userDoc = await getDoc(userDocRef);
-      return userDoc.exists() ? userDoc.data().preferredLanguage : null;
-    }
-    return null;
-  };
-  // fetch/set languages at all tiimes
-  useEffect(() => {
-    const fetchAndSetLanguage = async () => {
-      const preferredLanguage = await getPreferredLanguage();
-      if (preferredLanguage) {
-        i18n.changeLanguage(preferredLanguage);
-      }
-    };
+  const { user, isSignedIn } = useUser(); // Clerk user
 
-    fetchAndSetLanguage();
-  }, []);
-  // declare
+  // Initialize state variables
   const [pantry, setPantry] = useState([])
   const [equipmentList, setEquipmentList] = useState([])
-  // open modal declareables
   const [openAdd, setOpenAdd] = useState(false);
-  const handleOpenAdd = () => {
-    clearFields();
-    setOpenAdd(true)
-  };
-  const handleCloseAdd = () => {
-    clearFields();
-    setOpenAdd(false)
-  };
-  // search term for pantry and recipes
   const [searchTerm, setSearchTerm] = useState('');
-
-  // item name/quantity
   const [itemName, setItemName] = useState('')
-  const [quantity, setQuantity] = useState('')
-  
-  // toggle searchbar for pantry and recipes
+  const [quantity, setQuantity] = useState(1)
   const [isFocused, setIsFocused] = useState(false); 
-
-  // camera/image
   const [cameraOpen, setCameraOpen] = useState(false);
   const [image, setImage] = useState(null);
   const webcamRef = useRef(null);
   const [facingMode, setFacingMode] = useState('user'); // 'user' is the front camera, 'environment' is the back camera
+
+  // open modal declareables
+  const handleOpenAdd = () => {
+    setOpenAdd(true)
+  };
+  const handleCloseAdd = () => {
+    setOpenAdd(false)
+  };
+
+  // Camera and image handling
   const captureImage = () => {
     const imageSrc = webcamRef.current.getScreenshot();
     setImage(imageSrc);
     predictItem(imageSrc).then(setItemName);  // Assuming predictItem is a function you have defined
     setCameraOpen(false);
   };
+
   const switchCamera = () => {
     setFacingMode((prevFacingMode) => (prevFacingMode === 'user' ? 'environment' : 'user'));
   };
   
-  // ai
+  // AI (OpenAI) related functions
   const openai = new OpenAI({
-    apiKey: openaiApiKey,
+    apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     dangerouslyAllowBrowser: true
   });
-  // function to predict item label from picture (ai)
+
   async function predictItem(image){
     if(image){
       const response = await openai.chat.completions.create({
@@ -160,27 +132,29 @@ const EquipmentPage = () => {
     }
   }
 
-  // helper functions
-  // shorten string so that it doesn't overflow
+  // Helper functions
   const truncateString = (str, num) => {
     if (str.length <= num) {
       return str;
     }
     return str.slice(0, num) + '...';
   };
-  // clear item fields after clickoff
+
   const clearFields = () => {
     setItemName('');
     setQuantity(1);
     setImage(null);
   };
-  // update pantry based on firebase
+
+  const sanitizeItemName = (name) => {
+    return name.replace(/\//g, ' and '); // Replace slash with 'and'
+  }
+
+  // Firebase equipment management functions
   const updateEquipment = async () => {
-    if (auth.currentUser) {
-      const userUID = auth.currentUser.uid;
-      // const snapshot = query(collection(firestore, `pantry_${userUID}`));
-      // const snapshot = query(collection((firestore, 'users', userUID, 'pantry')));
-      const docRef = collection(firestore, 'users', userUID, 'equipment');
+    if (user) {
+      const userId = user.id;
+      const docRef = collection(firestore, 'users', userId, 'equipment');
       const docs = await getDocs(docRef);
       const equipment = [];
       docs.forEach((doc) => {
@@ -191,148 +165,83 @@ const EquipmentPage = () => {
   };
 
   useEffect(() => {
-    updateEquipment()
-  }, [])
-  // Function to sanitize item name for Firebase document IDs
-  const sanitizeItemName = (name) => {
-    return name.replace(/\//g, ' and '); // Replace slash with a hyphen
-    // Alternatively, you could use: return encodeURIComponent(name);
-  }
-  // add item function
-  const addItem = async (item, quantity, image) => {
-    if (guestMode) {
-      setEquipmentList(prevPantry => [...prevPantry, { name: item, count: quantity, image }]);
-    } else {
-      if (!auth.currentUser) {
-        alert("You must be signed in to add items.");
-        return;
-      }
-      if (isNaN(quantity) || quantity < 0) {
-        setOpenWarningAdd(true);
-      } else if (quantity >= 1 && item != '') {
-        const sanitizedItemName = sanitizeItemName(item);
-        const userUID = auth.currentUser.uid;
-        // const docRef = doc(collection(firestore, `pantry_${userUID}`), item);
-        const docRef = doc(firestore, 'users', userUID, 'equipment', sanitizedItemName);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const { count, image: existingImage } = docSnap.data();
-          await setDoc(docRef, { count: count + quantity, image: image || existingImage });
-        } else {
-          await setDoc(docRef, { count: quantity, image });
-        }
-        await updateEquipment();
-      }
+    if (user) {
+      updateEquipment();
     }
-  }
+  }, [user]);
 
-  // change quantity function
-  const handleQuantityChange = async (item, quantity) => {
-    if (guestMode) {
-      setEquipmentList(prevEquipment => prevEquipment.map(p => p.name === item ? { ...p, count: quantity } : p));
-    } else {
-      if (!auth.currentUser) {
-        alert("You must be signed in to change item quantities.");
-        return;
-      }
-      const userUID = auth.currentUser.uid;
-      // const docRef = doc(collection(firestore, `pantry_${userUID}`), item);
-      const docRef = doc(firestore, 'users', userUID, 'equipment', item);
+  const addItem = async (item, quantity, image) => {
+    if (!isSignedIn) {
+      alert("You must be signed in to add items.");
+      return;
+    }
+    if (isNaN(quantity) || quantity < 0) {
+      alert("Quantity must be a positive number.");
+      return;
+    } 
+    if (quantity >= 1 && item) {
+      const sanitizedItemName = sanitizeItemName(item);
+      const userId = user.id;
+      const docRef = doc(firestore, 'users', userId, 'equipment', sanitizedItemName);
       const docSnap = await getDoc(docRef);
-      const { count, image } = docSnap.data();
-      if (0 === quantity) {
-        await deleteDoc(docRef);
+      if (docSnap.exists()) {
+        const { count, image: existingImage } = docSnap.data();
+        await setDoc(docRef, { count: count + quantity, image: image || existingImage });
       } else {
-        await setDoc(docRef, { count: quantity, ...(image && { image }) });
+        await setDoc(docRef, { count: quantity, image });
       }
       await updateEquipment();
     }
+  }
+
+  const handleQuantityChange = async (item, quantity) => {
+    if (!isSignedIn) {
+      alert("You must be signed in to change item quantities.");
+      return;
+    }
+    const userId = user.id;
+    const docRef = doc(firestore, 'users', userId, 'equipment', item);
+    if (quantity === 0) {
+      await deleteDoc(docRef);
+    } else {
+      await setDoc(docRef, { count: quantity });
+    }
+    await updateEquipment();
   };
 
-  // open add modal and open camera at the same time
   const handleOpenAddAndOpenCamera = () => {
     handleOpenAdd();
     setCameraOpen(true);
   };
 
-  // filter pantry and recipes based on search
   const filteredEquipmentList = equipmentList.filter(({ name }) => name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  // sign in function for google auth
-  const handleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      console.log('User signed in:', user);
-      setGuestMode(false); // Disable guest mode on successful sign-in
-    } catch (error) {
-      console.error('Error signing in:', error);
-      alert('Sign in failed: ' + error.message);
-    }
-  };
-  // sign out function for google auth
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      console.log('User signed out');
-      setUser(null);
-      setGuestMode(true); // Enable guest mode on sign-out
-      setEquipmentList([]); // Clear guest data
-    } catch (error) {
-      console.error('Error signing out:', error);
-      alert('Sign out failed: ' + error.message);
-    }
-  };
-
-  // declareables for user and guest mode
-  const [user, setUser] = useState(null);
-  const [guestMode, setGuestMode] = useState(false);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-        setGuestMode(false);
-        updateEquipment();
-      } else {
-        setUser(null);
-        setGuestMode(true);
-        setEquipmentList([]);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
-
-  // toggle dark mode
-  // Detect user's preferred color scheme
+  // Toggle dark mode
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [darkMode, setDarkMode] = useState(prefersDarkMode);
 
-  // Update dark mode state when the user's preference changes
   useEffect(() => {
     setDarkMode(prefersDarkMode);
   }, [prefersDarkMode]);
 
   const theme = darkMode ? darkTheme : lightTheme;
 
-  // ismobile
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box 
         width="100vw" 
-        // height="100vh"
         height= {isMobile ? "100vh" : "90vh"}
         display="flex" 
         justifyContent="center" 
         alignItems="center"
         flexDirection="column"
         gap={2}
-        bgcolor="red"
         fontFamily="sans-serif"
       >
-        {/* add modal */}
+        {/* Add item modal */}
         <Modal
           open={openAdd}
           onClose={handleCloseAdd}
@@ -392,7 +301,6 @@ const EquipmentPage = () => {
                 >
                   {t("Open Camera")}
                 </Button>
-                {/* upload photo */}
                 <Button 
                   variant="outlined"
                   component="label"
@@ -437,7 +345,6 @@ const EquipmentPage = () => {
                     }}
                   />
                 </Button>
-
               </>
             )}
             <Divider sx={{ width: '100%', backgroundColor: 'background.default' }} />
@@ -575,13 +482,12 @@ const EquipmentPage = () => {
           </Box>
         </Modal>
 
-        {/* camera modal */}
+        {/* Camera modal */}
         <Modal open={cameraOpen} onClose={() => setCameraOpen(false)}>
           <Box width="100vw" height="100vh" backgroundColor="black">
             <Stack display="flex" justifyContent="center" alignItems="center" flexDirection="column" sx={{ transform: 'translate(0%,25%)' }}>
               <Box
                 sx={{
-                  // position: 'absolute',
                   top: '50%',
                   bgcolor: 'black',
                   width: 350,
@@ -595,7 +501,6 @@ const EquipmentPage = () => {
               >
                 <Box
                   sx={{
-                    // width: '50%', // This makes the width of the container 50% of its parent
                     maxWidth: 350, // Optional: Limit the maximum width
                     aspectRatio: '1/1', // Ensures the box is a square
                     display: 'flex',
@@ -612,7 +517,6 @@ const EquipmentPage = () => {
                     screenshotFormat="image/jpeg"
                     videoConstraints={{
                       facingMode: facingMode,
-                      // aspectRatio: 4/3,
                     }}
                     style={{
                       width: '100%',
@@ -622,7 +526,6 @@ const EquipmentPage = () => {
                     }}
                   />
                 </Box>
-
               </Box>
               <Stack flexDirection="row" gap={2} position="relative">
                 <Button 
@@ -682,9 +585,9 @@ const EquipmentPage = () => {
           </Box>
         </Modal>
 
-        {/* main page */}
+        {/* Main page */}
         <Box width="100%" height="100%" bgcolor="background.default">
-          {/* header including add button, title, sign in */}
+          {/* Header including add button, title, sign in */}
           <Box 
             height="10%" 
             bgcolor="background.default"
@@ -695,7 +598,7 @@ const EquipmentPage = () => {
             alignItems="center"
             position="relative"
           >
-            {/* add button */}
+            {/* Add button */}
             <Button 
               variant="outlined" 
               onClick={handleOpenAddAndOpenCamera}
@@ -715,24 +618,18 @@ const EquipmentPage = () => {
             >
               <Typography variant="h5">+</Typography>
             </Button>
-            {/* title */}
+            {/* Title */}
             <Box display = "flex" flexDirection={"row"} alignItems={"center"}>
-              {/* <IconButton 
-                  sx={{ ml: 1 }} 
-                  onClick={() => setDarkMode(!darkMode)} 
-                  color="inherit"
-                >
-                  {darkMode ? <Brightness7 /> : <Brightness4 />}
-                </IconButton> */}
               <Typography variant="h6" color="text.primary" textAlign="center">
                 {t("myEquipment")}
               </Typography>
             </Box>
-            {/* sign in */}
+            {/* Sign in */}
             <Box>
-              {!user ? (
+              {!isSignedIn ? (
                 <Button 
-                  onClick={handleSignIn}
+                  color="inherit"
+                  href="/sign-in"
                   sx={{
                     justifyContent: "end",
                     right: "2%",
@@ -749,115 +646,55 @@ const EquipmentPage = () => {
                   {t('signIn')}
                 </Button>
               ) : (
-                <Button 
-                  onClick={handleSignOut}
-                  sx={{
-                    backgroundColor: 'background.default',
-                    color: 'text.primary',
-                    borderColor: 'text.primary',
-                    borderWidth: 2,
-                    '&:hover': {
-                      backgroundColor: 'darkgray',
-                      color: 'text.primary',
-                      borderColor: 'text.primary',
-                    },
-                  }}
-                >
-                  {t('signOut')}
-                </Button>
+                <UserButton />
               )}
             </Box>
           </Box>
 
           <Divider />
           
-          {/* banner image */}
-          {isMobile ? (<Box sx={{
-            backgroundImage: `url(${prefersDarkMode ? "/gym_dark.jpg" : "/gym.jpg"})`,
-            backgroundSize: '160%', // Stretch the image to cover the entire Box
-            backgroundPosition: 'center', // Center the image in the Box
-            backgroundRepeat: 'no-repeat', // Prevent the image from repeating
-            width:"100%",
-            height: "120px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: 'center',
-            flexDirection: 'column',
-          }}>
-          <Typography
-          sx={{
-            fontSize: "1.75rem",
-          }}>Welcome to myEquipment</Typography>
-          <Typography
-          sx={{
-            width: "75%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: 'center',
-            textAlign: 'center',
-            fontSize: "0.7rem",
-          }}
-          >
-            Take or upload pictures of gym equipment you have access to using the + in the top left corner.
-          </Typography>
-
-          </Box>) : 
-          (
+          {/* Banner image */}
+          {isMobile ? (
             <Box sx={{
-            // backgroundColor: "blue",
-            // backgroundColor: "background.bubbles",
-            backgroundImage: `url(${prefersDarkMode ? "/gym_dark.jpg" : "/gym.jpg"})`,
-            backgroundSize: '125%', // Stretch the image to cover the entire Box
-            backgroundPosition: 'left', // Center the image in the Box
-            backgroundRepeat: 'no-repeat', // Prevent the image from repeating
-            width:"100%",
-            height: "450px",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: 'center',
-            flexDirection: 'column',
-          }}>
-            {/* <Image 
-            src= {prefersDarkMode ? "/banner_dark.png" : "/banner.png"} 
-            alt="banner"
-            // layout="responsive"
-            width={800}
-            height={200}
-            style={{ width: '100%', height: 'auto'}}
-          /> */}
-          <Typography
-          sx={{
-            fontSize: "6.5rem",
-          }}>{t("Welcome to myEquipment")}</Typography>
-          <Typography
-          sx={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: 'center',
-            fontSize: "1.5rem",
-          }}
-          >
-            {t("Take or upload pictures of gym equipment you have access to using the + in the top left corner.")}
-          </Typography>
-
+              backgroundImage: `url(${prefersDarkMode ? "/gym_dark.jpg" : "/gym.jpg"})`,
+              backgroundSize: '160%', // Stretch the image to cover the entire Box
+              backgroundPosition: 'center', // Center the image in the Box
+              backgroundRepeat: 'no-repeat', // Prevent the image from repeating
+              width:"100%",
+              height: "120px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: 'center',
+              flexDirection: 'column',
+            }}>
+              <Typography sx={{ fontSize: "1.75rem" }}>Welcome to myEquipment</Typography>
+              <Typography sx={{ width: "75%", display: "flex", justifyContent: "center", alignItems: 'center', textAlign: 'center', fontSize: "0.7rem" }}>
+                Take or upload pictures of gym equipment you have access to using the + in the top left corner.
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{
+              backgroundImage: `url(${prefersDarkMode ? "/gym_dark.jpg" : "/gym.jpg"})`,
+              backgroundSize: '125%', // Stretch the image to cover the entire Box
+              backgroundPosition: 'left', // Center the image in the Box
+              backgroundRepeat: 'no-repeat', // Prevent the image from repeating
+              width:"100%",
+              height: "450px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: 'center',
+              flexDirection: 'column',
+            }}>
+              <Typography sx={{ fontSize: "6.5rem" }}>{t("Welcome to myEquipment")}</Typography>
+              <Typography sx={{ width: "100%", display: "flex", justifyContent: "center", alignItems: 'center', fontSize: "1.5rem" }}>
+                {t("Take or upload pictures of gym equipment you have access to using the + in the top left corner.")}
+              </Typography>
             </Box>
           )}
           
-          {/* <Image 
-            src= {prefersDarkMode ? "/banner_dark.png" : "/banner.png"} 
-            alt="banner"
-            // layout="responsive"
-            width={800}
-            height={200}
-            style={{ width: '100%', height: 'auto'}}
-          /> */}
-
-          {/* equipment */}
+          {/* Equipment list */}
           <Stack flexDirection="row">
-            {/* title */}
             <Typography padding={2} variant="h4" color="text.primary" fontWeight="bold">{t("Equipment")}</Typography>
-            {/* search bar */}
             <Autocomplete
               freeSolo
               disableClearable
@@ -916,10 +753,8 @@ const EquipmentPage = () => {
           </Stack>
           <Divider />
           <Box height={25}></Box>
-          {/* equipment stack */}
           <Grid container spacing={2} paddingX={1} style={{ height: '50%', overflow: 'scroll' }}>
             {filteredEquipmentList.map(({ name, count, image }, index) => (
-              // equipment item
               <Grid item xs={12} sm={4} key={index}>
                 <Box
                   width="100%"
@@ -932,7 +767,6 @@ const EquipmentPage = () => {
                   border="1px solid lightgray"
                   borderRadius="10px"
                 >
-                  {/* equipment name and quantity change */}
                   <Stack>
                     <Typography
                       variant="h6"
@@ -945,7 +779,6 @@ const EquipmentPage = () => {
                     >
                       {truncateString(name.charAt(0).toUpperCase() + name.slice(1), 16)}
                     </Typography>
-                    {/* quantity adjuster */}
                     <Stack width="100%" direction="row" justifyContent="start" alignItems="center">
                       <Button
                         sx={{
@@ -1021,7 +854,6 @@ const EquipmentPage = () => {
                       </Button>
                     </Stack>
                   </Stack>
-                  {/* equipment image */}
                   <Stack width="100%" direction="column" justifyContent="space-between" alignItems="flex-end">
                     {image ? (
                       <Image
@@ -1053,4 +885,3 @@ const EquipmentPage = () => {
 }
 
 export default EquipmentPage;
-

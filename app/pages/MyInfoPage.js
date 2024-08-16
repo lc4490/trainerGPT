@@ -87,6 +87,13 @@ const MyInfoPage = () => {
     setFormData({ ...formData, [key]: value });
   }
 
+  const handleEditOrSave = () => {
+    if(isEditing){
+      handleSubmit()
+    }
+    setIsEditing(!isEditing)
+  }
+
   // Save user form data to Firestore
   const saveUserData = async (data) => {
     if (user) {
@@ -98,7 +105,7 @@ const MyInfoPage = () => {
   // Handle form submission and save data to Firestore
   const handleSubmit = async () => {
     if (isEditing) {
-      await saveUserData(unpackData(formData));
+      await saveUserData((formData));
       setIsEditing(false);
     } else {
       await saveUserData(unpackData(formData));
@@ -284,7 +291,7 @@ const MyInfoPage = () => {
           >
             {isSummary ? (
               <Button
-                onClick={() => setIsEditing(!isEditing)}
+                onClick={handleEditOrSave}
                 sx={{
                   height: "55px",
                   fontSize: '1rem',

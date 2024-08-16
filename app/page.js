@@ -26,6 +26,9 @@ import NutritionPage from './pages/NutritionPage';
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n'; // Adjust the path as necessary
 
+// demo slides
+import DemoSlides from './pages/DemoSlides';
+
 const lightTheme = createTheme({
   palette: {
     mode: 'light',
@@ -53,6 +56,7 @@ const darkTheme = createTheme({
 });
 
 export default function Home() {
+  const [showDemoSlides, setShowDemoSlides] = useState(false); // State to control demo slides visibility
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
   // change languages
@@ -131,10 +135,16 @@ export default function Home() {
       </Box>
     );
   }
+  const handleDemoFinish = () => {
+    setShowDemoSlides(false); // Hide demo slides and show main content
+  };
   
   return (
     <ThemeProvider theme={currentTheme}>
       <CssBaseline />
+      {showDemoSlides ? (
+        <DemoSlides onFinish={handleDemoFinish} />
+      ) : (
       <Box 
       width="100vw" 
       height="100vh"
@@ -156,6 +166,8 @@ export default function Home() {
         {pages[value]}
         </Box>
 
+        <Toolbar />
+
         {/* <Box backgroundColor = "red" height = "100px"></Box> */}
         <BottomNavigation
           showLabels
@@ -174,6 +186,7 @@ export default function Home() {
         </BottomNavigation>
       </Box>
     </Box>
+      )}
    </ThemeProvider>
   );
 }

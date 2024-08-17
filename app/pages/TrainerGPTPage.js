@@ -434,6 +434,10 @@ const TrainerGPTPage = () => {
     } else if (guestMessages.length > 0) {
         setMessages(guestMessages);
     }
+      else{
+        clearChatLog()
+      }
+  
 }, [user, i18n.language, guestMessages]);
 
 

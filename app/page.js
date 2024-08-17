@@ -1,22 +1,27 @@
 "use client"
 
+// base imports
 import { createContext, useState, useEffect } from 'react';
 import { Box, Stack, Typography, Button, Modal, TextField, Grid, Autocomplete, Divider, AppBar, Toolbar, BottomNavigation, BottomNavigationAction } from '@mui/material';
 import { firestore, auth, provider, signInWithPopup, signOut } from './firebase';
 import { collection, getDocs, query, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
+// light/dark theme
 import { createTheme, ThemeProvider, CssBaseline, useMediaQuery } from '@mui/material';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
+// import icons
 import { FitnessCenter, Person, CalendarToday, Group } from '@mui/icons-material';
 import LocalDiningIcon from '@mui/icons-material/LocalDining';
 import HomeIcon from '@mui/icons-material/Home';
+// import pages
 import MyInfoPage from './pages/MyInfoPage';
 import EquipmentPage from './pages/EquipmentPage';
 import TrainerGPTPage from './pages/TrainerGPTPage';
 import PlanPage from './pages/PlanPage';
 import FriendsPage from './pages/FriendsPage';
 import NutritionPage from './pages/NutritionPage';
+// use translation
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
+// demo slides
 import DemoSlides from './pages/DemoSlides';
 
 // light/dark themes
@@ -51,17 +56,20 @@ const darkTheme = createTheme({
   },
 });
 
-// Create the context
+// guest mode
 export const GuestContext = createContext();
 
 export default function Home() {
+  // demo slides
   const [showDemoSlides, setShowDemoSlides] = useState(false);
+  // use translation
+  const { t } = useTranslation();
+  // guest mode
   const [guestData, setGuestData] = useState({});
   const [guestImage, setGuestImage] = useState('');
   const [guestEquipment, setGuestEquipment] = useState([])
   const [guestMessages, setGuestMessages] = useState([])
-  const { t } = useTranslation();
-
+  // guest mode hooks
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedData = sessionStorage.getItem('guestData');
@@ -70,13 +78,11 @@ export default function Home() {
       }
     }
   }, []);
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('guestData', JSON.stringify(guestData));
     }
   }, [guestData]);
-
   useEffect(() => {
     const handleUnload = () => {
       if (typeof window !== 'undefined') {
@@ -89,29 +95,31 @@ export default function Home() {
     };
   }, []);
 
+  // light/dark theme
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [darkMode, setDarkMode] = useState(prefersDarkMode);
-
   useEffect(() => {
     setDarkMode(prefersDarkMode);
   }, [prefersDarkMode]);
-
   const currentTheme = darkMode ? darkTheme : lightTheme;
 
-  const [user, setUser] = useState(null);
-  const [guestMode, setGuestMode] = useState(false);
+  // premium mode
   const [hasPremiumAccess, setHasPremiumAccess] = useState(false);
 
+  // bottom nav helper
   const [value, setValue] = useState(0);
+
+  // pages
   const pages = [
     <MyInfoPage key="myInfo" />,
     <EquipmentPage key="equipment" />,
     <TrainerGPTPage key="trainerGPT" />,
-    // <NutritionPage key = "nutrition" />,
-    hasPremiumAccess ? <NutritionPage key="nutrition" /> : <PaywallPage key="paywall" />,
+    <NutritionPage key = "nutrition" />,
+    // hasPremiumAccess ? <NutritionPage key="nutrition" /> : <PaywallPage key="paywall" />,
     hasPremiumAccess ? <PlanPage key="plan" /> : <PaywallPage key="paywall" />,
   ];
 
+  // paywall page (NOT DONE)
   function PaywallPage() {
     const { t } = useTranslation();
     return (
@@ -127,17 +135,22 @@ export default function Home() {
     );
   }
 
+  // demo slides
   const handleDemoFinish = () => {
     setShowDemoSlides(false);
   };
 
   return (
+    // guest mode
     <GuestContext.Provider value={{ guestData, setGuestData, guestImage, setGuestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages}}>
+      {/* light/dark mode */}
       <ThemeProvider theme={currentTheme}>
         <CssBaseline />
+        {/* demo slides */}
         {showDemoSlides ? (
           <DemoSlides onFinish={handleDemoFinish} />
         ) : (
+          // main box
           <Box
             width="100vw"
             height="100vh"
@@ -150,12 +163,13 @@ export default function Home() {
             fontFamily="sans-serif"
           >
             <Box width="100%" height="100%" bgcolor="background.default">
+              {/* get page from import */}
               <Box display="flex" justifyContent="center" alignItems="center">
                 {pages[value]}
               </Box>
 
+              {/* bottom navigation */}
               <Toolbar />
-
               <BottomNavigation
                 showLabels
                 value={value}
@@ -166,7 +180,7 @@ export default function Home() {
               >
                 <BottomNavigationAction label={t("My Info")} icon={<HomeIcon />} />
                 <BottomNavigationAction label={t("myEquipment")} icon={<FitnessCenter />} />
-                <BottomNavigationAction label={t("TrainerGPT")} icon={<Person />} />
+                <BottomNavigationAction label={t("trainerGPT")} icon={<Person />} />
                 <BottomNavigationAction label={t("myPantry")} icon={<LocalDiningIcon />} />
                 <BottomNavigationAction label={t("Plan")} icon={<CalendarToday />} />
               </BottomNavigation>

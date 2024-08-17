@@ -31,6 +31,9 @@ const resources = {
       "Close":"Close",
       "Identify":"Identify the main object in this picture in as few words as possible",
       'Generate':'Here is a list of ingredients: {{ingredients}}. Classify them into foods and non-foods. Create recipes only using the foods provided. Do not use foods that are not in the ingredients list. Only print the recipes. Format it like this: Recipe: Fish & Ham Sandwich (linebreak) Ingredients: Fish, Ham (linebreak) Instructions: Layer slices of ham and cooked fish between two pieces of bread. Serve chilled or grilled.',
+      "Welcome to myPantry":"Welcome to myPantry",
+      "Add in new pantry items using the + in the top left corner.":"Add in new pantry items using the + in the top left corner.",
+      "Recipes will generate below based on ingredients available.":"Recipes will generate below based on ingredients available.",
       // equipmentPage
       "myEquipment":"myEquipment",
       "Equipment":"Equipment",
@@ -122,6 +125,9 @@ const resources = {
       "Close":"关闭",
       "Identify":"用尽可能少的字识别此图片中的主要对象",
       'Generate':'这里有一个成分列表：{{ingredients}}。将它们分为食物和非食物。只使用提供的食物创建食谱。不要使用成分列表中没有的食物。只打印食谱。格式如下：食谱：鱼和火腿三明治 (linebreak) 成分：鱼，火腿 (linebreak) 说明：在两片面包之间夹上火腿和煮熟的鱼片。冷藏或烤制后食用。',
+      "Welcome to myPantry": "欢迎来到我的储藏",
+      "Add in new pantry items using the + in the top left corner.": "使用左上角的 + 添加新的储藏室物品。",
+      "Recipes will generate below based on ingredients available.": "根据可用的食材，下方将生成食谱。",
       // equipmentPage
       "myEquipment":"我的设备",
       "Equipment":"设备",
@@ -213,6 +219,9 @@ const resources = {
       "Close":"關閉",
       "Identify":"儘可能少地識別此圖片中的主要對象",
       'Generate':'這裡有一個成分列表：{{ingredients}}。將它們分為食物和非食物。只使用提供的食物創建食譜。不要使用成分列表中沒有的食物。只打印食譜。格式如下：食譜：魚和火腿三明治 (linebreak) 成分：魚，火腿 (linebreak) 說明：在兩片麵包之間夾上火腿和煮熟的魚片。冷藏或烤製後食用。',
+      "Welcome to myPantry": "歡迎來到我的儲藏",
+      "Add in new pantry items using the + in the top left corner.": "使用左上角的 + 添加新的儲藏室物品。",
+      "Recipes will generate below based on ingredients available.": "根據可用的食材，下方將生成食譜。",
       // equipmentPage
       "myEquipment": "我的設備",
       "Equipment": "設備",
@@ -303,6 +312,9 @@ const resources = {
       "Close":"Cerrar",
       "Identify":"Identifica el objeto principal en esta imagen con la menor cantidad de palabras posible",
       'Generate':'Aquí tienes una lista de ingredientes: {{ingredients}}. Clasifícalos en alimentos y no alimentos. Crea recetas solo utilizando los alimentos proporcionados. No utilices alimentos que no estén en la lista de ingredientes. Solo imprime las recetas. Formatea de esta manera: Receta: Sándwich de Pescado y Jamón (linebreak) Ingredientes: Pescado, Jamón (linebreak) Instrucciones: Coloca capas de jamón y pescado cocido entre dos rebanadas de pan. Servir frío o a la parrilla.',
+      "Welcome to myPantry": "Bienvenido a miDespensa",
+      "Add in new pantry items using the + in the top left corner.": "Añade nuevos artículos a la despensa usando el + en la esquina superior izquierda.",
+      "Recipes will generate below based on ingredients available.": "Las recetas se generarán a continuación según los ingredientes disponibles.",
       // equipmentPage
       "myEquipment": "miEquipo",
       "Equipment": "Equipo",
@@ -393,6 +405,9 @@ const resources = {
       "Close":"Fermer",
       "Identify":"Identifiez l'objet principal dans cette image avec le moins de mots possible",
       "Generate":"Voici une liste d'ingrédients:{{ingredients}}. Classifiez-les en aliments et non-aliments. Créez des recettes en utilisant uniquement les aliments fournis. N'utilisez pas d'aliments qui ne figurent pas dans la liste des ingrédients. Imprimez uniquement les recettes. Formatez-le de cette manière : Recette : Sandwich au Poisson et Jambon (linebreak) Ingrédients : Poisson, Jambon (linebreak) Instructions : Superposez des tranches de jambon et de poisson cuit entre deux morceaux de pain. Servir froid ou grillé.",
+      "Welcome to myPantry": "Bienvenido a miDespensa",
+      "Add in new pantry items using the + in the top left corner.": "Añade nuevos artículos a la despensa usando el + en la esquina superior izquierda.",
+      "Recipes will generate below based on ingredients available.": "Las recetas se generarán a continuación según los ingredientes disponibles.",
       // equipmentPage
       "myEquipment": "monÉquipement",
       "Equipment": "Équipement",
@@ -483,6 +498,9 @@ const resources = {
       "Close":"Schließen",
       "Identify":"Identifizieren Sie das Hauptobjekt auf diesem Bild mit so wenigen Worten wie möglich",
       'Generate':'Hier ist eine Liste der Zutaten: {{ingredients}}. Klassifizieren Sie sie in Lebensmittel und Nicht-Lebensmittel. Erstellen Sie Rezepte nur mit den bereitgestellten Lebensmitteln. Verwenden Sie keine Lebensmittel, die nicht auf der Zutatenliste stehen. Drucken Sie nur die Rezepte. Formatieren Sie es wie folgt: Rezept: Fisch- und Schinkensandwich (linebreak) Zutaten: Fisch, Schinken (linebreak) Anweisungen: Legen Sie Schinkenscheiben und gekochten Fisch zwischen zwei Brotscheiben. Kalt oder gegrillt servieren.',
+      "Welcome to myPantry": "Willkommen in meinerSpeisekammer",
+      "Add in new pantry items using the + in the top left corner.": "Fügen Sie neue Vorratsartikel mit dem + in der oberen linken Ecke hinzu.",
+      "Recipes will generate below based on ingredients available.": "Rezepte werden unten basierend auf den verfügbaren Zutaten generiert.",
       // equipmentPage
       "myEquipment": "meineAusrüstung",
       "Equipment": "Ausrüstung",
@@ -573,6 +591,9 @@ const resources = {
       "Close":"閉じる",
       "Identify":"できるだけ少ない言葉でこの画像の主要なオブジェクトを特定する",
       'Generate':'ここに材料のリストがあります: {{ingredients}}。それらを食品と非食品に分類してください。提供された食品のみを使用してレシピを作成します。材料リストにない食品は使用しないでください。レシピだけを印刷してください。このようにフォーマットしてください: レシピ: 魚とハムのサンドイッチ (linebreak) 材料: 魚、ハム (linebreak) 手順: ハムと調理済みの魚を2枚のパンの間に挟みます。冷やしてまたはグリルして提供します。',
+      "Welcome to myPantry": "私の食料貯蔵室へようこそ",
+      "Add in new pantry items using the + in the top left corner.": "左上の + を使用して、新しい食料貯蔵品を追加してください。",
+      "Recipes will generate below based on ingredients available.": "利用可能な材料に基づいて、以下にレシピが生成されます。",
       // equipmentPage
       "myEquipment": "私の装置",
       "Equipment": "装置",
@@ -663,6 +684,9 @@ const resources = {
       "Close":"닫기",
       "Identify":"이 사진에서 가능한 한 적은 단어로 주요 객체를 식별하십시오",
       'Generate':'여기에 재료 목록이 있습니다: {{ingredients}}. 이를 음식과 비음식으로 분류하십시오. 제공된 음식만 사용하여 요리법을 만드십시오. 재료 목록에 없는 음식은 사용하지 마십시오. 요리법만 인쇄하십시오. 다음과 같이 형식화하십시오: 레시피: 생선 & 햄 샌드위치 (linebreak) 재료: 생선, 햄 (linebreak) 지침: 햄과 조리된 생선을 빵 두 조각 사이에 겹쳐서 냉장 또는 그릴에 구워서 제공합니다.',
+      "Welcome to myPantry": "내 식료품저장실에 오신 것을 환영합니다",
+      "Add in new pantry items using the + in the top left corner.": "왼쪽 상단 모서리에 있는 +를 사용하여 새로운 식료품 항목을 추가하세요.",
+      "Recipes will generate below based on ingredients available.": "사용 가능한 재료를 기반으로 아래에 레시피가 생성됩니다.",
       // equipmentPage
       "myEquipment": "내 장비",
       "Equipment": "장비",

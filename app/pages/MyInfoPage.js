@@ -1,3 +1,5 @@
+"use client"
+// base imports
 import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Container, Box, Typography, Button, TextField, ToggleButtonGroup, ToggleButton, CircularProgress, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack, Grid, FormControl, InputLabel, NativeSelect } from '@mui/material';
@@ -51,6 +53,7 @@ const darkTheme = createTheme({
   },
 });
 
+// steps
 const steps = [
   { title: 'Tell Us About Yourself', content: 'Select your gender', options: ['Male', 'Female'] },
   { title: 'How Old Are You?', content: 'Age is important', inputType: 'string' },
@@ -63,38 +66,47 @@ const steps = [
 ];
 
 const MyInfoPage = () => {
+  // navigate through slides/steps
   const [currentStep, setCurrentStep] = useState(0);
+  // store filledo ut data
   const [formData, setFormData] = useState({});
+  // if slides are finished, display summary page
   const [isSummary, setIsSummary] = useState(false);
+  // is loading, display loading page
   const [loading, setLoading] = useState(true); // Loading state
+  // edit mode
   const [isEditing, setIsEditing] = useState(false);
+  // camera
   const [image, setImage] = useState(null);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [facingMode, setFacingMode] = useState('user'); // 'user' is the front camera, 'environment' is the back camera
-
+  const webcamRef = useRef(null);
+  // translation
   const { t } = useTranslation();
+  // clerk user
   const { user, isSignedIn } = useUser(); // Clerk hook to get the current user
+  // light/dark mode
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const theme = prefersDarkMode ? darkTheme : lightTheme;
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const webcamRef = useRef(null);
-
+  
   // guest context
   const { guestData, setGuestData } = useContext(GuestContext);
   const { guestImage, setGuestImage} = useContext(GuestContext);
 
+  // move between steps
   const nextStep = () => {
     if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
   };
-
   const prevStep = () => {
     if (currentStep > 0) setCurrentStep(currentStep - 1);
   };
-
+  // set filled out data
   const handleInputChange = (key, value) => {
     setFormData({ ...formData, [key]: value });
   }
 
+  // handle edit mode
   const handleEditOrSave = () => {
     if(isEditing){
       handleSubmit()
@@ -138,6 +150,7 @@ const MyInfoPage = () => {
     // return null;
   };
 
+  // send image to firestore or guest storage
   const sendImage = async (imageSrc) => {
     if(imageSrc){
       if (user) {
@@ -151,6 +164,7 @@ const MyInfoPage = () => {
     
   };
 
+  // get image from firestore or guest storage
   const getImage = async () => {
     if (user) {
       const userDocRef = doc(firestore, 'users', user.id);
@@ -162,13 +176,13 @@ const MyInfoPage = () => {
     }
   };
 
+  // camera fucntions
   const captureImage = () => {
     const imageSrc = webcamRef.current.getScreenshot();
     setImage(imageSrc);
     sendImage(imageSrc);
     setCameraOpen(false);
   };
-
   const switchCamera = () => {
     setFacingMode((prevFacingMode) => (prevFacingMode === 'user' ? 'environment' : 'user'));
   };
@@ -203,6 +217,7 @@ const MyInfoPage = () => {
     return null;
   };
 
+  // upon user change, get prefLanguage and also data
   useEffect(() => {
     const fetchAndSetLanguage = async () => {
       const preferredLanguage = await getPreferredLanguage();
@@ -242,6 +257,7 @@ const MyInfoPage = () => {
     initializeData();
   }, [user]);
 
+  // clean up formData 
   function unpackData(data) {
     const ret = {
       "Sex": data[t("Tell Us About Yourself")],
@@ -255,7 +271,7 @@ const MyInfoPage = () => {
     };
     return ret;
   }
-
+  // order formData
   const orderedKeys = [
     'Sex',
     'Age',
@@ -279,6 +295,7 @@ const MyInfoPage = () => {
     }
   };
 
+  // loading page
   if (loading) {
     return (
       <Container maxWidth="sm">
@@ -301,98 +318,36 @@ const MyInfoPage = () => {
   }
 
   return (
+    // light/dark mode
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        width="100vw"
-        height={isMobile ? "100vh" : "90vh"}
-      >
-        <Box width="100%" height="100%" bgcolor="background.default">
-        {/* Header Box */}
-          <Box
-            height="10%"
-            bgcolor="background.default"
-            display="flex"
-            justifyContent="space-between"
-            paddingX={2.5}
-            paddingY={2.5}
-            alignItems="center"
-            position="relative"
-          >
-            {isSummary ? (
-              <Button
-                onClick={handleEditOrSave}
-                sx={{
-                  height: "55px",
-                  fontSize: '1rem',
-                  backgroundColor: 'background.default',
-                  color: 'text.primary',
-                  borderColor: 'background.default',
-                  '&:hover': {
-                    backgroundColor: 'text.primary',
-                    color: 'background.default',
-                    borderColor: 'text.primary',
-                  },
-                }}
-              >
-                {isEditing ? t("Save") : t("Edit")}
-              </Button>
-            ) : (
-              <FormControl sx={{ width: '85px' }}>
-                <InputLabel variant="standard" htmlFor="uncontrolled-native">
-                  {t('language')}
-                </InputLabel>
-                <NativeSelect
-                  defaultValue={t('en')}
-                  onChange={handleLanguageChange}
-                  inputProps={{
-                    name: t('language'),
-                    id: 'uncontrolled-native',
-                  }}
-                  sx={{
-                    '& .MuiNativeSelect-select': {
-                      '&:focus': {
-                        backgroundColor: 'transparent',
-                      },
-                    },
-                    '&::before': {
-                      borderBottom: 'none',
-                    },
-                    '&::after': {
-                      borderBottom: 'none',
-                    },
-                  }}
-                  disableUnderline
-                >
-                  <option value="en">English</option>
-                  <option value="cn">中文（简体）</option>
-                  <option value="tc">中文（繁體）</option>
-                  <option value="es">Español</option>
-                  <option value="fr">Français</option>
-                  <option value="de">Deutsch</option>
-                  <option value="jp">日本語</option>
-                  <option value="kr">한국어</option>
-                </NativeSelect>
-              </FormControl>
-            )}
-            {/* Title */}
-            <Box display="flex" flexDirection={"row"} alignItems={"center"}>
-              <Typography variant="h6" color="text.primary" textAlign="center">
-                {t('My Info')}
-              </Typography>
-            </Box>
-            {/* SignIn/SignOut Form */}
-            <Box>
-              {!isSignedIn ? (
+      {/* main box */}
+        <Box
+          width="100vw"
+          height={isMobile ? "100vh" : "90vh"}
+        >
+          <Box width="100%" height="100%" bgcolor="background.default">
+          {/* Header Box */}
+            <Box
+              height="10%"
+              bgcolor="background.default"
+              display="flex"
+              justifyContent="space-between"
+              paddingX={2.5}
+              paddingY={2.5}
+              alignItems="center"
+              position="relative"
+            >
+              {/* if displaying steps, show language-changer. if displaying summary, show edit mode */}
+              {isSummary ? (
                 <Button
-                  color="inherit"
-                  href="/sign-in"
+                  onClick={handleEditOrSave}
                   sx={{
-                    justifyContent: "end",
-                    right: "2%",
+                    height: "55px",
+                    fontSize: '1rem',
                     backgroundColor: 'background.default',
                     color: 'text.primary',
-                    borderColor: 'text.primary',
+                    borderColor: 'background.default',
                     '&:hover': {
                       backgroundColor: 'text.primary',
                       color: 'background.default',
@@ -400,271 +355,345 @@ const MyInfoPage = () => {
                     },
                   }}
                 >
-                  {t('signIn')}
+                  {isEditing ? t("Save") : t("Edit")}
                 </Button>
               ) : (
-                <UserButton />
-              )}
-            </Box>
-          </Box>
-          <Divider />
-          <Container maxWidth="sm">
-            <Box
-              sx={{
-                minHeight: '80vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexDirection: 'column',
-                bgcolor: 'background.default',
-                color: 'text.primary',
-              }}
-            >
-              {isSummary ? (
-                <Box
-                  width="100%"
-                  height="100vh"
-                >
-                  <Modal open={cameraOpen} onClose={() => setCameraOpen(false)}>
-                    <Box width="100vw" height="100vh" backgroundColor="black">
-                      <Stack display="flex" justifyContent="center" alignItems="center" flexDirection="column" sx={{ transform: 'translate(0%,25%)' }}>
-                        <Box
-                          sx={{
-                            top: '50%',
-                            bgcolor: 'black',
-                            width: 350,
-                            height: 350,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            paddingY: 2,
-                            position: 'relative'
-                          }}
-                        >
-                          <Box
-                            sx={{
-                              maxWidth: 350,
-                              aspectRatio: '1/1',
-                              display: 'flex',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                              position: 'relative',
-                              backgroundColor: 'black',
-                              borderRadius: '16px',
-                              overflow: 'hidden',
-                            }}
-                          >
-                            <Webcam
-                              ref={webcamRef}
-                              screenshotFormat="image/jpeg"
-                              videoConstraints={{
-                                facingMode: facingMode,
-                              }}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                transform: 'scaleX(-1)',
-                              }}
-                            />
-                          </Box>
-                        </Box>
-                        <Stack flexDirection="row" gap={2} position="relative">
-                          <Button
-                            variant="outlined"
-                            onClick={captureImage}
-                            sx={{
-                              color: 'black',
-                              borderColor: 'white',
-                              backgroundColor: 'white',
-                              '&:hover': {
-                                backgroundColor: 'white',
-                                color: 'black',
-                                borderColor: 'white',
-                              },
-                              marginTop: 1,
-                            }}
-                          >
-                            {t("Take Photo")}
-                          </Button>
-                          <Button
-                            onClick={switchCamera}
-                            sx={{
-                              color: 'black',
-                              borderColor: 'white',
-                              backgroundColor: 'white',
-                              '&:hover': {
-                                backgroundColor: 'white',
-                                color: 'black',
-                                borderColor: 'white',
-                              },
-                              marginTop: 1,
-                            }}
-                          >
-                            {t("Switch Camera")}
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            onClick={() => {
-                              setCameraOpen(false);
-                            }}
-                            sx={{
-                              color: 'black',
-                              borderColor: 'white',
-                              backgroundColor: 'white',
-                              '&:hover': {
-                                backgroundColor: 'white',
-                                color: 'black',
-                                borderColor: 'white',
-                              },
-                              marginTop: 1,
-                            }}
-                          >
-                            {t('Exit')}
-                          </Button>
-                        </Stack>
-                      </Stack>
-                    </Box>
-                  </Modal>
-
-                  <Box
-                    width="100%"
-                    height="90%"
-                    display="flex"
-                    flexDirection="column"
-                    // justifyContent={"center"}
-                    p= {2.5}
-                    gap = {2.5}
-                    alignItems="center"
+                <FormControl sx={{ width: '85px' }}>
+                  <InputLabel variant="standard" htmlFor="uncontrolled-native">
+                    {t('language')}
+                  </InputLabel>
+                  <NativeSelect
+                    defaultValue={t('en')}
+                    onChange={handleLanguageChange}
+                    inputProps={{
+                      name: t('language'),
+                      id: 'uncontrolled-native',
+                    }}
+                    sx={{
+                      '& .MuiNativeSelect-select': {
+                        '&:focus': {
+                          backgroundColor: 'transparent',
+                        },
+                      },
+                      '&::before': {
+                        borderBottom: 'none',
+                      },
+                      '&::after': {
+                        borderBottom: 'none',
+                      },
+                    }}
+                    disableUnderline
                   >
-                    {image ? (
-                      <Image
-                        src={image}
-                        alt={t("image")}
-                        width={250}
-                        height={250}
-                        style={{ borderRadius: "30px", objectFit: 'cover', transform: facingMode === 'user' ? "scaleX(-1)" : "none" }}
-                      />
-                    ) : (
-                      <Image
-                        src="/profile.jpg"
-                        alt={t("banner")}
-                        width={isMobile ? 200 : 300}
-                        height={isMobile ? 200 : 300}
-                        style={{ borderRadius: "30px" }}
-                      />
-                    )}
-                    {/* Add photo button */}
-                    <Button
-                      variant="outlined"
-                      onClick={() => setCameraOpen(true)}
-                      sx={{
-                        width: "150px",
-                        height: "40px",
-                        fontSize: '0.75rem',
+                    <option value="en">English</option>
+                    <option value="cn">中文（简体）</option>
+                    <option value="tc">中文（繁體）</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="jp">日本語</option>
+                    <option value="kr">한국어</option>
+                  </NativeSelect>
+                </FormControl>
+              )}
+              {/* Title */}
+              <Box display="flex" flexDirection={"row"} alignItems={"center"}>
+                <Typography variant="h6" color="text.primary" textAlign="center">
+                  {t('My Info')}
+                </Typography>
+              </Box>
+              {/* SignIn/SignOut Form */}
+              <Box>
+                {!isSignedIn ? (
+                  <Button
+                    color="inherit"
+                    href="/sign-in"
+                    sx={{
+                      justifyContent: "end",
+                      right: "2%",
+                      backgroundColor: 'background.default',
+                      color: 'text.primary',
+                      borderColor: 'text.primary',
+                      '&:hover': {
                         backgroundColor: 'text.primary',
                         color: 'background.default',
-                        borderColor: 'background.default',
-                        borderRadius: '10px',
-                        '&:hover': {
-                          backgroundColor: 'background.default',
-                          color: 'text.primary',
-                          borderColor: 'text.primary',
-                        },
-                      }}
-                    >
-                      {image ? t("Change photo") : t("Add photo")}
-                    </Button>
-
-                    <Grid container spacing={isMobile ? 2: 14} style={{ display: 'flex', justifyContent: 'center', width: isMobile ? "75vw" : "75vw",overflow: 'scroll'}}>
-                      {orderedKeys.map((key) => (
-                        <Grid item xs={6} sm={3} key={key}>
-                          {isEditing ? (
-                            <Box key={key} sx={{ }}>
-                              <Typography variant="h6" display="flex">{t(key)}</Typography>
-                              <TextField
-                                variant="outlined"
-                                fullWidth
-                                value={formData[key] || ''}
-                                onChange={(e) => handleInputChange(key, e.target.value)}
-                                sx={{ }}
+                        borderColor: 'text.primary',
+                      },
+                    }}
+                  >
+                    {t('signIn')}
+                  </Button>
+                ) : (
+                  <UserButton />
+                )}
+              </Box>
+            </Box>
+            <Divider />
+            {/* body */}
+            <Container maxWidth="sm">
+              <Box
+                sx={{
+                  minHeight: '80vh',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                  bgcolor: 'background.default',
+                  color: 'text.primary',
+                }}
+              >
+                {/* show summary */}
+                {isSummary ? (
+                  <Box
+                    width="100%"
+                    height="100vh"
+                  >
+                    {/* camera modal */}
+                    <Modal open={cameraOpen} onClose={() => setCameraOpen(false)}>
+                      <Box width="100vw" height="100vh" backgroundColor="black">
+                        <Stack display="flex" justifyContent="center" alignItems="center" flexDirection="column" sx={{ transform: 'translate(0%,25%)' }}>
+                          <Box
+                            sx={{
+                              top: '50%',
+                              bgcolor: 'black',
+                              width: 350,
+                              height: 350,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              paddingY: 2,
+                              position: 'relative'
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                maxWidth: 350,
+                                aspectRatio: '1/1',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                position: 'relative',
+                                backgroundColor: 'black',
+                                borderRadius: '16px',
+                                overflow: 'hidden',
+                              }}
+                            >
+                              <Webcam
+                                ref={webcamRef}
+                                screenshotFormat="image/jpeg"
+                                videoConstraints={{
+                                  facingMode: facingMode,
+                                }}
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'cover',
+                                  transform: 'scaleX(-1)',
+                                }}
                               />
                             </Box>
-                          ) : (
-                            <Box key={key} sx={{ }}>
-                              <Typography variant="h6" display="flex">{t(key)}</Typography>
-                              <Typography variant="body1" color="textSecondary" display="flex">{formData[key] || 'N/A'}</Typography>
-                            </Box>
-                          )}
-                        </Grid>
-                      ))}
-                    </Grid>
+                          </Box>
+                          <Stack flexDirection="row" gap={2} position="relative">
+                            <Button
+                              variant="outlined"
+                              onClick={captureImage}
+                              sx={{
+                                color: 'black',
+                                borderColor: 'white',
+                                backgroundColor: 'white',
+                                '&:hover': {
+                                  backgroundColor: 'white',
+                                  color: 'black',
+                                  borderColor: 'white',
+                                },
+                                marginTop: 1,
+                              }}
+                            >
+                              {t("Take Photo")}
+                            </Button>
+                            <Button
+                              onClick={switchCamera}
+                              sx={{
+                                color: 'black',
+                                borderColor: 'white',
+                                backgroundColor: 'white',
+                                '&:hover': {
+                                  backgroundColor: 'white',
+                                  color: 'black',
+                                  borderColor: 'white',
+                                },
+                                marginTop: 1,
+                              }}
+                            >
+                              {t("Switch Camera")}
+                            </Button>
+                            <Button
+                              variant="outlined"
+                              onClick={() => {
+                                setCameraOpen(false);
+                              }}
+                              sx={{
+                                color: 'black',
+                                borderColor: 'white',
+                                backgroundColor: 'white',
+                                '&:hover': {
+                                  backgroundColor: 'white',
+                                  color: 'black',
+                                  borderColor: 'white',
+                                },
+                                marginTop: 1,
+                              }}
+                            >
+                              {t('Exit')}
+                            </Button>
+                          </Stack>
+                        </Stack>
+                      </Box>
+                    </Modal>
 
-                  </Box>
-                </Box>
-              ) : (
-                steps.map((step, index) => (
-                  <motion.div
-                    key={step.title}
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={currentStep === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                    transition={{ duration: 0.5 }}
-                    style={{ display: currentStep === index ? 'block' : 'none', width: '100%' }}
-                  >
-                    <Typography variant="h4" gutterBottom>{t(step.title)}</Typography>
-                    <Typography variant="body1" color="textSecondary" gutterBottom>{t(step.content)}</Typography>
-
-                    {step.options && (
-                      <ToggleButtonGroup
-                        exclusive
-                        value={formData[step.title] || ''}
-                        onChange={(e, value) => handleInputChange(step.title, value)}
-                        onKeyDown={handleKeyPress}
-                        sx={{ mb: 4 }}
-                      >
-                        {step.options.map((option) => (
-                          <ToggleButton key={option} value={option}>
-                            {t(option)}
-                          </ToggleButton>
-                        ))}
-                      </ToggleButtonGroup>
-                    )}
-
-                    {step.inputType && (
-                      <TextField
-                        type={step.inputType}
-                        fullWidth
+                    <Box
+                      width="100%"
+                      height="90%"
+                      display="flex"
+                      flexDirection="column"
+                      // justifyContent={"center"}
+                      p= {2.5}
+                      gap = {2.5}
+                      alignItems="center"
+                    >
+                      {/* show image or placeholder */}
+                      {image ? (
+                        <Image
+                          src={image}
+                          alt={t("image")}
+                          width={250}
+                          height={250}
+                          style={{ borderRadius: "30px", objectFit: 'cover', transform: facingMode === 'user' ? "scaleX(-1)" : "none" }}
+                        />
+                      ) : (
+                        <Image
+                          src="/profile.jpg"
+                          alt={t("banner")}
+                          width={isMobile ? 200 : 300}
+                          height={isMobile ? 200 : 300}
+                          style={{ borderRadius: "30px" }}
+                        />
+                      )}
+                      {/* Add photo button */}
+                      <Button
                         variant="outlined"
-                        onChange={(e) => handleInputChange(step.title, e.target.value)}
-                        onKeyDown={handleKeyPress}
-                        sx={{ mb: 4 }}
-                      />
-                    )}
+                        onClick={() => setCameraOpen(true)}
+                        sx={{
+                          width: "150px",
+                          height: "40px",
+                          fontSize: '0.75rem',
+                          backgroundColor: 'text.primary',
+                          color: 'background.default',
+                          borderColor: 'background.default',
+                          borderRadius: '10px',
+                          '&:hover': {
+                            backgroundColor: 'background.default',
+                            color: 'text.primary',
+                            borderColor: 'text.primary',
+                          },
+                        }}
+                      >
+                        {image ? t("Change photo") : t("Add photo")}
+                      </Button>
 
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={prevStep}
-                        disabled={currentStep === 0}
-                      >
-                        {t('Back')}
-                      </Button>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={currentStep === steps.length - 1 ? handleSubmit : nextStep}
-                      >
-                        {currentStep === steps.length - 1 ? t('Finish') : t('Next')}
-                      </Button>
+                      {/* display content summary */}
+                      <Grid container spacing={isMobile ? 2: 14} style={{ display: 'flex', justifyContent: 'center', width: isMobile ? "75vw" : "75vw",overflow: 'scroll'}}>
+                        {orderedKeys.map((key) => (
+                          <Grid item xs={6} sm={3} key={key}>
+                            {isEditing ? (
+                              <Box key={key} sx={{ }}>
+                                <Typography variant="h6" display="flex">{t(key)}</Typography>
+                                <TextField
+                                  variant="outlined"
+                                  fullWidth
+                                  value={formData[key] || ''}
+                                  onChange={(e) => handleInputChange(key, e.target.value)}
+                                  sx={{ }}
+                                />
+                              </Box>
+                            ) : (
+                              <Box key={key} sx={{ }}>
+                                <Typography variant="h6" display="flex">{t(key)}</Typography>
+                                <Typography variant="body1" color="textSecondary" display="flex">{formData[key] || 'N/A'}</Typography>
+                              </Box>
+                            )}
+                          </Grid>
+                        ))}
+                      </Grid>
+
                     </Box>
-                  </motion.div>
-                ))
-              )}
-            </Box>
-          </Container>
+                  </Box>
+                ) : (
+                  // show slides
+                  steps.map((step, index) => (
+                    <motion.div
+                      key={step.title}
+                      initial={{ opacity: 0, y: 50 }}
+                      animate={currentStep === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                      transition={{ duration: 0.5 }}
+                      style={{ display: currentStep === index ? 'block' : 'none', width: '100%' }}
+                    >
+                      {/* title */}
+                      <Typography variant="h4" gutterBottom>{t(step.title)}</Typography>
+                      {/* content */}
+                      <Typography variant="body1" color="textSecondary" gutterBottom>{t(step.content)}</Typography>
+
+                      {/* display options if options, display inputfield if inputfield */}
+                      {step.options && (
+                        <ToggleButtonGroup
+                          exclusive
+                          value={formData[step.title] || ''}
+                          onChange={(e, value) => handleInputChange(step.title, value)}
+                          onKeyDown={handleKeyPress}
+                          sx={{ mb: 4 }}
+                        >
+                          {step.options.map((option) => (
+                            <ToggleButton key={option} value={option}>
+                              {t(option)}
+                            </ToggleButton>
+                          ))}
+                        </ToggleButtonGroup>
+                      )}
+
+                      {step.inputType && (
+                        <TextField
+                          type={step.inputType}
+                          fullWidth
+                          variant="outlined"
+                          onChange={(e) => handleInputChange(step.title, e.target.value)}
+                          onKeyDown={handleKeyPress}
+                          sx={{ mb: 4 }}
+                        />
+                      )}
+                      {/* front/back buttons */}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          onClick={prevStep}
+                          disabled={currentStep === 0}
+                        >
+                          {t('Back')}
+                        </Button>
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={currentStep === steps.length - 1 ? handleSubmit : nextStep}
+                        >
+                          {currentStep === steps.length - 1 ? t('Finish') : t('Next')}
+                        </Button>
+                      </Box>
+                    </motion.div>
+                  ))
+                )}
+              </Box>
+            </Container>
+          </Box>
         </Box>
-      </Box>
     </ThemeProvider>
   );
 }

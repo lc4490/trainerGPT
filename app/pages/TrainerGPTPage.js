@@ -198,13 +198,12 @@ const customComponents = {
 };
 
 const TrainerGPTPage = () => {
+  // guest mode
+  const {guestData, guestEquipment, guestMessages, setGuestMessages} = useContext(GuestContext)
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
   const { user, isSignedIn } = useUser(); // Clerk user
   const [prefLanguage, setPrefLanguage] = useState('');
-
-  const {guestData, guestEquipment, guestMessages, setGuestMessages} = useContext(GuestContext)
-
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     if (user) {
@@ -215,14 +214,12 @@ const TrainerGPTPage = () => {
       setMessages([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
     }
   };
-
   const handleLanguageChange = (event) => {
     const newLanguage = event.target.value;
     setPrefLanguage(newLanguage);
     changeLanguage(newLanguage);
     setPreferredLanguage(newLanguage);
   };
-
   // Store preferred language on Firebase
   const setPreferredLanguage = async (language) => {
     if (user) {
@@ -231,7 +228,6 @@ const TrainerGPTPage = () => {
       await setDoc(userDocRef, { preferredLanguage: language }, { merge: true });
     }
   };
-
   const getPreferredLanguage = async () => {
     if (user) {
       const userId = user.id;
@@ -241,7 +237,6 @@ const TrainerGPTPage = () => {
     }
     return null;
   };
-
   useEffect(() => {
     const fetchAndSetLanguage = async () => {
       const preferredLanguage = await getPreferredLanguage();
@@ -261,6 +256,7 @@ const TrainerGPTPage = () => {
     setDarkMode(prefersDarkMode);
   }, [prefersDarkMode]);
   const theme = darkMode ? darkTheme : lightTheme;
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // Sending messages
   const [messages, setMessages] = useState([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
@@ -274,6 +270,7 @@ const TrainerGPTPage = () => {
     const userMessage = { role: 'user', content: message };
     const initialAssistantMessage = { role: 'assistant', content: '' };
 
+    // add user message to list of all messages
     setMessages((prevMessages) => [...prevMessages, userMessage, initialAssistantMessage]);
 
     setMessage(''); // Clear the input field
@@ -293,7 +290,7 @@ const TrainerGPTPage = () => {
       - Health issues or injuries: ${Health || 'Not provided'}
       - Availability: ${Availability || 'Not provided'}
       `;
-
+      // RAGS FOR EQUIPMENT
       const resolvedEquipmentList = user ? await equipmentList : await guestEquipment;
       let equipmentContent = `Available Equipment:\n`;
       resolvedEquipmentList.forEach((item) => {
@@ -301,6 +298,7 @@ const TrainerGPTPage = () => {
       });
       responseContent += equipmentContent;
 
+      // find exercise names in message, if so, upload youtube links
       const exerciseNames = extractExerciseName(message);
       exerciseNames.forEach((exercise) => {
         let links = getYouTubeLinksForExercise(exercise);
@@ -310,6 +308,7 @@ const TrainerGPTPage = () => {
         });
       });
 
+      // combine input, send api request
       const combinedInput = `User: ${message}\nPersonalized Data: ${responseContent}`;
       const response = await fetch('../api/chat', {
         method: 'POST',
@@ -322,6 +321,7 @@ const TrainerGPTPage = () => {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
 
+      // assistant response COULD IMPLEMENT SAVING WORKOUT PLAN HERE
       let assistantResponse = '';
       while (true) {
         const { done, value } = await reader.read();
@@ -335,12 +335,14 @@ const TrainerGPTPage = () => {
           return updatedMessages;
         });
       }
-
+      console.log(assistantResponse)
+      // set messages with new message
       setMessages((prevMessages) => {
         const updatedMessages = prevMessages.map((msg, index) =>
           index === prevMessages.length - 1 ? { ...msg, content: assistantResponse } : msg
         );
-
+        
+        // save chat logs
         if (user) {
           saveChatLog(user.id, i18n.language, updatedMessages);
         }
@@ -358,24 +360,23 @@ const TrainerGPTPage = () => {
     setIsLoading(false);
   };
 
+  // Quality of life improvements
+  // if press enter, send message
   const handleKeyPress = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       sendMessage();
     }
   };
-
-  const [data, setData] = useState('');
-  const getUserData = async () => {
-    if (user) {
-      const userId = user.id;
-      const userDocRef = doc(firestore, 'users', userId);
-      const userDoc = await getDoc(userDocRef);
-      return userDoc.exists() ? userDoc.data().userData : null;
+  // scroll to bottom after new message
+  useEffect(() => {
+    const chatLog = document.querySelector('.chat-log');
+    if (chatLog) {
+      chatLog.scrollTop = chatLog.scrollHeight;
     }
-    return null;
-  };
+  }, [messages]);
 
+  // Saving, loading, and clearing chat
   const saveChatLog = async (userId, languageCode, messages) => {
     try {
       const docRef = doc(firestore, 'users', userId, 'chat', languageCode);
@@ -387,7 +388,6 @@ const TrainerGPTPage = () => {
       console.error("Error saving chat log:", error);
     }
   };
-
   const loadChatLog = async (userId, languageCode) => {
     try {
       const docRef = doc(firestore, 'users', userId, 'chat', languageCode);
@@ -404,7 +404,6 @@ const TrainerGPTPage = () => {
       console.error("Error loading chat log:", error);
     }
   };
-
   const clearChatLog = async () => {
     try {
       if (user) {
@@ -420,7 +419,6 @@ const TrainerGPTPage = () => {
       console.error("Error clearing chat log:", error);
     }
   };
-
   useEffect(() => {
     if (user) {
         const fetchData = async () => {
@@ -440,17 +438,17 @@ const TrainerGPTPage = () => {
   
 }, [user, i18n.language, guestMessages]);
 
-
-  
-
-  useEffect(() => {
-    const chatLog = document.querySelector('.chat-log');
-    if (chatLog) {
-      chatLog.scrollTop = chatLog.scrollHeight;
+  // USER RAG
+  const [data, setData] = useState('');
+  const getUserData = async () => {
+    if (user) {
+      const userId = user.id;
+      const userDocRef = doc(firestore, 'users', userId);
+      const userDoc = await getDoc(userDocRef);
+      return userDoc.exists() ? userDoc.data().userData : null;
     }
-  }, [messages]);
-
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    return null;
+  };
 
   // EQUIPMENT RAG
   const [equipmentList, setEquipmentList] = useState([])
@@ -466,7 +464,7 @@ const TrainerGPTPage = () => {
       return [];
     }
   };
-  // update pantry based on firebase
+  // update equipment based on firebase
   const updateEquipment = async () => {
     if (user) {
       const userUID = user.id;
@@ -502,14 +500,17 @@ const TrainerGPTPage = () => {
   };
 
   return (
+    // light/dark theming
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      {/* main box */}
       <Box
         width="100vw"
         height={isMobile ? "100vh" : "90vh"}
         display="flex"
         flexDirection="column"
       >
+        {/* header box */}
         <Box
           height="10%"
           bgcolor="background.default"
@@ -520,6 +521,7 @@ const TrainerGPTPage = () => {
           alignItems="center"
           position="relative"
         >
+          {/* switch language */}
           <FormControl sx={{ width: '85px' }}>
             <InputLabel variant="standard" htmlFor="uncontrolled-native">
               {t('language')}
@@ -550,46 +552,50 @@ const TrainerGPTPage = () => {
               <option value="kr">한국어</option>
             </NativeSelect>
           </FormControl>
+          {/* title */}
           <Box display="flex" flexDirection={"row"} alignItems={"center"}>
             <Typography variant="h6" color="text.primary" textAlign="center">
               {t('trainerGPT')}
             </Typography>
           </Box>
+          {/* signin button */}
           <Box>
-          <Box>
-              {!isSignedIn ? (
-                <Button 
-                  color="inherit"
-                  href="/sign-in"
-                  sx={{
-                    justifyContent: "end",
-                    right: "2%",
-                    backgroundColor: 'background.default',
-                    color: 'text.primary',
-                    borderColor: 'text.primary',
-                    '&:hover': {
-                      backgroundColor: 'text.primary',
-                      color: 'background.default',
+            <Box>
+                {!isSignedIn ? (
+                  <Button 
+                    color="inherit"
+                    href="/sign-in"
+                    sx={{
+                      justifyContent: "end",
+                      right: "2%",
+                      backgroundColor: 'background.default',
+                      color: 'text.primary',
                       borderColor: 'text.primary',
-                    },
-                  }}
-                >
-                  {t('signIn')}
-                </Button>
-              ) : (
-                <UserButton />
-              )}
-            </Box>
+                      '&:hover': {
+                        backgroundColor: 'text.primary',
+                        color: 'background.default',
+                        borderColor: 'text.primary',
+                      },
+                    }}
+                  >
+                    {t('signIn')}
+                  </Button>
+                ) : (
+                  <UserButton />
+                )}
+              </Box>
           </Box>
         </Box>
 
         <Divider />
 
+        {/* body */}
         <Stack
           direction="column"
           width="100vw"
           height={isMobile ? "70%" : "90%"}
         >
+          {/* messages */}
           <Stack direction="column" spacing={2} flexGrow={1} overflow='auto' padding={2} className="chat-log">
             {messages.map((message, index) => (
               <Box
@@ -620,7 +626,9 @@ const TrainerGPTPage = () => {
               </Box>
             ))}
           </Stack>
+          {/* textfield, send button, clear chat */}
           <Stack direction="row" spacing={2} padding={2} sx={{ width: '100%', bottom: 0 }}>
+            {/* input field */}
             <TextField
               label={t('Message')}
               fullWidth
@@ -629,6 +637,7 @@ const TrainerGPTPage = () => {
               onKeyDown={handleKeyPress}
               disabled={isLoading}
             ></TextField>
+            {/* send button */}
             <Button
               variant="outlined"
               onClick={sendMessage}
@@ -644,6 +653,7 @@ const TrainerGPTPage = () => {
             >
               {t('send')}
             </Button>
+            {/* clear chat */}
             <Button
               onClick={clearChatLog}
               variant="outlined"

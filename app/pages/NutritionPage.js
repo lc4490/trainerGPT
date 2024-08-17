@@ -38,6 +38,7 @@ const lightTheme = createTheme({
       paper: '#ffffff',
       gray: 'lightgray',
       banner: 'banner.png',
+      bannerColor: '#3C3C3C'
     },
     text: {
       primary: '#000000',
@@ -53,6 +54,7 @@ const darkTheme = createTheme({
       paper: '#121212',
       gray: 'darkgray',
       banner: 'banner.png',
+      bannerColor: '#fffff'
     },
     text: {
       primary: '#ffffff',
@@ -945,14 +947,62 @@ const NutritionPage = () => {
           <Divider />
           
           {/* banner image */}
-          <Image 
+          {/* <Image 
             src= {prefersDarkMode ? "/banner_pantry_dark.png" : "/banner_pantry.png"} 
             alt="banner"
             // layout="responsive"
             width={800}
             height={200}
             style={{ width: '100%', height: 'auto'}}
-          />
+          /> */}
+          {/* Banner image */}
+            {/* if mobile */}
+            {isMobile ? (
+              <Box sx={{
+                backgroundImage: `url(${prefersDarkMode ? "/pantry_dark.jpg" : "/pantry.jpg"})`,
+                backgroundSize: '160%', // Stretch the image to cover the entire Box
+                backgroundPosition: 'center', // Center the image in the Box
+                backgroundRepeat: 'no-repeat', // Prevent the image from repeating
+                width:"100%",
+                height: "120px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: 'center',
+                flexDirection: 'column',
+                color: "background.bannerColor",
+              }}>
+                <Typography sx={{ fontSize: "1.75rem" }}>{t("Welcome to myPantry")}</Typography>
+                <Typography sx={{ width: "75%", display: "flex", justifyContent: "center", alignItems: 'center', textAlign: 'center', fontSize: "0.7rem"}}>
+                  {t("Add in new pantry items using the + in the top left corner.")}
+                </Typography>
+                <Typography sx={{ width: "75%", display: "flex", justifyContent: "center", alignItems: 'center', textAlign: 'center', fontSize: "0.7rem" }}>
+                  {t("Recipes will generate below based on ingredients available.")}
+                </Typography>
+              </Box>
+            ) : (
+              // if desktop
+              <Box sx={{
+                backgroundImage: `url(${prefersDarkMode ? "/pantry_dark.jpg" : "/pantry.jpg"})`,
+                backgroundSize: '100%', // Stretch the image to cover the entire Box
+                backgroundPosition: 'center', // Center the image in the Box
+                backgroundRepeat: 'no-repeat', // Prevent the image from repeating
+                width:"100%",
+                height: "450px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: 'center',
+                flexDirection: 'column',
+                color: "background.bannerColor",
+              }}>
+                <Typography sx={{ fontSize: "6.5rem" }}>{t("Welcome to myPantry")}</Typography>
+                <Typography sx={{ width: "100%", display: "flex", justifyContent: "center", alignItems: 'center', fontSize: "1.5rem" }}>
+                  {t("Add in new pantry items using the + in the top left corner.")}
+                </Typography>
+                <Typography sx={{ width: "100%", display: "flex", justifyContent: "center", alignItems: 'center', fontSize: "1.5rem" }}>
+                  {t("Recipes will generate below based on ingredients available.")}
+                </Typography>
+              </Box>
+            )}
 
           {/* recipes */}
           <Stack flexDirection="row">

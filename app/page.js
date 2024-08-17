@@ -60,6 +60,7 @@ export default function Home() {
   const [guestImage, setGuestImage] = useState('');
   const [guestEquipment, setGuestEquipment] = useState([])
   const [guestMessages, setGuestMessages] = useState([])
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -106,6 +107,7 @@ export default function Home() {
     <MyInfoPage key="myInfo" />,
     <EquipmentPage key="equipment" />,
     <TrainerGPTPage key="trainerGPT" />,
+    // <NutritionPage key = "nutrition" />,
     hasPremiumAccess ? <NutritionPage key="nutrition" /> : <PaywallPage key="paywall" />,
     hasPremiumAccess ? <PlanPage key="plan" /> : <PaywallPage key="paywall" />,
   ];
@@ -162,11 +164,11 @@ export default function Home() {
                 }}
                 sx={{ width: '100%', position: 'fixed', bottom: 0 }}
               >
-                <BottomNavigationAction label="My Info" icon={<HomeIcon />} />
-                <BottomNavigationAction label="My Equipment" icon={<FitnessCenter />} />
-                <BottomNavigationAction label="Trainer GPT" icon={<Person />} />
-                <BottomNavigationAction label="My Pantry" icon={<LocalDiningIcon />} />
-                <BottomNavigationAction label="Plan" icon={<CalendarToday />} />
+                <BottomNavigationAction label={t("My Info")} icon={<HomeIcon />} />
+                <BottomNavigationAction label={t("myEquipment")} icon={<FitnessCenter />} />
+                <BottomNavigationAction label={t("TrainerGPT")} icon={<Person />} />
+                <BottomNavigationAction label={t("myPantry")} icon={<LocalDiningIcon />} />
+                <BottomNavigationAction label={t("Plan")} icon={<CalendarToday />} />
               </BottomNavigation>
             </Box>
           </Box>

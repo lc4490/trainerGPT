@@ -883,7 +883,7 @@ const EquipmentPage = () => {
                       />
                     ) : (
                       <Image
-                        src="/ingredients.jpg"
+                        src="/equipment.jpg"
                         alt={name}
                         width={100}
                         height={100}

@@ -450,6 +450,18 @@ const TrainerGPTPage = () => {
 
   // EQUIPMENT RAG
   const [equipmentList, setEquipmentList] = useState([])
+  // get YoutubeLinks
+  const getYouTubeLinksForExercise = (exerciseName) => {
+    const exercise = exerciseData.find(
+      (ex) => ex.name.toLowerCase() === exerciseName.toLowerCase()
+    );
+  
+    if (exercise) {
+      return exercise.youtubeLinks;
+    } else {
+      return [];
+    }
+  };
   // update pantry based on firebase
   const updateEquipment = async () => {
     if (user) {

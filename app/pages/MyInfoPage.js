@@ -576,9 +576,7 @@ const MyInfoPage = () => {
                       {image ? t("Change photo") : t("Add photo")}
                     </Button>
 
-                    <Grid container spacing={2} paddingX={5} style={{ display: 'flex', justifyContent: 'center', width: "75vw",overflow: 'scroll'}}>
-                      {console.log(formData)}
-                      {console.log(orderedKeys)}
+                    <Grid container spacing={isMobile ? 2: 14} style={{ display: 'flex', justifyContent: 'center', width: isMobile ? "75vw" : "75vw",overflow: 'scroll'}}>
                       {orderedKeys.map((key) => (
                         <Grid item xs={6} sm={3} key={key}>
                           {isEditing ? (

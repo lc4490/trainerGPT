@@ -27,6 +27,10 @@ import { createTheme, ThemeProvider, CssBaseline, useMediaQuery } from '@mui/mat
 // openai
 import OpenAI from 'openai';
 
+// import guestContext
+import { useContext } from 'react';
+import { GuestContext } from '../page'; // Adjust the path based on your structure
+
 const lightTheme = createTheme({
   palette: {
     mode: 'light',
@@ -75,6 +79,8 @@ const EquipmentPage = () => {
   const [image, setImage] = useState(null);
   const webcamRef = useRef(null);
   const [facingMode, setFacingMode] = useState('user'); // 'user' is the front camera, 'environment' is the back camera
+
+  const {guestEquipment, setGuestEquipment} = useContext(GuestContext)
 
   // open modal declareables
   const handleOpenAdd = () => {
@@ -162,51 +168,63 @@ const EquipmentPage = () => {
       });
       setEquipmentList(equipment);
     }
+    else{
+      setEquipmentList(guestEquipment)
+    }
   };
 
   useEffect(() => {
-    if (user) {
       updateEquipment();
-    }
-  }, [user]);
+    
+  }, [user, guestEquipment]);
 
   const addItem = async (item, quantity, image) => {
-    if (!isSignedIn) {
-      alert("You must be signed in to add items.");
-      return;
-    }
+    const sanitizedItemName = sanitizeItemName(item);
     if (isNaN(quantity) || quantity < 0) {
       alert("Quantity must be a positive number.");
       return;
     } 
-    if (quantity >= 1 && item) {
-      const sanitizedItemName = sanitizeItemName(item);
-      const userId = user.id;
-      const docRef = doc(firestore, 'users', userId, 'equipment', sanitizedItemName);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const { count, image: existingImage } = docSnap.data();
-        await setDoc(docRef, { count: count + quantity, image: image || existingImage });
-      } else {
-        await setDoc(docRef, { count: quantity, image });
+    if(user){
+      if (quantity >= 1 && item) {
+        const userId = user.id;
+        const docRef = doc(firestore, 'users', userId, 'equipment', sanitizedItemName);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const { count, image: existingImage } = docSnap.data();
+          await setDoc(docRef, { count: count + quantity, image: image || existingImage });
+        } else {
+          await setDoc(docRef, { count: quantity, image });
+        }
+        await updateEquipment();
       }
-      await updateEquipment();
+    }
+    else{
+      setGuestEquipment((guestEquipment) => [...guestEquipment, {name: sanitizedItemName, count: 1, image: image}]);
+      setEquipmentList(guestEquipment)
     }
   }
 
   const handleQuantityChange = async (item, quantity) => {
-    if (!isSignedIn) {
-      alert("You must be signed in to change item quantities.");
-      return;
+    if (user) {
+        
+      const userId = user.id;
+      const docRef = doc(firestore, 'users', userId, 'equipment', item);
+      if (quantity === 0) {
+        await deleteDoc(docRef);
+      } else {
+        await setDoc(docRef, { count: quantity });
+      }
+      await updateEquipment();
     }
-    const userId = user.id;
-    const docRef = doc(firestore, 'users', userId, 'equipment', item);
-    if (quantity === 0) {
-      await deleteDoc(docRef);
-    } else {
-      await setDoc(docRef, { count: quantity });
+    else{
+      setGuestEquipment(guestEquipment => 
+        guestEquipment
+            .map(p => p.name === item ? { ...p, count: quantity } : p)
+            .filter(p => p.count !== 0) // This line removes the equipment if the count is 0
+    );
+    setEquipmentList(guestEquipment)
+      
     }
-    await updateEquipment();
   };
 
   const handleOpenAddAndOpenCamera = () => {
@@ -361,10 +379,10 @@ const EquipmentPage = () => {
                     fontSize: '2.5rem',
                     fontWeight: '550',
                     '& fieldset': {
-                      borderColor: 'background.default',
+                      borderColor: 'lightgray',
                     },
                     '&:hover fieldset': {
-                      borderColor: 'background.default',
+                      borderColor: 'lightgray',
                     },
                     '&.Mui-focused fieldset': {
                       borderColor: 'lightgray',

@@ -1,6 +1,6 @@
 "use client"
 import { Box, Stack, Typography, Button, TextField, CssBaseline, ThemeProvider, useMediaQuery, FormControl, InputLabel, NativeSelect, Link, Divider } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createTheme } from '@mui/material';
 // import icons
 import PersonIcon from '@mui/icons-material/Person';
@@ -15,6 +15,10 @@ import { firestore } from '../firebase'
 import { collection, getDocs, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 // linebreaks
 import ReactMarkdown from 'react-markdown';
+// import guestContext
+import { useContext } from 'react';
+import { GuestContext } from '../page'; // Adjust the path based on your structure
+
 
 // light/dark themes
 const lightTheme = createTheme({
@@ -199,6 +203,8 @@ const TrainerGPTPage = () => {
   const { user, isSignedIn } = useUser(); // Clerk user
   const [prefLanguage, setPrefLanguage] = useState('');
 
+  const {guestData, guestEquipment, guestMessages, setGuestMessages} = useContext(GuestContext)
+
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
     if (user) {
@@ -274,7 +280,7 @@ const TrainerGPTPage = () => {
 
     try {
       // RAGS FOR INFO
-      const resolvedData = await data;
+      const resolvedData = user ? await data : await guestData;
       let responseContent = ``;
       const { Age, Sex, Weight, Height, Goals, Activity, Health, Availability } = resolvedData || {};
       responseContent += `Based on your profile:
@@ -288,7 +294,7 @@ const TrainerGPTPage = () => {
       - Availability: ${Availability || 'Not provided'}
       `;
 
-      const resolvedEquipmentList = await equipmentList;
+      const resolvedEquipmentList = user ? await equipmentList : await guestEquipment;
       let equipmentContent = `Available Equipment:\n`;
       resolvedEquipmentList.forEach((item) => {
         equipmentContent += `${item.name}\n`;
@@ -337,6 +343,9 @@ const TrainerGPTPage = () => {
 
         if (user) {
           saveChatLog(user.id, i18n.language, updatedMessages);
+        }
+        else{
+          setGuestMessages(updatedMessages)
         }
 
         return updatedMessages;
@@ -413,17 +422,21 @@ const TrainerGPTPage = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (user) {
-        await loadChatLog(user.id, i18n.language);
-        const userData = await getUserData();
-        setData(userData);
-        await updateEquipment(); // Ensure updateEquipment is an async function
-      }
-    };
-  
-    fetchData();
-  }, [user, i18n.language]);
+    if (user) {
+        const fetchData = async () => {
+            const userData = await getUserData();
+            setData(userData);
+            await loadChatLog(user.id, i18n.language);
+            await updateEquipment();
+        };
+
+        fetchData();
+    } else if (guestMessages.length > 0) {
+        setMessages(guestMessages);
+    }
+}, [user, i18n.language, guestMessages]);
+
+
   
 
   useEffect(() => {

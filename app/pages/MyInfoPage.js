@@ -15,6 +15,10 @@ import Webcam from 'react-webcam';
 // clerk signin
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 
+// import guestContext
+import { useContext } from 'react';
+import { GuestContext } from '../page'; // Adjust the path based on your structure
+
 // light/dark themes
 const lightTheme = createTheme({
   palette: {
@@ -75,6 +79,10 @@ const MyInfoPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const webcamRef = useRef(null);
 
+  // guest context
+  const { guestData, setGuestData } = useContext(GuestContext);
+  const { guestImage, setGuestImage} = useContext(GuestContext);
+
   const nextStep = () => {
     if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
   };
@@ -100,6 +108,9 @@ const MyInfoPage = () => {
       const userDocRef = doc(firestore, 'users', user.id);
       await setDoc(userDocRef, { userData: data }, { merge: true });
     }
+    else{
+      setGuestData(data)
+    }
   };
 
   // Handle form submission and save data to Firestore
@@ -121,14 +132,23 @@ const MyInfoPage = () => {
       const userDoc = await getDoc(userDocRef);
       return userDoc.exists() ? userDoc.data().userData : null;
     }
-    return null;
+    else{
+      return guestData
+    }
+    // return null;
   };
 
   const sendImage = async (imageSrc) => {
-    if (user && imageSrc) {
-      const userDocRef = doc(firestore, 'users', user.id);
-      await setDoc(userDocRef, { profilePic: imageSrc }, { merge: true });
+    if(imageSrc){
+      if (user) {
+        const userDocRef = doc(firestore, 'users', user.id);
+        await setDoc(userDocRef, { profilePic: imageSrc }, { merge: true });
+      }
+      else{
+        setGuestImage(imageSrc)
+      }
     }
+    
   };
 
   const getImage = async () => {
@@ -137,7 +157,9 @@ const MyInfoPage = () => {
       const userDoc = await getDoc(userDocRef);
       return userDoc.exists() ? userDoc.data().profilePic : null;
     }
-    return null;
+    else{
+      return guestImage
+    }
   };
 
   const captureImage = () => {
@@ -201,9 +223,17 @@ const MyInfoPage = () => {
         }
       }
       else{
-        setIsSummary(false)
-        setFormData({})
-        setImage(null)
+        if(guestData && guestData.Age){
+          setFormData(guestData)
+          setIsSummary(true)
+          setImage(guestImage)
+        }
+        else{
+          setIsSummary(false)
+          setFormData(guestData)
+          setImage(null)
+
+        }
       }
       setLoading(false);
     };

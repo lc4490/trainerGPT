@@ -532,7 +532,9 @@ const MyInfoPage = () => {
                     height="90%"
                     display="flex"
                     flexDirection="column"
-                    justifyContent={"center"}
+                    // justifyContent={"center"}
+                    p= {2.5}
+                    gap = {2.5}
                     alignItems="center"
                   >
                     {image ? (
@@ -547,8 +549,8 @@ const MyInfoPage = () => {
                       <Image
                         src="/profile.jpg"
                         alt={t("banner")}
-                        width={300}
-                        height={300}
+                        width={isMobile ? 200 : 300}
+                        height={isMobile ? 200 : 300}
                         style={{ borderRadius: "30px" }}
                       />
                     )}
@@ -574,9 +576,11 @@ const MyInfoPage = () => {
                       {image ? t("Change photo") : t("Add photo")}
                     </Button>
 
-                    <Grid container spacing={2} paddingX={1} style={{ justifyContent: 'center', width: "300px", height: '50%', overflow: 'scroll' }}>
+                    <Grid container spacing={2} paddingX={5} style={{ display: 'flex', justifyContent: 'center', width: "75vw",overflow: 'scroll'}}>
+                      {console.log(formData)}
+                      {console.log(orderedKeys)}
                       {orderedKeys.map((key) => (
-                        <Grid item xs={6} sm={6} key={key}>
+                        <Grid item xs={6} sm={3} key={key}>
                           {isEditing ? (
                             <Box key={key} sx={{ }}>
                               <Typography variant="h6" display="flex">{t(key)}</Typography>
@@ -597,6 +601,7 @@ const MyInfoPage = () => {
                         </Grid>
                       ))}
                     </Grid>
+
                   </Box>
                 </Box>
               ) : (

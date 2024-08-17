@@ -86,7 +86,7 @@ const resources = {
       "Weight":"Weight",
       "Height":"Height",
       "Goals":"Goals",
-      "Activity level":"Activity level",
+      "Activity":"Activity",
       "Health issues": "Health issues",
       "Availability": "Availability",
       // premium
@@ -177,7 +177,7 @@ const resources = {
       "Weight":"体重",
       "Height":"身高",
       "Goals":"目标",
-      "Activity level":"活动水平",
+      "Activity":"活动水平",
       "Health issues": "健康问题",
       "Availability": "可用性",
       // premium
@@ -268,7 +268,7 @@ const resources = {
       "Weight":"體重",
       "Height":"身高",
       "Goals":"目標",
-      "Activity level":"活動水平",
+      "Activity":"活動水平",
       "Health issues": "健康問題",
       "Availability": "可用性",
       // premium
@@ -358,7 +358,7 @@ const resources = {
       "Weight":"Peso",
       "Height":"Altura",
       "Goals":"Objetivos",
-      "Activity level":"Nivel de actividad",
+      "Activity":"Nivel de actividad",
       "Health issues": "Problemas de salud",
       "Availability": "Disponibilidad",
       // premium
@@ -448,7 +448,7 @@ const resources = {
       "Weight":"Poids",
       "Height":"Taille",
       "Goals":"Objectifs",
-      "Activity level":"Niveau d'activité",
+      "Activity":"Niveau d'activité",
       "Health issues": "Problèmes de santé",
       "Availability": "Disponibilité",
       // premium
@@ -538,7 +538,7 @@ const resources = {
       "Weight":"Gewicht",
       "Height":"Größe",
       "Goals":"Ziele",
-      "Activity level":"Aktivitätslevel",
+      "Activity":"Aktivitätslevel",
       "Health issues": "Gesundheitsprobleme",
       "Availability": "Verfügbarkeit",
       // premium
@@ -628,7 +628,7 @@ const resources = {
       "Weight":"体重",
       "Height":"身長",
       "Goals":"目標",
-      "Activity level":"活動レベル",
+      "Activity":"活動レベル",
       "Health issues": "健康問題",
       "Availability": "利用可能性",
       // premium
@@ -718,7 +718,7 @@ const resources = {
       "Weight":"체중",
       "Height":"키",
       "Goals":"목표",
-      "Activity level":"활동 수준",
+      "Activity":"활동 수준",
       "Health issues": "건강 문제",
       "Availability": "이용 가능성",
       // premium

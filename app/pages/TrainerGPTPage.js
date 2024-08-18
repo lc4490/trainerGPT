@@ -199,7 +199,7 @@ const customComponents = {
 
 const TrainerGPTPage = () => {
   // guest mode
-  const {guestData, guestEquipment, guestMessages, setGuestMessages} = useContext(GuestContext)
+  const {guestData, guestEquipment, guestMessages, setGuestMessages, setGuestPlan} = useContext(GuestContext)
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
   const { user, isSignedIn } = useUser(); // Clerk user
@@ -335,7 +335,8 @@ const TrainerGPTPage = () => {
           return updatedMessages;
         });
       }
-      console.log(assistantResponse)
+      setExercisePlan(assistantResponse)
+      // console.log(assistantResponse)
       // set messages with new message
       setMessages((prevMessages) => {
         const updatedMessages = prevMessages.map((msg, index) =>
@@ -497,6 +498,22 @@ const TrainerGPTPage = () => {
   
     // If no match is found, return null or an empty string
     return ret;
+  };
+
+  // STORE PLAN
+  // Store preferred language on Firebase
+  const setExercisePlan = async (response) => {
+    if(response.includes("plan")){
+      console.log(response)
+      if (user) {
+        const userId = user.id;
+        const userDocRef = doc(firestore, 'users', userId);
+        await setDoc(userDocRef, { plan: response }, { merge: true });
+      }
+      else{
+        setGuestPlan(response)
+      }
+    }
   };
 
   return (

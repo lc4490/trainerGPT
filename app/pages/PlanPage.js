@@ -52,15 +52,6 @@ const lightTheme = createTheme({
       },
     },
   });
-// link color
-const customComponents = {
-    a: ({ href, children }) => (
-      <Link href={href} color="background.link" underline="hover">
-        {children}
-      </Link>
-    ),
-  };
-
 const PlanPage = () => {
     const {guestPlan} = useContext(GuestContext)
     // Implementing multi-languages
@@ -204,7 +195,7 @@ const PlanPage = () => {
 
       <Divider />
             {console.log(plan)}
-            <ReactMarkdown components={customComponents}>{plan}</ReactMarkdown>
+            <ReactMarkdown>{plan}</ReactMarkdown>
         </Box>
     </ThemeProvider>
     )

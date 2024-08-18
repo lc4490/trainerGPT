@@ -203,9 +203,6 @@ const PlanPage = () => {
       </Box>
 
       <Divider />
-            <Typography>
-                Plan Page
-            </Typography>
             {console.log(plan)}
             <ReactMarkdown components={customComponents}>{plan}</ReactMarkdown>
         </Box>

@@ -69,6 +69,7 @@ export default function Home() {
   const [guestImage, setGuestImage] = useState('');
   const [guestEquipment, setGuestEquipment] = useState([])
   const [guestMessages, setGuestMessages] = useState([])
+  const [guestPlan, setGuestPlan] = useState('')
   // guest mode hooks
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -114,8 +115,8 @@ export default function Home() {
     <MyInfoPage key="myInfo" />,
     <EquipmentPage key="equipment" />,
     <TrainerGPTPage key="trainerGPT" />,
-    <NutritionPage key = "nutrition" />,
-    // hasPremiumAccess ? <NutritionPage key="nutrition" /> : <PaywallPage key="paywall" />,
+    // <NutritionPage key = "nutrition" />,
+    hasPremiumAccess ? <NutritionPage key="nutrition" /> : <PaywallPage key="paywall" />,
     hasPremiumAccess ? <PlanPage key="plan" /> : <PaywallPage key="paywall" />,
   ];
 
@@ -127,7 +128,11 @@ export default function Home() {
         <Typography variant="h5" textAlign="center">
           {t("This feature is available to premium users only.")}
           <br />
-          <Button variant="contained" color="primary">
+          <Button 
+          variant="contained" 
+          color="primary"
+          onClick={() => (setHasPremiumAccess(true))}
+          > 
             {t("Upgrade Now")}
           </Button>
         </Typography>
@@ -142,7 +147,7 @@ export default function Home() {
 
   return (
     // guest mode
-    <GuestContext.Provider value={{ guestData, setGuestData, guestImage, setGuestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages}}>
+    <GuestContext.Provider value={{ guestData, setGuestData, guestImage, setGuestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages, guestPlan, setGuestPlan}}>
       {/* light/dark mode */}
       <ThemeProvider theme={currentTheme}>
         <CssBaseline />

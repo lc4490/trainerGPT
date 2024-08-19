@@ -84,9 +84,11 @@ const EquipmentPage = () => {
 
   // open modal declareables
   const handleOpenAdd = () => {
+    clearFields()
     setOpenAdd(true)
   };
   const handleCloseAdd = () => {
+    clearFields()
     setOpenAdd(false)
   };
 

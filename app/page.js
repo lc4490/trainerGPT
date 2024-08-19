@@ -131,6 +131,23 @@ export default function Home() {
     return null;
   };
 
+  // Monitor user state changes
+  useEffect(() => {
+    if (isLoaded) {
+      if (user) {
+        const fetchPremiumMode = async () => {
+          const userDocRef = doc(firestore, 'users', user.id);
+          const userDoc = await getDoc(userDocRef);
+          setHasPremiumAccess(userDoc.exists() && userDoc.data().premium === true);
+        };
+        fetchPremiumMode();
+      } else {
+        // User is signed out, reset premium access
+        setHasPremiumAccess(false);
+      }
+    }
+  }, [isLoaded, user]);
+  
   useEffect(() => {
     const fetchPremiumMode = async () => {
       if (user) {

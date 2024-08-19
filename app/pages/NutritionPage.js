@@ -19,6 +19,9 @@ import Webcam from 'react-webcam';
 const openaiApiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
 import { OpenAI } from 'openai';
 
+// use Clerk
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
+
 // use googlesignin
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -65,29 +68,8 @@ const darkTheme = createTheme({
 const NutritionPage = () => {
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
-  // change languages
-  const getPreferredLanguage = async () => {
-    if (auth.currentUser) {
-      const userUID = auth.currentUser.uid;
-      const userDocRef = doc(firestore, 'users', userUID);
-      const userDoc = await getDoc(userDocRef);
-      return userDoc.exists() ? userDoc.data().preferredLanguage : null;
-    }
-    return null;
-  };
-  // fetch/set languages at all tiimes
-  useEffect(() => {
-    const fetchAndSetLanguage = async () => {
-      const preferredLanguage = await getPreferredLanguage();
-      if (preferredLanguage) {
-        i18n.changeLanguage(preferredLanguage);
-      }
-    };
+  const { user, isSignedIn } = useUser();
 
-    fetchAndSetLanguage();
-  }, []);
-
-  // declare
   const [pantry, setPantry] = useState([])
   const [recipes, setRecipes] = useState([])
   const [openRecipeModal, setOpenRecipeModal] = useState(false);
@@ -228,7 +210,7 @@ const NutritionPage = () => {
     return
     try {
         const response = await openai.images.generate({
-            model: 'dall-e-2',
+            model: 'dall-e-3',
             prompt: label,
             n: 1,
             size: "256x256",
@@ -267,11 +249,9 @@ const NutritionPage = () => {
   };
   // update pantry based on firebase
   const updatePantry = async () => {
-    if (auth.currentUser) {
-      const userUID = auth.currentUser.uid;
-      // const snapshot = query(collection(firestore, `pantry_${userUID}`));
-      // const snapshot = query(collection((firestore, 'users', userUID, 'pantry')));
-      const docRef = collection(firestore, 'users', userUID, 'pantry');
+    if (user) {
+      const userId = user.id;
+      const docRef = collection(firestore, 'users', userId, 'pantry');
       const docs = await getDocs(docRef);
       const pantryList = [];
       docs.forEach((doc) => {
@@ -285,16 +265,16 @@ const NutritionPage = () => {
     if (guestMode) {
       setPantry(prevPantry => [...prevPantry, { name: item, count: quantity, image }]);
     } else {
-      if (!auth.currentUser) {
+      if (!user) {
         alert("You must be signed in to add items.");
         return;
       }
       if (isNaN(quantity) || quantity < 0) {
         setOpenWarningAdd(true);
       } else if (quantity >= 1 && item != '') {
-        const userUID = auth.currentUser.uid;
+        const userId = user.id;
         // const docRef = doc(collection(firestore, `pantry_${userUID}`), item);
-        const docRef = doc(firestore, 'users', userUID, 'pantry', item);
+        const docRef = doc(firestore, 'users', userId, 'pantry', item);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const { count, image: existingImage } = docSnap.data();
@@ -311,13 +291,13 @@ const NutritionPage = () => {
     if (guestMode) {
       setPantry(prevPantry => prevPantry.map(p => p.name === item ? { ...p, count: quantity } : p));
     } else {
-      if (!auth.currentUser) {
+      if (!user) {
         alert("You must be signed in to change item quantities.");
         return;
       }
-      const userUID = auth.currentUser.uid;
+      const userId = user.id;
       // const docRef = doc(collection(firestore, `pantry_${userUID}`), item);
-      const docRef = doc(firestore, 'users', userUID, 'pantry', item);
+      const docRef = doc(firestore, 'users', userId, 'pantry', item);
       const docSnap = await getDoc(docRef);
       const { count, image } = docSnap.data();
       if (0 === quantity) {
@@ -330,7 +310,7 @@ const NutritionPage = () => {
   };
   useEffect(() => {
     updatePantry()
-  }, [])
+  }, [user])
 
   useEffect(() => {
     generateRecipes()
@@ -352,52 +332,24 @@ const NutritionPage = () => {
     setOpenRecipeModal(true);
   };
 
-  // sign in function for google auth
-  const handleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      console.log('User signed in:', user);
-      setGuestMode(false); // Disable guest mode on successful sign-in
-    } catch (error) {
-      console.error('Error signing in:', error);
-      alert('Sign in failed: ' + error.message);
-    }
-  };
-  // sign out function for google auth
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      console.log('User signed out');
-      setUser(null);
-      setGuestMode(true); // Enable guest mode on sign-out
-      setPantry([]); // Clear guest data
-      setRecipes([]); // Clear guest data
-    } catch (error) {
-      console.error('Error signing out:', error);
-      alert('Sign out failed: ' + error.message);
-    }
-  };
-
-  // declareables for user and guest mode
-  const [user, setUser] = useState(null);
+  // const [user, setUser] = useState(null);
   const [guestMode, setGuestMode] = useState(false);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-        setGuestMode(false);
-        updatePantry();
-      } else {
-        setUser(null);
-        setGuestMode(true);
-        setPantry([]);
-        setRecipes([]);
-      }
-    });
-    return () => unsubscribe();
-  }, []);
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
+  //     if (user) {
+  //       setUser(user);
+  //       setGuestMode(false);
+  //       updatePantry();
+  //     } else {
+  //       setUser(null);
+  //       setGuestMode(true);
+  //       setPantry([]);
+  //       setRecipes([]);
+  //     }
+  //   });
+  //   return () => unsubscribe();
+  // }, []);
 
   // toggle dark mode
   // Detect user's preferred color scheme
@@ -550,10 +502,10 @@ const NutritionPage = () => {
                     fontSize: '2.5rem',
                     fontWeight: '550',
                     '& fieldset': {
-                      borderColor: 'background.default',
+                      borderColor: 'lightgray',
                     },
                     '&:hover fieldset': {
-                      borderColor: 'background.default',
+                      borderColor: 'lightgray',
                     },
                     '&.Mui-focused fieldset': {
                       borderColor: 'lightgray',
@@ -903,45 +855,31 @@ const NutritionPage = () => {
                 {t('myPantry')}
               </Typography>
             </Box>
-            {/* sign in */}
+            {/* Sign in */}
             <Box>
-              {!user ? (
-                <Button 
-                  onClick={handleSignIn}
-                  sx={{
-                    justifyContent: "end",
-                    right: "2%",
-                    backgroundColor: 'background.default',
-                    color: 'text.primary',
-                    borderColor: 'text.primary',
-                    '&:hover': {
-                      backgroundColor: 'text.primary',
-                      color: 'background.default',
-                      borderColor: 'text.primary',
-                    },
-                  }}
-                >
-                  {t('signIn')}
-                </Button>
-              ) : (
-                <Button 
-                  onClick={handleSignOut}
-                  sx={{
-                    backgroundColor: 'background.default',
-                    color: 'text.primary',
-                    borderColor: 'text.primary',
-                    borderWidth: 2,
-                    '&:hover': {
-                      backgroundColor: 'darkgray',
+                {!isSignedIn ? (
+                  <Button 
+                    color="inherit"
+                    href="/sign-in"
+                    sx={{
+                      justifyContent: "end",
+                      right: "2%",
+                      backgroundColor: 'background.default',
                       color: 'text.primary',
                       borderColor: 'text.primary',
-                    },
-                  }}
-                >
-                  {t('signOut')}
-                </Button>
-              )}
-            </Box>
+                      '&:hover': {
+                        backgroundColor: 'text.primary',
+                        color: 'background.default',
+                        borderColor: 'text.primary',
+                      },
+                    }}
+                  >
+                    {t('signIn')}
+                  </Button>
+                ) : (
+                  <UserButton />
+                )}
+              </Box>
           </Box>
 
           <Divider />

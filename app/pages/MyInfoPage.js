@@ -15,7 +15,7 @@ import { createTheme } from '@mui/material';
 import Image from 'next/image';
 import Webcam from 'react-webcam';
 // clerk signin
-import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton, useUser, isLoaded } from "@clerk/nextjs";
 
 // import guestContext
 import { useContext } from 'react';
@@ -84,7 +84,7 @@ const MyInfoPage = () => {
   // translation
   const { t } = useTranslation();
   // clerk user
-  const { user, isSignedIn } = useUser(); // Clerk hook to get the current user
+  const { user, isSignedIn, isLoaded } = useUser(); // Clerk hook to get the current user
   // light/dark mode
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const theme = prefersDarkMode ? darkTheme : lightTheme;
@@ -250,7 +250,10 @@ const MyInfoPage = () => {
 
         }
       }
-      setLoading(false);
+      if(isLoaded){
+        setLoading(false);
+      }
+      
     };
 
     fetchAndSetLanguage();

@@ -24,7 +24,7 @@ import i18n from './i18n';
 // demo slides
 import DemoSlides from './pages/DemoSlides';
 // clerk
-import { useUser, isLoaded } from "@clerk/nextjs";
+import { useUser, redirectToSignIn } from "@clerk/nextjs";
 // stripe
 import getStripe from "@/utils/get-stripe"; // Ensure you use this if necessary, or remove the import
 // router
@@ -147,7 +147,7 @@ export default function Home() {
       }
     }
   }, [isLoaded, user]);
-  
+
   useEffect(() => {
     const fetchPremiumMode = async () => {
       if (user) {
@@ -188,6 +188,10 @@ export default function Home() {
   }, [isLoaded, user, searchParams]);
 
   const handleSubmit = async () => {
+    if (!user) {
+      router.push('/sign-in');
+      return;
+    }
     try {
       const checkoutSession = await fetch('/api/checkout_sessions', {
         method: 'POST',

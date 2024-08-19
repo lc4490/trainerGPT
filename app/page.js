@@ -23,6 +23,12 @@ import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
 // demo slides
 import DemoSlides from './pages/DemoSlides';
+// clerk
+import { useUser, isLoaded } from "@clerk/nextjs";
+// stripe
+import getStripe from "@/utils/get-stripe"; // Ensure you use this if necessary, or remove the import
+// router
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // light/dark themes
 const lightTheme = createTheme({
@@ -60,10 +66,15 @@ const darkTheme = createTheme({
 export const GuestContext = createContext();
 
 export default function Home() {
+  // router
+  const router = useRouter();
+  const searchParams = useSearchParams();
   // demo slides
   const [showDemoSlides, setShowDemoSlides] = useState(false);
   // use translation
   const { t } = useTranslation();
+  // user
+  const { user, isLoaded } = useUser(); // Clerk hook to get the current user
   // guest mode
   const [guestData, setGuestData] = useState({});
   const [guestImage, setGuestImage] = useState('');
@@ -104,11 +115,105 @@ export default function Home() {
   }, [prefersDarkMode]);
   const currentTheme = darkMode ? darkTheme : lightTheme;
 
+  // bottom nav helper
+  const [value, setValue] = useState(0);
+
   // premium mode
   const [hasPremiumAccess, setHasPremiumAccess] = useState(false);
 
-  // bottom nav helper
-  const [value, setValue] = useState(0);
+  // finds if user has premium mmode
+  const getPremiumMode = async () => {
+    if (user) {
+      const userDocRef = doc(firestore, 'users', user.id);
+      const userDoc = await getDoc(userDocRef);
+      return userDoc.exists() ? userDoc.data().premium : null;
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    const fetchPremiumMode = async () => {
+      if (user) {
+        const userDocRef = doc(firestore, 'users', user.id);
+        const userDoc = await getDoc(userDocRef);
+        setHasPremiumAccess(userDoc.exists() && userDoc.data().premium === true);
+      }
+    };
+    fetchPremiumMode();
+  }, [user]);
+
+  useEffect(() => {
+    if (isLoaded && user) {
+      const fetchPremiumMode = async () => {
+        const userDocRef = doc(firestore, 'users', user.id);
+        const userDoc = await getDoc(userDocRef);
+        setHasPremiumAccess(userDoc.exists() && userDoc.data().premium === true);
+      };
+      fetchPremiumMode();
+
+      const checkSession = async () => {
+        const session_id = searchParams.get('session_id');
+        if (session_id) {
+          try {
+            const response = await fetch(`/api/checkout_sessions?session_id=${session_id}`);
+            const session = await response.json();
+            if (session && session.payment_status === 'paid') {
+              await setPremiumMode();
+              setHasPremiumAccess(true);
+            }
+          } catch (error) {
+            console.error("Error checking session:", error);
+          }
+        }
+      };
+      checkSession();
+    }
+  }, [isLoaded, user, searchParams]);
+
+  const handleSubmit = async () => {
+    try {
+      const checkoutSession = await fetch('/api/checkout_sessions', {
+        method: 'POST',
+        headers: {
+          origin: 'http://localhost:3000'
+        },
+      });
+  
+      const checkoutSessionJson = await checkoutSession.json();
+  
+      if (checkoutSessionJson.statusCode === 500) {
+        console.error(checkoutSessionJson.message);
+        return;
+      }
+  
+      const stripe = await getStripe();
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: checkoutSessionJson.id,
+      });
+  
+      if (error) {
+        console.warn(error.message);
+        return;
+      }
+    } catch (error) {
+      console.error('Error during the payment process:', error);
+    }
+  };
+
+
+  const setPremiumMode = async () => {
+    if (user) {
+      try {
+        const userDocRef = doc(firestore, 'users', user.id);
+        await setDoc(userDocRef, { premium: true }, { merge: true });
+      } catch (error) {
+      }
+    } else {
+      console.warn('No user found, unable to update premium status');
+    }
+  };
+  
+  
 
   // pages
   const pages = [
@@ -131,7 +236,7 @@ export default function Home() {
           <Button 
           variant="contained" 
           color="primary"
-          onClick={() => (setHasPremiumAccess(true))}
+          onClick={handleSubmit}
           > 
             {t("Upgrade Now")}
           </Button>
@@ -144,6 +249,12 @@ export default function Home() {
   const handleDemoFinish = () => {
     setShowDemoSlides(false);
   };
+
+  useEffect(() => {
+    if (!user && !isLoaded) {
+      console.log('User data is still loading...');
+    }
+  }, [isLoaded, user]);
 
   return (
     // guest mode

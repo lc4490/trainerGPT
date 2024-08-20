@@ -16,8 +16,6 @@
     "@mui/icons-material": "^5.16.6",
     "@mui/material": "^5.16.6",
     "@stripe/stripe-js": "^4.3.0",
-    "@syncfusion/ej2-base": "^26.2.5",
-    "@syncfusion/ej2-react-schedule": "^26.2.7",
     "firebase": "^10.12.5",
     "framer-motion": "^11.3.24",
     "i18next": "^23.12.2",

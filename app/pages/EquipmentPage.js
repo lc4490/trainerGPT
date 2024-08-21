@@ -30,6 +30,8 @@ import OpenAI from 'openai';
 // import guestContext
 import { useContext } from 'react';
 import { GuestContext } from '../page'; // Adjust the path based on your structure
+// router
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // light/dark theme
 const lightTheme = createTheme({
@@ -64,6 +66,8 @@ const darkTheme = createTheme({
 });
 
 const EquipmentPage = () => {
+  // router
+  const router = useRouter();
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
   const { user, isSignedIn } = useUser(); // Clerk user
@@ -80,7 +84,7 @@ const EquipmentPage = () => {
   const webcamRef = useRef(null);
   const [facingMode, setFacingMode] = useState('user'); // 'user' is the front camera, 'environment' is the back camera
 
-  const {guestEquipment, setGuestEquipment} = useContext(GuestContext)
+  const {guestData, guestImage, guestEquipment, setGuestEquipment, guestMessages} = useContext(GuestContext)
 
   // open modal declareables
   const handleOpenAdd = () => {
@@ -249,6 +253,45 @@ const EquipmentPage = () => {
   }, [prefersDarkMode]);
   const theme = darkMode ? darkTheme : lightTheme;
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // Save guest data when sign-in button is clicked
+  const handleSignInClick = async () => {
+    await saveGuestDataToFirebase();
+    router.push('/sign-in'); // Redirect to the sign-in page
+  };
+  const saveGuestDataToFirebase = async () => {
+  const guestDocRef = doc(firestore, 'users', 'guest');
+  // Save guest user data and profile picture
+  await setDoc(guestDocRef, { userData: guestData }, { merge: true });
+  await setDoc(guestDocRef, { profilePic: guestImage }, { merge: true });
+
+  try {
+    // Save guest equipment data
+    const equipmentCollectionRef = collection(guestDocRef, 'equipment');
+    for (const item of guestEquipment) {
+      const equipmentDocRef = doc(equipmentCollectionRef, item.name);
+      await setDoc(equipmentDocRef, {
+        count: item.count || 0,
+        image: item.image || null,
+      });
+    }
+
+    // Save guest chat data
+    const chatCollectionRef = collection(guestDocRef, 'chat');
+    const chatDocRef = doc(chatCollectionRef, 'en'); // Assuming 'en' is the language
+    await setDoc(chatDocRef, {
+      messages: guestMessages || [],
+      timestamp: new Date().toISOString(),
+    });
+
+    
+
+    console.log('Guest data saved to Firebase.');
+  } catch (error) {
+    console.error("Error saving guest data to Firebase:", error);
+  }
+  };
+
 
   return (
     // light/dark mode
@@ -660,7 +703,8 @@ const EquipmentPage = () => {
                 {!isSignedIn ? (
                   <Button 
                     color="inherit"
-                    href="/sign-in"
+                    // href="/sign-in"
+                    onClick={handleSignInClick}
                     sx={{
                       justifyContent: "end",
                       right: "2%",

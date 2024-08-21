@@ -196,32 +196,32 @@ const customComponents = {
     </Link>
   ),
   p: ({ children }) => (
-    <Typography variant="body1" paragraph sx={{ marginBottom: 2, lineHeight: 1.6 }}>
+    <Typography variant="body1" paragraph sx={{ marginBottom: 0, lineHeight: 1.6 }}>
       {children}
     </Typography>
   ),
   h1: ({ children }) => (
-    <Typography variant="h4" gutterBottom sx={{ marginTop: 4, marginBottom: 2 }}>
+    <Typography variant="h4" gutterBottom sx={{ marginTop: 0, marginBottom: 0 }}>
       {children}
     </Typography>
   ),
   h2: ({ children }) => (
-    <Typography variant="h5" gutterBottom sx={{ marginTop: 3, marginBottom: 2 }}>
+    <Typography variant="h5" gutterBottom sx={{ marginTop: 0, marginBottom: 0 }}>
       {children}
     </Typography>
   ),
   h3: ({ children }) => (
-    <Typography variant="h6" gutterBottom sx={{ marginTop: 3, marginBottom: 2 }}>
+    <Typography variant="h6" gutterBottom sx={{ marginTop: 0, marginBottom: 0 }}>
       {children}
     </Typography>
   ),
   ul: ({ children }) => (
-    <Box component="ul" sx={{ paddingLeft: 3, marginBottom: 2 }}>
+    <Box component="ul" sx={{ paddingLeft: 3, marginBottom: 0 }}>
       {children}
     </Box>
   ),
   ol: ({ children }) => (
-    <Box component="ol" sx={{ paddingLeft: 3, marginBottom: 2 }}>
+    <Box component="ol" sx={{ paddingLeft: 3, marginBottom: 0 }}>
       {children}
     </Box>
   ),
@@ -234,7 +234,7 @@ const customComponents = {
         borderLeft: '4px solid #ccc',
         fontStyle: 'italic',
         color: '#555',
-        marginBottom: 2,
+        marginBottom: 0,
       }}
     >
       {children}
@@ -248,6 +248,7 @@ const customComponents = {
         padding: '8px',
         borderRadius: '4px',
         fontFamily: 'monospace',
+        marginBottom: 0,
       }}
     >
       {children}
@@ -262,13 +263,14 @@ const customComponents = {
         borderRadius: '4px',
         fontFamily: 'monospace',
         overflowX: 'auto',
-        marginBottom: 2,
+        marginBottom: 0,
       }}
     >
       {children}
     </Box>
   ),
 };
+
 
 const TrainerGPTPage = () => {
   // guest mode
@@ -700,8 +702,7 @@ const TrainerGPTPage = () => {
                   bgcolor={message.role === 'assistant' ? 'background.bubbles' : 'background.userBubble'}
                   color={message.role === 'assistant' ? "text.primary" : 'black'}
                   borderRadius={3.5}
-                  paddingX={3.5}
-                  paddingY={2.5}
+                  padding={2.5}
                   sx={{
                     maxWidth: '75%',
                     wordBreak: 'break-word',

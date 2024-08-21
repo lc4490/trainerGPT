@@ -271,12 +271,6 @@ export default function Home() {
     setShowDemoSlides(false);
   };
 
-  useEffect(() => {
-    if (!user && !isLoaded) {
-      console.log('User data is still loading...');
-    }
-  }, [isLoaded, user]);
-
   return (
     // guest mode
     <GuestContext.Provider value={{ guestData, setGuestData, guestImage, setGuestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages, guestPlan, setGuestPlan}}>

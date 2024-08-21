@@ -20,6 +20,8 @@ import { SignedIn, SignedOut, UserButton, useUser, isLoaded } from "@clerk/nextj
 // import guestContext
 import { useContext } from 'react';
 import { GuestContext } from '../page'; // Adjust the path based on your structure
+// router
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // light/dark themes
 const lightTheme = createTheme({
@@ -66,6 +68,8 @@ const steps = [
 ];
 
 const MyInfoPage = () => {
+  // router
+  const router = useRouter();
   // navigate through slides/steps
   const [currentStep, setCurrentStep] = useState(0);
   // store filledo ut data
@@ -91,8 +95,7 @@ const MyInfoPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
   // guest context
-  const { guestData, setGuestData } = useContext(GuestContext);
-  const { guestImage, setGuestImage} = useContext(GuestContext);
+  const { guestData, setGuestData, guestImage, setGuestImage, guestEquipment, guestMessages} = useContext(GuestContext);
 
   // move between steps
   const nextStep = () => {
@@ -103,7 +106,7 @@ const MyInfoPage = () => {
   };
   // set filled out data
   const handleInputChange = (key, value) => {
-    setFormData({ ...formData, [key]: value });
+    setFormData({ ...formData, [key]: value});
   }
 
   // handle edit mode
@@ -127,6 +130,8 @@ const MyInfoPage = () => {
 
   // Handle form submission and save data to Firestore
   const handleSubmit = async () => {
+    console.log(formData)
+    console.log(unpackData(formData))
     if (isEditing) {
       await saveUserData((formData));
       setIsEditing(false);
@@ -232,28 +237,26 @@ const MyInfoPage = () => {
         const data = await getUserData();
         const img = await getImage();
         if (data) {
-          setFormData(data);  // Set form data from Firestore if available
+          setFormData(data); // Set form data from Firestore if available
           setImage(img);
           setIsSummary(true);
         }
-      }
-      else{
-        if(guestData && guestData.Age){
-          setFormData(guestData)
-          setIsSummary(true)
-          setImage(guestImage)
+        // Transfer guest data to the user account
+        await transferGuestDataToUser();
+      } else {
+        if (guestData && guestData.Age) {
+          setFormData(guestData);
+          setIsSummary(true);
+          setImage(guestImage);
+        } else {
+          setIsSummary(false);
+          setFormData(guestData);
+          setImage(null);
         }
-        else{
-          setIsSummary(false)
-          setFormData(guestData)
-          setImage(null)
-
-        }
       }
-      if(isLoaded){
+      if (isLoaded) {
         setLoading(false);
       }
-      
     };
 
     fetchAndSetLanguage();
@@ -263,14 +266,14 @@ const MyInfoPage = () => {
   // clean up formData 
   function unpackData(data) {
     const ret = {
-      "Sex": data[t("Tell Us About Yourself")],
-      "Age": data[t('How Old Are You?')],
-      "Weight": data[t('What is Your Weight?')],
-      "Height": data[t('What is Your Height?')],
-      "Goals": data[t('What is Your Goal?')],
-      "Activity": data[t('Physical Activity Level?')],
-      "Health issues": data[t('Do you have any existing health issues or injuries?')],
-      "Availability": data[t('How many days a week can you commit to working out?')],
+      "Sex": data[t("Tell Us About Yourself")] || "Not available",
+      "Age": data[t('How Old Are You?')] || "Not available",
+      "Weight": data[t('What is Your Weight?')] || "Not available",
+      "Height": data[t('What is Your Height?')] || "Not available",
+      "Goals": data[t('What is Your Goal?')] || "Not available",
+      "Activity": data[t('Physical Activity Level?')] || "Not available",
+      "Health issues": data[t('Do you have any existing health issues or injuries?')] || "Not available",
+      "Availability": data[t('How many days a week can you commit to working out?')] || "Not available",
     };
     return ret;
   }
@@ -297,6 +300,124 @@ const MyInfoPage = () => {
       }
     }
   };
+
+   // Save guest data when sign-in button is clicked
+   const handleSignInClick = async () => {
+    await saveGuestDataToFirebase();
+    router.push('/sign-in'); // Redirect to the sign-in page
+  };
+  const saveGuestDataToFirebase = async () => {
+    const guestDocRef = doc(firestore, 'users', 'guest');
+    // Save guest user data and profile picture
+    await setDoc(guestDocRef, { userData: guestData }, { merge: true });
+    await setDoc(guestDocRef, { profilePic: guestImage }, { merge: true });
+  
+    try {
+      // Save guest equipment data
+      const equipmentCollectionRef = collection(guestDocRef, 'equipment');
+      for (const item of guestEquipment) {
+        const equipmentDocRef = doc(equipmentCollectionRef, item.name);
+        await setDoc(equipmentDocRef, {
+          count: item.count || 0,
+          image: item.image || null,
+        });
+      }
+  
+      // Save guest chat data
+      const chatCollectionRef = collection(guestDocRef, 'chat');
+      const chatDocRef = doc(chatCollectionRef, 'en'); // Assuming 'en' is the language
+      await setDoc(chatDocRef, {
+        messages: guestMessages || [],
+        timestamp: new Date().toISOString(),
+      });
+  
+      
+  
+      console.log('Guest data saved to Firebase.');
+    } catch (error) {
+      console.error("Error saving guest data to Firebase:", error);
+    }
+  };
+  const transferGuestDataToUser = async () => {
+    const guestDocRef = doc(firestore, 'users', 'guest');
+    const userDocRef = doc(firestore, 'users', user.id);
+  
+    try {
+      // Transfer equipment data
+      const guestEquipmentCollectionRef = collection(guestDocRef, 'equipment');
+      const userEquipmentCollectionRef = collection(userDocRef, 'equipment');
+  
+      const guestEquipmentSnapshot = await getDocs(guestEquipmentCollectionRef);
+      guestEquipmentSnapshot.forEach(async (item) => {
+        const userEquipmentDocRef = doc(userEquipmentCollectionRef, item.id);
+        const userEquipmentDoc = await getDoc(userEquipmentDocRef);
+  
+        if (!userEquipmentDoc.exists()) {
+          // Only set guest equipment data if the user does not have it
+          await setDoc(userEquipmentDocRef, item.data());
+        }
+        await deleteDoc(item.ref);
+      });
+  
+      // Check if the user has any existing chat data
+      const userChatCollectionRef = collection(userDocRef, 'chat');
+      const userChatSnapshot = await getDocs(userChatCollectionRef);
+
+      if (userChatSnapshot.empty) {
+        // If the user has no chat data, transfer the guest chat data
+        const guestChatCollectionRef = collection(guestDocRef, 'chat');
+        const guestChatSnapshot = await getDocs(guestChatCollectionRef);
+
+        guestChatSnapshot.forEach(async (item) => {
+          const userChatDocRef = doc(userChatCollectionRef, item.id);
+          await setDoc(userChatDocRef, item.data());
+
+        });
+      }
+  
+      // Transfer user data and profile picture
+      const guestDoc = await getDoc(guestDocRef);
+      if (guestDoc.exists()) {
+        const guestData = guestDoc.data();
+        const userDoc = await getDoc(userDocRef);
+  
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+  
+          // Merge guest data only if user data does not exist
+          const mergedUserData = {
+            userData: userData?.userData || guestData.userData,
+            profilePic: userData?.profilePic || guestData.profilePic,
+          };
+  
+          await setDoc(userDocRef, mergedUserData, { merge: true });
+        } else {
+          // If no user document exists, set the guest data directly
+          await setDoc(userDocRef, {
+            userData: guestData.userData,
+            profilePic: guestData.profilePic,
+          }, { merge: true });
+        }
+      }
+  
+      // Refresh the data in the app
+      const data = await getUserData();
+      const img = await getImage();
+      if (data) {
+        setFormData(data); // Set form data from Firestore if available
+        setImage(img);
+        setIsSummary(true);
+      }
+  
+      // Delete guest data
+      await deleteDoc(guestDocRef);
+  
+      console.log('Guest data transferred to user and guest data deleted.');
+    } catch (error) {
+      console.error("Error transferring guest data to user:", error);
+    }
+  };
+  
 
   // loading page
   if (loading) {
@@ -409,7 +530,8 @@ const MyInfoPage = () => {
                 {!isSignedIn ? (
                   <Button
                     color="inherit"
-                    href="/sign-in"
+                    // href="/sign-in"
+                    onClick={handleSignInClick}
                     sx={{
                       justifyContent: "end",
                       right: "2%",

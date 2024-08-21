@@ -18,7 +18,8 @@ import ReactMarkdown from 'react-markdown';
 // import guestContext
 import { useContext } from 'react';
 import { GuestContext } from '../page'; // Adjust the path based on your structure
-
+// router
+import { useRouter, useSearchParams } from 'next/navigation';
 
 // light/dark themes
 const lightTheme = createTheme({
@@ -273,8 +274,10 @@ const customComponents = {
 
 
 const TrainerGPTPage = () => {
+  // router
+  const router = useRouter();
   // guest mode
-  const {guestData, guestEquipment, guestMessages, setGuestMessages, setGuestPlan} = useContext(GuestContext)
+  const {guestData, guestImage, guestEquipment, guestMessages, setGuestMessages, setGuestPlan} = useContext(GuestContext)
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
   const { user, isSignedIn } = useUser(); // Clerk user
@@ -591,6 +594,44 @@ const TrainerGPTPage = () => {
     }
   };
 
+  // Save guest data when sign-in button is clicked
+  const handleSignInClick = async () => {
+    await saveGuestDataToFirebase();
+    router.push('/sign-in'); // Redirect to the sign-in page
+  };
+  const saveGuestDataToFirebase = async () => {
+    const guestDocRef = doc(firestore, 'users', 'guest');
+    // Save guest user data and profile picture
+    await setDoc(guestDocRef, { userData: guestData }, { merge: true });
+    await setDoc(guestDocRef, { profilePic: guestImage }, { merge: true });
+  
+    try {
+      // Save guest equipment data
+      const equipmentCollectionRef = collection(guestDocRef, 'equipment');
+      for (const item of guestEquipment) {
+        const equipmentDocRef = doc(equipmentCollectionRef, item.name);
+        await setDoc(equipmentDocRef, {
+          count: item.count || 0,
+          image: item.image || null,
+        });
+      }
+  
+      // Save guest chat data
+      const chatCollectionRef = collection(guestDocRef, 'chat');
+      const chatDocRef = doc(chatCollectionRef, 'en'); // Assuming 'en' is the language
+      await setDoc(chatDocRef, {
+        messages: guestMessages || [],
+        timestamp: new Date().toISOString(),
+      });
+  
+      
+  
+      console.log('Guest data saved to Firebase.');
+    } catch (error) {
+      console.error("Error saving guest data to Firebase:", error);
+    }
+    };
+
   return (
     // light/dark theming
     <ThemeProvider theme={theme}>
@@ -656,7 +697,8 @@ const TrainerGPTPage = () => {
                 {!isSignedIn ? (
                   <Button 
                     color="inherit"
-                    href="/sign-in"
+                    // href="/sign-in"
+                    onClick={handleSignInClick}
                     sx={{
                       justifyContent: "end",
                       right: "2%",

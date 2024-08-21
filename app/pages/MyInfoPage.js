@@ -2,7 +2,7 @@
 // base imports
 import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Container, Box, Typography, Button, TextField, ToggleButtonGroup, ToggleButton, CircularProgress, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack, Grid, FormControl, InputLabel, NativeSelect } from '@mui/material';
+import { Container, Box, Typography, Button, TextField, ToggleButtonGroup, ToggleButton, CircularProgress, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack, Grid, FormControl, InputLabel, NativeSelect, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
 // Firebase imports
 import { firestore } from '../firebase'
 import { collection, getDocs, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
@@ -55,7 +55,6 @@ const darkTheme = createTheme({
   },
 });
 
-// steps
 const steps = [
   { title: 'Tell Us About Yourself', content: 'Select your gender', options: ['Male', 'Female'] },
   { title: 'How Old Are You?', content: 'Age is important', inputType: 'string' },
@@ -64,8 +63,14 @@ const steps = [
   { title: 'What is Your Goal?', content: 'Select your goal', options: ['Weight Loss', 'Muscle Gain', 'Improved Endurance', 'General Fitness'] },
   { title: 'Physical Activity Level?', content: 'Select your activity level', options: ['Sedentary', 'Moderate', 'Active'] },
   { title: 'Do you have any existing health issues or injuries?', content: 'Enter any existing health issues or injuries', inputType: 'string' },
-  { title: 'How many days a week can you commit to working out?', content: 'When can you workout?', inputType: 'string' },
+  { 
+    title: 'How many days a week can you commit to working out?', 
+    content: 'Select the days you can work out:', 
+    inputType: 'checkbox', 
+    options: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 
+  },
 ];
+
 
 const MyInfoPage = () => {
   // router
@@ -273,7 +278,18 @@ const MyInfoPage = () => {
       "Goals": data[t('What is Your Goal?')] || "Not available",
       "Activity": data[t('Physical Activity Level?')] || "Not available",
       "Health issues": data[t('Do you have any existing health issues or injuries?')] || "Not available",
-      "Availability": data[t('How many days a week can you commit to working out?')] || "Not available",
+      "Availability": data[t('How many days a week can you commit to working out?')]
+        ? (() => {
+              const abbreviatedDays = data[t('How many days a week can you commit to working out?')]
+                .map(day => day.substring(0, 3))
+                .join(',');
+
+              // Check if the string length is 7, meaning all days are selected
+              {console.log(abbreviatedDays.length)}
+              return abbreviatedDays.length === 27 ? "Everyday" : abbreviatedDays;
+            })()
+          : "Not available",
+
     };
     return ret;
   }
@@ -766,9 +782,35 @@ const MyInfoPage = () => {
                       <Typography variant="h4" gutterBottom>{t(step.title)}</Typography>
                       {/* content */}
                       <Typography variant="body1" color="textSecondary" gutterBottom>{t(step.content)}</Typography>
-
-                      {/* display options if options, display inputfield if inputfield */}
-                      {step.options && (
+                  
+                      {/* Handle different input types */}
+                      {step.options && step.inputType === 'checkbox' ? (
+                        <FormGroup sx={{ mb: 4 }}>
+                          {step.options.map((option) => (
+                            <FormControlLabel
+                              key={option}
+                              control={
+                                <Checkbox
+                                  checked={formData[step.title]?.includes(option) || false}
+                                  onChange={(e) => {
+                                    const updatedSelection = e.target.checked
+                                      ? [...(formData[step.title] || []), option]
+                                      : formData[step.title].filter((day) => day !== option);
+                                    
+                                    // Sort the selected days in order
+                                    const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                                    const sortedSelection = updatedSelection.sort((a, b) => daysOrder.indexOf(a) - daysOrder.indexOf(b));
+                                    
+                                    // Update the formData with the sorted selection
+                                    handleInputChange(step.title, sortedSelection);
+                                  }}
+                                />
+                              }
+                              label={t(option)}
+                            />
+                          ))}
+                        </FormGroup>
+                      ) : step.options ? (
                         <ToggleButtonGroup
                           exclusive
                           value={formData[step.title] || ''}
@@ -782,18 +824,19 @@ const MyInfoPage = () => {
                             </ToggleButton>
                           ))}
                         </ToggleButtonGroup>
+                      ) : (
+                        step.inputType && (
+                          <TextField
+                            type={step.inputType}
+                            fullWidth
+                            variant="outlined"
+                            onChange={(e) => handleInputChange(step.title, e.target.value)}
+                            onKeyDown={handleKeyPress}
+                            sx={{ mb: 4 }}
+                          />
+                        )
                       )}
-
-                      {step.inputType && (
-                        <TextField
-                          type={step.inputType}
-                          fullWidth
-                          variant="outlined"
-                          onChange={(e) => handleInputChange(step.title, e.target.value)}
-                          onKeyDown={handleKeyPress}
-                          sx={{ mb: 4 }}
-                        />
-                      )}
+                  
                       {/* front/back buttons */}
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
                         <Button
@@ -814,6 +857,8 @@ const MyInfoPage = () => {
                       </Box>
                     </motion.div>
                   ))
+                  
+                               
                 )}
               </Box>
             </Container>

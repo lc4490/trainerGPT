@@ -898,7 +898,7 @@ const MyInfoPage = () => {
                         sx={{ 
                           justifyContent: 'center', // Center items horizontally
                           width: "90vw", 
-                          overflow: 'auto', // Allow scrolling if content overflows
+                          // overflow: 'auto', // Allow scrolling if content overflows
                           padding: 3, // Add padding around the grid container
                         }}
                       >

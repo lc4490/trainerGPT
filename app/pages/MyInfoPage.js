@@ -271,24 +271,21 @@ const MyInfoPage = () => {
   // clean up formData 
   function unpackData(data) {
     const ret = {
-      "Sex": data[t("Tell Us About Yourself")] || "Not available",
-      "Age": data[t('How Old Are You?')] || "Not available",
-      "Weight": data[t('What is Your Weight?')] || "Not available",
-      "Height": data[t('What is Your Height?')] || "Not available",
-      "Goals": data[t('What is Your Goal?')] || "Not available",
-      "Activity": data[t('Physical Activity Level?')] || "Not available",
-      "Health issues": data[t('Do you have any existing health issues or injuries?')] || "Not available",
-      "Availability": data[t('How many days a week can you commit to working out?')]
+      "Sex": data[("Tell Us About Yourself")] || t("Not available"),
+      "Age": data[('How Old Are You?')] || t("Not available"),
+      "Weight": data[('What is Your Weight?')] || t("Not available"),
+      "Height": data[('What is Your Height?')] || t("Not available"),
+      "Goals": data[('What is Your Goal?')] || t("Not available"),
+      "Activity": data[('Physical Activity Level?')] || t("Not available"),
+      "Health issues": data[('Do you have any existing health issues or injuries?')] || t("Not available"),
+      "Availability": data[('How many days a week can you commit to working out?')]
         ? (() => {
-              const abbreviatedDays = data[t('How many days a week can you commit to working out?')]
-                .map(day => day.substring(0, 3))
+              const abbreviatedDays = data[('How many days a week can you commit to working out?')]
+                .map(day => t(day.substring(0, 3)))
                 .join(',');
-
-              // Check if the string length is 7, meaning all days are selected
-              {console.log(abbreviatedDays.length)}
               return abbreviatedDays.length === 27 ? "Everyday" : abbreviatedDays;
             })()
-          : "Not available",
+          : t("Not available"),
 
     };
     return ret;
@@ -433,6 +430,158 @@ const MyInfoPage = () => {
       console.error("Error transferring guest data to user:", error);
     }
   };
+
+  const renderEditField = (key, value) => {
+    switch (key) {
+      case 'Sex':
+        return (
+          <ToggleButtonGroup
+            exclusive
+            value={value || ''}
+            onChange={(e, newValue) => handleInputChange(key, newValue)}
+            sx={{ 
+              mb: 2,
+              display: 'flex', 
+              justifyContent: 'center', 
+            }}
+          >
+            <ToggleButton value="Male">{t('Male')}</ToggleButton>
+            <ToggleButton value="Female">{t('Female')}</ToggleButton>
+          </ToggleButtonGroup>
+        );
+  
+      case 'Age':
+        return (
+          <TextField
+            type="number"
+            value={value || ''}
+            onChange={(e) => handleInputChange(key, e.target.value)}
+            fullWidth
+            variant="outlined"
+            sx={{ mb: 2 }}
+          />
+        );
+  
+      case 'Goals':
+        return (
+          <ToggleButtonGroup
+            exclusive
+            value={value || ''}
+            onChange={(e, newValue) => handleInputChange(key, newValue)}
+            sx={{ 
+              mb: 2, 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(2, 1fr)', // Two columns
+            }}
+          >
+            {['Weight Loss', 'Muscle Gain', 'Improved Endurance', 'General Fitness'].map(option => (
+              <ToggleButton key={option} value={option}>
+                {t(option)}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        );
+  
+      case 'Activity':
+        return (
+          <ToggleButtonGroup
+            exclusive
+            value={value || ''}
+            onChange={(e, newValue) => handleInputChange(key, newValue)}
+            sx={{ 
+              mb: 2,
+              display: 'flex', 
+              justifyContent: 'center', 
+              width: '100%',
+            }}
+          >
+            {['Sedentary', 'Moderate', 'Active'].map(option => (
+              <ToggleButton key={option} value={option}>
+                {t(option)}
+              </ToggleButton>
+            ))}
+          </ToggleButtonGroup>
+        );
+  
+      case 'Availability':
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const abbreviations = {
+          'Monday': 'Mon',
+          'Tuesday': 'Tue',
+          'Wednesday': 'Wed',
+          'Thursday': 'Thu',
+          'Friday': 'Fri',
+          'Saturday': 'Sat',
+          'Sunday': 'Sun'
+        };
+      
+        return (
+          <FormGroup 
+            sx={{ 
+              mb: 2, 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(2, 1fr)', // Two columns
+              gap: 1,  // Adds some gap between the checkboxes
+            }}
+          >
+            {daysOfWeek.map(day => (
+              <FormControlLabel
+                key={day}
+                control={
+                  <Checkbox
+                    checked={value === 'Everyday' || value?.includes(abbreviations[day])}
+                    onChange={(e) => {
+                      let updatedSelection;
+      
+                      if (e.target.checked) {
+                        // If 'Everyday' was the previous value, convert it to an array of all days
+                        if (value === 'Everyday') {
+                          updatedSelection = daysOfWeek.map(d => abbreviations[d]);
+                        } else {
+                          // Otherwise, just add the current day abbreviation to the selection
+                          updatedSelection = [...(value ? value.split(',') : []), abbreviations[day]];
+                        }
+      
+                        // If all days are selected, set value to 'Everyday'
+                        if (updatedSelection.length === 7) {
+                          updatedSelection = 'Everyday';
+                        } else {
+                          updatedSelection = updatedSelection.join(',');
+                        }
+                      } else {
+                        // If the current value is 'Everyday', remove the unchecked day
+                        updatedSelection = value === 'Everyday' 
+                          ? daysOfWeek.map(d => abbreviations[d]).filter(d => d !== abbreviations[day]) 
+                          : value.split(',').filter(selectedDay => selectedDay !== abbreviations[day]);
+                        
+                        updatedSelection = updatedSelection.length === 0 ? '' : updatedSelection.join(',');
+                      }
+      
+                      handleInputChange(key, updatedSelection);
+                    }}
+                  />
+                }
+                label={t(day)}
+              />
+            ))}
+          </FormGroup>
+        );
+      
+      default:
+        return (
+          <TextField
+            type="text"
+            value={value || ''}
+            onChange={(e) => handleInputChange(key, e.target.value)}
+            fullWidth
+            variant="outlined"
+            sx={{ mb: 2 }}
+          />
+        );
+    }
+  };
+  
+  
   
 
   // loading page
@@ -464,7 +613,8 @@ const MyInfoPage = () => {
       {/* main box */}
         <Box
           width="100vw"
-          height={isMobile ? "100vh" : "90vh"}
+          maxHeight={isMobile ? "100vh" : "90vh"}
+          backgroundColor="background.default"
         >
           <Box width="100%" height="100%" bgcolor="background.default">
           {/* Header Box */}
@@ -742,29 +892,68 @@ const MyInfoPage = () => {
                       </Button>
 
                       {/* display content summary */}
-                      <Grid container spacing={isMobile ? 2: 14} style={{ display: 'flex', justifyContent: 'center', width: isMobile ? "75vw" : "75vw",overflow: 'scroll'}}>
+                      <Grid 
+                        container 
+                        // spacing={4} // Increase spacing between grid items for better separation
+                        sx={{ 
+                          justifyContent: 'center', // Center items horizontally
+                          width: "90vw", 
+                          overflow: 'auto', // Allow scrolling if content overflows
+                          padding: 3, // Add padding around the grid container
+                        }}
+                      >
                         {orderedKeys.map((key) => (
-                          <Grid item xs={6} sm={3} key={key}>
+                          <Grid 
+                            item 
+                            xs={12} 
+                            sm={6} 
+                            md={3} 
+                            key={key}
+                            sx={{ 
+                              display: 'flex', 
+                              flexDirection: 'column', 
+                              alignItems: 'center', // Center content within each grid item
+                              padding: 2, // Add padding inside each grid item for better spacing
+                              border: '1px solid', // Add a border to each item for a card-like appearance
+                              borderColor: 'divider', // Use theme divider color for border
+                              borderRadius: 2, // Round the corners for a smoother look
+                              backgroundColor: 'background.paper', // Use the paper background color
+                              boxShadow: 3, // Add a subtle shadow for depth
+                            }}
+                          >
+                            <Typography 
+                              variant="h6" 
+                              align="center" 
+                              sx={{ 
+                                marginBottom: 1, 
+                                color: 'text.primary', // Ensure the text color matches the theme
+                              }}
+                            >
+                              {t(key)}
+                            </Typography>
                             {isEditing ? (
-                              <Box key={key} sx={{ }}>
-                                <Typography variant="h6" display="flex">{t(key)}</Typography>
-                                <TextField
-                                  variant="outlined"
-                                  fullWidth
-                                  value={formData[key] || ''}
-                                  onChange={(e) => handleInputChange(key, e.target.value)}
-                                  sx={{ }}
-                                />
+                              <Box sx={{ width: '100%' }}>
+                                {renderEditField(key, formData[key])}
                               </Box>
                             ) : (
-                              <Box key={key} sx={{ }}>
-                                <Typography variant="h6" display="flex">{t(key)}</Typography>
-                                <Typography variant="body1" color="textSecondary" display="flex">{formData[key] || 'N/A'}</Typography>
-                              </Box>
+                              <Typography 
+                                variant="body1" 
+                                color="textSecondary" 
+                                align="center" 
+                                sx={{ 
+                                  fontSize: '1rem', 
+                                  fontWeight: 500, 
+                                  color: 'text.secondary', // Subtle color for secondary text
+                                }}
+                              >
+                                {t(formData[key]) || 'N/A'}
+                              </Typography>
                             )}
                           </Grid>
                         ))}
                       </Grid>
+
+
 
                     </Box>
                   </Box>

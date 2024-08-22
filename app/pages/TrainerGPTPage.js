@@ -581,7 +581,7 @@ const TrainerGPTPage = () => {
   // STORE PLAN
   // Store preferred language on Firebase
   const setExercisePlan = async (response) => {
-    if(response.includes("plan")){
+    if(response.includes(t("plan"))){
       console.log(response)
       if (user) {
         const userId = user.id;

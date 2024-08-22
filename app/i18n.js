@@ -33,6 +33,7 @@ const resources = {
       "Welcome to myPantry":"Welcome to myPantry",
       "Add in new pantry items using the + in the top left corner.":"Add in new pantry items using the + in the top left corner.",
       "Recipes will generate below based on ingredients available.":"Recipes will generate below based on ingredients available.",
+      ": ": ": ",
       // equipmentPage
       "myEquipment":"myEquipment",
       "Equipment":"Equipment",
@@ -110,6 +111,9 @@ const resources = {
       // premium
       "This feature is available to premium users only.":"This feature is available to premium users only.",
       "Upgrade Now":"Upgrade Now",
+      // trainerGPT
+      "plan":"plan",
+      "Change photo": "Change photo",
 
     }
   },
@@ -143,6 +147,7 @@ const resources = {
       "Welcome to myPantry": "欢迎来到我的储藏",
       "Add in new pantry items using the + in the top left corner.": "使用左上角的 + 添加新的储藏室物品。",
       "Recipes will generate below based on ingredients available.": "根据可用的食材，下方将生成食谱。",
+      ": ":"：",
       // equipmentPage
       "myEquipment":"我的设备",
       "Equipment":"设备",
@@ -254,6 +259,7 @@ const resources = {
       "Welcome to myPantry": "歡迎來到我的儲藏",
       "Add in new pantry items using the + in the top left corner.": "使用左上角的 + 添加新的儲藏室物品。",
       "Recipes will generate below based on ingredients available.": "根據可用的食材，下方將生成食譜。",
+      ": ":"：",
       // equipmentPage
       "myEquipment": "我的設備",
       "Equipment": "設備",
@@ -363,6 +369,7 @@ const resources = {
       "Welcome to myPantry": "Bienvenido a miDespensa",
       "Add in new pantry items using the + in the top left corner.": "Añade nuevos artículos a la despensa usando el + en la esquina superior izquierda.",
       "Recipes will generate below based on ingredients available.": "Las recetas se generarán a continuación según los ingredientes disponibles.",
+      ": ":": ",
       // equipmentPage
       "myEquipment": "miEquipo",
       "Equipment": "Equipo",
@@ -472,6 +479,7 @@ const resources = {
       "Welcome to myPantry": "Bienvenido a miDespensa",
       "Add in new pantry items using the + in the top left corner.": "Añade nuevos artículos a la despensa usando el + en la esquina superior izquierda.",
       "Recipes will generate below based on ingredients available.": "Las recetas se generarán a continuación según los ingredientes disponibles.",
+      ": ": ": ",
       // equipmentPage
       "myEquipment": "monÉquipement",
       "Equipment": "Équipement",
@@ -581,6 +589,7 @@ const resources = {
       "Welcome to myPantry": "Willkommen in meinerSpeisekammer",
       "Add in new pantry items using the + in the top left corner.": "Fügen Sie neue Vorratsartikel mit dem + in der oberen linken Ecke hinzu.",
       "Recipes will generate below based on ingredients available.": "Rezepte werden unten basierend auf den verfügbaren Zutaten generiert.",
+      ": ": ": ",
       // equipmentPage
       "myEquipment": "meineAusrüstung",
       "Equipment": "Ausrüstung",
@@ -690,6 +699,7 @@ const resources = {
       "Welcome to myPantry": "私の食料貯蔵室へようこそ",
       "Add in new pantry items using the + in the top left corner.": "左上の + を使用して、新しい食料貯蔵品を追加してください。",
       "Recipes will generate below based on ingredients available.": "利用可能な材料に基づいて、以下にレシピが生成されます。",
+      ": ": ": ",
       // equipmentPage
       "myEquipment": "私の装置",
       "Equipment": "装置",
@@ -799,6 +809,7 @@ const resources = {
       "Welcome to myPantry": "내 식료품저장실에 오신 것을 환영합니다",
       "Add in new pantry items using the + in the top left corner.": "왼쪽 상단 모서리에 있는 +를 사용하여 새로운 식료품 항목을 추가하세요.",
       "Recipes will generate below based on ingredients available.": "사용 가능한 재료를 기반으로 아래에 레시피가 생성됩니다.",
+      ": ":": ",
       // equipmentPage
       "myEquipment": "내 장비",
       "Equipment": "장비",

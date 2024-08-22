@@ -855,14 +855,14 @@ const MyInfoPage = () => {
                         <Image
                           src={image}
                           alt={t("image")}
-                          width={isMobile ? 350 : 350}
-                          height={isMobile ? 350 : 350}
+                          width={isMobile ? 300 : 300}
+                          height={isMobile ? 300 : 300}
                           style={{
                             borderRadius: "30px",
                             objectFit: 'cover',
                             transform: facingMode === 'user' ? "scaleX(-1)" : "none",
-                            // width: 'auto', /* Ensure aspect ratio */
-                            // height: 'auto'  /* Ensure aspect ratio */
+                            // width: '100%', /* Ensure aspect ratio */
+                            // height: '100%'  /* Ensure aspect ratio */
                           }}
                         />
                       ) : (

@@ -148,6 +148,9 @@ export default function Home() {
       };
       checkSession();
     }
+    else{
+      setHasPremiumAccess(false)
+    }
   }, [isLoaded, user, searchParams]);
 
   // handle user purchase

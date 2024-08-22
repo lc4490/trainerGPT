@@ -393,26 +393,35 @@ const TrainerGPTPage = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify([...messages, { role: 'user', content: combinedInput }, { role: 'assistant', content: combinedInput }]),
       });
-
+      
       if (!response.ok) throw new Error('Network response was not ok');
-
+      
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-
-      // assistant response COULD IMPLEMENT SAVING WORKOUT PLAN HERE
+      
       let assistantResponse = '';
+      let lastMessageIndex = messages.length - 1;
+      
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
+      
         const text = decoder.decode(value, { stream: true });
         assistantResponse += text;
-
+      
         setMessages((prevMessages) => {
-          const lastMessage = prevMessages[prevMessages.length - 1];
-          const updatedMessages = [...prevMessages.slice(0, prevMessages.length - 1), { ...lastMessage, content: lastMessage.content + text }];
+          const updatedMessages = [...prevMessages];
+          const lastMessage = updatedMessages[lastMessageIndex];
+          // Append the new text to the last message's content
+          updatedMessages[lastMessageIndex] = {
+            ...lastMessage,
+            content: lastMessage.content + text,
+          };
           return updatedMessages;
         });
       }
+      
+      // Optionally save the workout plan here using the assistantResponse      
       setExercisePlan(assistantResponse)
       // console.log(assistantResponse)
       // set messages with new message

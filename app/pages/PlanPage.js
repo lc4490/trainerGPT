@@ -174,10 +174,11 @@ const PlanPage = () => {
           if (events) {
             setEvents(events);
             console.log(events);
-    
-            const userId = user.id;
-            const userDocRef = doc(firestore, 'users', userId);
-            await setDoc(userDocRef, { events: events }, { merge: true });
+            if(user){
+              const userId = user.id;
+              const userDocRef = doc(firestore, 'users', userId);
+              await setDoc(userDocRef, { events: events }, { merge: true });
+            }
           }
         }
       } catch (error) {
@@ -198,20 +199,21 @@ const PlanPage = () => {
     };
     useEffect(() => {
       const fetchPlan = async () => {
-        const userId = user.id;
-        const userDocRef = doc(firestore, 'users', userId);
-        const userDoc = await getDoc(userDocRef);
-        if(userDoc.exists() && userDoc.data().events){
-          setEvents(userDoc.data().events)
-        }
-        else{
-          const fetchedPlan = await getPlan();
-          setPlan(fetchedPlan);
-          if (fetchedPlan) {
-            await parsePlanToEvents(fetchedPlan);
+        if(user){
+          const userId = user.id;
+          const userDocRef = doc(firestore, 'users', userId);
+          const userDoc = await getDoc(userDocRef);
+          if(userDoc.exists() && userDoc.data().events){
+            setEvents(userDoc.data().events)
           }
-        }
-        
+          else{
+            const fetchedPlan = await getPlan();
+            setPlan(fetchedPlan);
+            if (fetchedPlan) {
+              await parsePlanToEvents(fetchedPlan);
+            }
+          }
+      }
       };
       fetchPlan();
       }, [user]);
@@ -262,7 +264,7 @@ const PlanPage = () => {
         {/* main box */}
         <Box
           width="100vw"
-          height={isMobile ? "100vh" : "90vh"}
+          height="100vh"
           display="flex"
           flexDirection="column"
         >
@@ -368,6 +370,7 @@ const PlanPage = () => {
                 </Box>
             </Box>
           </Box>
+          <Box width = "100%" height = "100%" marginBottom="60px">
 
           <Divider />
           {/* {console.log(plan)} */}
@@ -380,6 +383,7 @@ const PlanPage = () => {
             onSelectEvent={handleEventClick}
             toolbar={false}
           />
+          </Box>
 
             </Box>
         </ThemeProvider>

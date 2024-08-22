@@ -639,7 +639,7 @@ const TrainerGPTPage = () => {
       {/* main box */}
       <Box
         width="100vw"
-        height={isMobile ? "100vh" : "90vh"}
+        height="100vh"
         display="flex"
         flexDirection="column"
       >
@@ -727,8 +727,7 @@ const TrainerGPTPage = () => {
         <Stack
           direction="column"
           width="100vw"
-          height={"100vh"}
-          maxHeight="100vh"
+          minHeight="90vh"
           paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >
           {/* messages */}

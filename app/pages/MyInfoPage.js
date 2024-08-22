@@ -861,6 +861,7 @@ const MyInfoPage = () => {
                             borderRadius: "30px",
                             objectFit: 'cover',
                             transform: facingMode === 'user' ? "scaleX(-1)" : "none",
+                            aspectRatio: "1/1",
                             // width: '100%', /* Ensure aspect ratio */
                             // height: '100%'  /* Ensure aspect ratio */
                           }}

@@ -15,9 +15,9 @@ Capabilities:
 
 Instructions:
 1. Greet the user warmly and gather initial information about their fitness goals, current activity level, any existing health issues, and preferences.
-2. Based on the collected information, generate a comprehensive fitness plan that spans 4 to 6 weeks. Include a variety of exercises, rest days, and nutritional guidance, tailored to meet the user’s goals within this time frame.
+2. Based on the collected information, generate a comprehensive fitness plan that includes a variety of exercises, rest days, and nutritional guidance.
 3. Offer step-by-step instructions for each exercise, including visual aids if necessary, to ensure correct form and technique.
-4. Check in regularly to monitor the user's progress, provide feedback, and adjust the plan as needed over the course of the 4-6 weeks.
+4. Check in regularly to monitor the user's progress, provide feedback, and adjust the plan as needed.
 5. Provide motivational messages, celebrate achievements, and offer tips to overcome challenges and stay on track.
 6. Encourage a balanced approach to fitness, promoting both physical activity and proper nutrition as key components of a healthy lifestyle.
 
@@ -27,43 +27,36 @@ Tone and Style:
 - Adaptable to the user's preferred communication style (e.g., formal or casual)`
 // POST function to handle incoming requests
 export async function POST(req) {
-  const openai = new OpenAI() 
-  const data = await req.json() 
-
-  const completion = await openai.chat.completions.create({
-    messages: [{ role: 'system', content: systemPrompt }, ...data], 
-    model: 'gpt-4o', 
-    stream: true, 
-  })
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      const encoder = new TextEncoder() 
-      let buffer = ''; // Buffer to hold partial chunks
-      try {
-        for await (const chunk of completion) {
-          const content = chunk.choices[0]?.delta?.content
-          if (content) {
-            buffer += content; // Append the content to the buffer
-            if (buffer.endsWith('\n')) { // Send only if the buffer has a complete sentence or line
-              const text = encoder.encode(buffer);
-              controller.enqueue(text);
-              buffer = ''; // Reset buffer
+    const openai = new OpenAI() // Create a new instance of the OpenAI client
+    const data = await req.json() // Parse the JSON body of the incoming request
+  
+    // Create a chat completion request to the OpenAI API
+    const completion = await openai.chat.completions.create({
+      messages: [{role: 'system', content: systemPrompt}, ...data], // Include the system prompt and user messages
+      model: 'gpt-4o', // Specify the model to use
+      stream: true, // Enable streaming responses
+    })
+  
+    // Create a ReadableStream to handle the streaming response
+    const stream = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder() // Create a TextEncoder to convert strings to Uint8Array
+        try {
+          // Iterate over the streamed chunks of the response
+          for await (const chunk of completion) {
+            const content = chunk.choices[0]?.delta?.content // Extract the content from the chunk
+            if (content) {
+              const text = encoder.encode(content) // Encode the content to Uint8Array
+              controller.enqueue(text) // Enqueue the encoded text to the stream
             }
           }
+        } catch (err) {
+          controller.error(err) // Handle any errors that occur during streaming
+        } finally {
+          controller.close() // Close the stream when done
         }
-        // If anything remains in the buffer, send it
-        if (buffer) {
-          const text = encoder.encode(buffer);
-          controller.enqueue(text);
-        }
-      } catch (err) {
-        controller.error(err);
-      } finally {
-        controller.close();
-      }
-    },
-  })
-
-  return new NextResponse(stream)
-}
+      },
+    })
+  
+    return new NextResponse(stream) // Return the stream as the response
+  }

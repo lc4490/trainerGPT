@@ -135,8 +135,6 @@ const MyInfoPage = () => {
 
   // Handle form submission and save data to Firestore
   const handleSubmit = async () => {
-    console.log(formData)
-    console.log(unpackData(formData))
     if (isEditing) {
       await saveUserData((formData));
       setIsEditing(false);
@@ -431,6 +429,7 @@ const MyInfoPage = () => {
     }
   };
 
+  // customize edit fields
   const renderEditField = (key, value) => {
     switch (key) {
       case 'Sex':
@@ -580,9 +579,6 @@ const MyInfoPage = () => {
         );
     }
   };
-  
-  
-  
 
   // loading page
   if (loading) {
@@ -613,8 +609,9 @@ const MyInfoPage = () => {
       {/* main box */}
         <Box
           width="100vw"
-          maxHeight={isMobile ? "100vh" : "90vh"}
+          maxHeight="100vh"
           backgroundColor="background.default"
+          paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >
           <Box width="100%" height="100%" bgcolor="background.default">
           {/* Header Box */}
@@ -702,6 +699,7 @@ const MyInfoPage = () => {
                       justifyContent: "end",
                       right: "2%",
                       backgroundColor: 'background.default',
+                      justifyContent: 'center',
                       color: 'text.primary',
                       borderColor: 'text.primary',
                       '&:hover': {
@@ -730,6 +728,7 @@ const MyInfoPage = () => {
                   flexDirection: 'column',
                   bgcolor: 'background.default',
                   color: 'text.primary',
+                  paddingBottom: '60px', // Ensure content is not cut off by the toolbar
                 }}
               >
                 {/* show summary */}
@@ -858,7 +857,13 @@ const MyInfoPage = () => {
                           alt={t("image")}
                           width={250}
                           height={250}
-                          style={{ borderRadius: "30px", objectFit: 'cover', transform: facingMode === 'user' ? "scaleX(-1)" : "none" }}
+                          style={{
+                            borderRadius: "30px",
+                            objectFit: 'cover',
+                            transform: facingMode === 'user' ? "scaleX(-1)" : "none",
+                            width: 'auto', /* Ensure aspect ratio */
+                            height: 'auto'  /* Ensure aspect ratio */
+                          }}
                         />
                       ) : (
                         <Image
@@ -866,7 +871,11 @@ const MyInfoPage = () => {
                           alt={t("banner")}
                           width={isMobile ? 200 : 300}
                           height={isMobile ? 200 : 300}
-                          style={{ borderRadius: "30px" }}
+                          style={{
+                            borderRadius: "30px",
+                            width: 'auto',  /* Ensure aspect ratio */
+                            height: 'auto'  /* Ensure aspect ratio */
+                          }}
                         />
                       )}
                       {/* Add photo button */}
@@ -900,6 +909,7 @@ const MyInfoPage = () => {
                           width: "90vw", 
                           // overflow: 'auto', // Allow scrolling if content overflows
                           padding: 3, // Add padding around the grid container
+                          paddingBottom: "60px", // Add space for the toolbar
                         }}
                       >
                         {orderedKeys.map((key) => (
@@ -946,15 +956,23 @@ const MyInfoPage = () => {
                                   color: 'text.secondary', // Subtle color for secondary text
                                 }}
                               >
-                                {t(formData[key]) || 'N/A'}
+                                {/* display each value for key, except for Availability. For Availability, split by comma and translate each day. */}
+                                {key === 'Availability' 
+                                  ? formData[key]
+                                      .split(',')
+                                      .map(day => t(day)) // Translate each day abbreviation
+                                      .sort((a, b) => {
+                                        const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                                        return dayOrder.indexOf(a) - dayOrder.indexOf(b);
+                                      })
+                                      .join(', ')
+                                  : t(formData[key]) || 'N/A'
+                                }
                               </Typography>
                             )}
                           </Grid>
                         ))}
                       </Grid>
-
-
-
                     </Box>
                   </Box>
                 ) : (

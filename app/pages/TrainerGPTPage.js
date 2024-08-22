@@ -705,6 +705,7 @@ const TrainerGPTPage = () => {
                       backgroundColor: 'background.default',
                       color: 'text.primary',
                       borderColor: 'text.primary',
+                      justifyContent: 'center',
                       '&:hover': {
                         backgroundColor: 'text.primary',
                         color: 'background.default',
@@ -727,7 +728,9 @@ const TrainerGPTPage = () => {
         <Stack
           direction="column"
           width="100vw"
-          height={isMobile ? "70%" : "90%"}
+          height={"90vh"}
+          maxHeight="100vh"
+          paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >
           {/* messages */}
           <Stack direction="column" spacing={2} flexGrow={1} overflow='auto' padding={2} className="chat-log">

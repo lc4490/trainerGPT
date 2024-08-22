@@ -319,7 +319,7 @@ const NutritionPage = () => {
   // open add modal and open camera at the same time
   const handleOpenAddAndOpenCamera = () => {
     handleOpenAdd();
-    setCameraOpen(true);
+    // setCameraOpen(true);
   };
 
   // filter pantry and recipes based on search
@@ -370,8 +370,7 @@ const NutritionPage = () => {
       <CssBaseline />
       <Box 
         width="100vw" 
-        // height="100vh"
-        height= {isMobile ? "100vh" : "90vh"}
+        height="100vh"
         display="flex" 
         justifyContent="center" 
         alignItems="center"
@@ -1134,7 +1133,7 @@ const NutritionPage = () => {
           <Divider />
           <Box height={25}></Box>
           {/* pantry stack */}
-          <Grid container spacing={2} paddingX={1} style={{ height: '50%', overflow: 'scroll' }}>
+          <Grid container spacing={2} paddingX={1} sx={{paddingBottom: '60px'}}>
             {filteredPantry.map(({ name, count, image }, index) => (
               // pantry item
               <Grid item xs={12} sm={4} key={index}>

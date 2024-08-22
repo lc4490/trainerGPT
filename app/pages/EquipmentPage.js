@@ -300,7 +300,7 @@ const EquipmentPage = () => {
         {/* base box */}
         <Box 
           width="100vw" 
-          height= {isMobile ? "100vh" : "90vh"}
+          height= "100vh"
           display="flex" 
           justifyContent="center" 
           alignItems="center"
@@ -711,6 +711,7 @@ const EquipmentPage = () => {
                       backgroundColor: 'background.default',
                       color: 'text.primary',
                       borderColor: 'text.primary',
+                      justifyContent: 'center',
                       '&:hover': {
                         backgroundColor: 'text.primary',
                         color: 'background.default',
@@ -835,7 +836,7 @@ const EquipmentPage = () => {
             <Divider />
             <Box height={25}></Box>
             {/* equipments display */}
-            <Grid container spacing={2} paddingX={1} style={{ height: '50%', overflow: 'scroll' }}>
+            <Grid container spacing={2} paddingX={1} sx={{paddingBottom: '60px'}}>
               {filteredEquipmentList.map(({ name, count, image }, index) => (
                 <Grid item xs={12} sm={4} key={index}>
                   <Box

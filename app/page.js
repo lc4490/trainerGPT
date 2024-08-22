@@ -121,44 +121,7 @@ export default function Home() {
   // premium mode
   const [hasPremiumAccess, setHasPremiumAccess] = useState(false);
 
-  // finds if user has premium mmode
-  const getPremiumMode = async () => {
-    if (user) {
-      const userDocRef = doc(firestore, 'users', user.id);
-      const userDoc = await getDoc(userDocRef);
-      return userDoc.exists() ? userDoc.data().premium : null;
-    }
-    return null;
-  };
-
-  // Monitor user state changes
-  useEffect(() => {
-    if (isLoaded) {
-      if (user) {
-        const fetchPremiumMode = async () => {
-          const userDocRef = doc(firestore, 'users', user.id);
-          const userDoc = await getDoc(userDocRef);
-          setHasPremiumAccess(userDoc.exists() && userDoc.data().premium === true);
-        };
-        fetchPremiumMode();
-      } else {
-        // User is signed out, reset premium access
-        setHasPremiumAccess(false);
-      }
-    }
-  }, [isLoaded, user]);
-
-  useEffect(() => {
-    const fetchPremiumMode = async () => {
-      if (user) {
-        const userDocRef = doc(firestore, 'users', user.id);
-        const userDoc = await getDoc(userDocRef);
-        setHasPremiumAccess(userDoc.exists() && userDoc.data().premium === true);
-      }
-    };
-    fetchPremiumMode();
-  }, [user]);
-
+  // handle payment, check if user has premium
   useEffect(() => {
     if (isLoaded && user) {
       const fetchPremiumMode = async () => {
@@ -187,6 +150,7 @@ export default function Home() {
     }
   }, [isLoaded, user, searchParams]);
 
+  // handle user purchase
   const handleSubmit = async () => {
     if (!user) {
       router.push('/sign-in');
@@ -221,7 +185,7 @@ export default function Home() {
     }
   };
 
-
+  // set premium mode in firebase after purchase
   const setPremiumMode = async () => {
     if (user) {
       try {
@@ -234,8 +198,6 @@ export default function Home() {
     }
   };
   
-  
-
   // pages
   const pages = [
     <MyInfoPage key="myInfo" />,

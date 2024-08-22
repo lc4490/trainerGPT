@@ -7,7 +7,7 @@ import { Container, Box, Typography, Button, TextField, ToggleButtonGroup, Toggl
 import { createTheme } from '@mui/material';
 // Firebase imports
 import { firestore } from '../firebase'
-import { collection, getDocs, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, onSnapshot } from 'firebase/firestore';
 // Clerk imports
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 // translations
@@ -134,57 +134,56 @@ const PlanPage = () => {
 
     const parsePlanToEvents = async (planText) => {
       try {
-        // Call OpenAI to parse the workout plan into events
         const response = await openai.chat.completions.create({
-          model: "gpt-4o-mini", // or "gpt-4o-mini" depending on your setup
+          model: "gpt-4o-mini",
           messages: [
-            { role: "user", content: `${planText}\nconvert this workout plan into event components formatted like this:
-              const events = [
-                    {
-                        {
-                          "title": "Upper Body Strength",
-                          "start": "2024-08-19T09:00:00",
-                          "end": "2024-08-19T10:00:00",
-                          "details": "Warm-Up: Jumping Jacks, Arm Circles, etc."
-                        }
-                    },
-                    // Add other days similarly...
-                ];
-                ` 
+            { role: "user", content: `${planText}\nconvert this workout plan into a JavaScript array of event objects formatted as JSON, without any extra text, just pure JSON, like this:
+            const events = [
+              {
+                "title": "Upper Body Strength",
+                "start": "2024-08-19T09:00:00",
+                "end": "2024-08-19T10:00:00",
+                "details": 
+                "Warm-Up (5-10 minutes)\\nJumping jacks\\nArm circles\\nLight jogging\\n\\nWorkout:\\nSquats with Dumbbells: 3 sets of 12 reps\\nBench Press with Barbell: 3 sets of 10 reps\\nBent-Over Rows with Dumbbells: 3 sets of 12 reps\\nDumbbell Lunges: 3 sets of 10 reps per leg\\nPlank: 3 sets of 30 seconds\\n\\nCool-Down (5-10 minutes)\\nStretching\\nDeep breathing exercises"
               }
+              // Add other events similarly...
+              For future weeks, when the plan says "repeat with increased intensity," copy the exact details from the previous week’s workout and simply add a note at the end indicating the increase in intensity. Do not summarize or generalize the workouts; provide the full workout details for each day, just like in week 1.
+            ]`
+            }
           ],
         });
-
+    
         const responseText = response.choices[0].message.content;
-
+        console.log("OpenAI Response Text:", responseText);
+    
         if (responseText) {
-          // Extract the JavaScript code
-          const codeStartIndex = responseText.indexOf('const events =');
-          const codeEndIndex = responseText.lastIndexOf('];') + 2; // End of array
-
-          if (codeStartIndex !== -1 && codeEndIndex !== -1) {
-            const codeToEvaluate = responseText.slice(codeStartIndex, codeEndIndex);
-            // Use eval to execute the code and assign the events variable
-
-            // Now `events` variable should be available
-            // Extract the array part of the string
-            const jsonArrayString = codeToEvaluate.match(/\[(.|\n)*\]/)[0];
-
-            // Parse the JSON string
-            const events = JSON.parse(jsonArrayString);
-            setEvents(events)
-            console.log(events)
+          // Try parsing the response as JSON directly
+          let events;
+          try {
+            events = JSON.parse(responseText);
+          } catch (jsonError) {
+            // Fallback to extracting JSON string manually
+            const jsonString = responseText.match(/\[\s*{[\s\S]*}\s*]/)?.[0];
+            if (jsonString) {
+              events = JSON.parse(jsonString);
+            } else {
+              throw new Error("Could not find valid JSON in response.");
+            }
+          }
+    
+          if (events) {
+            setEvents(events);
+            console.log(events);
+    
             const userId = user.id;
-            const userDocRef = doc(firestore, 'users', userId)
-            await setDoc(userDocRef, { events: events }, { merge: true})
+            const userDocRef = doc(firestore, 'users', userId);
+            await setDoc(userDocRef, { events: events }, { merge: true });
           }
         }
-  
       } catch (error) {
         console.error("Error in parsePlanToEvents:", error);
-        console.log(responseText)
       }
-    };    
+    };
     // plan
     const getPlan = async () => {
         if (user) {
@@ -217,6 +216,37 @@ const PlanPage = () => {
       fetchPlan();
       }, [user]);
 
+      // if plan changed, update events
+      useEffect(() => {
+        if (!user) return;
+    
+        const userId = user.id;
+        const userDocRef = doc(firestore, 'users', userId);
+    
+        const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
+            if (docSnapshot.exists()) {
+                const userData = docSnapshot.data();
+                const newPlan = userData.plan;
+    
+                // Check if the plan has changed
+                if (newPlan !== plan) {
+                    setPlan(newPlan);
+                    if (newPlan) {
+                        // Define an async function to handle the async logic
+                        const updateEvents = async () => {
+                            await parsePlanToEvents(newPlan);
+                        };
+    
+                        // Call the async function
+                        updateEvents();
+                    }
+                }
+            }
+        });
+    
+        // Cleanup listener on component unmount
+        return () => unsubscribe();
+    }, [user, plan]);
       // event modal
       const handleEventClick = (event) => {
         setSelectedEvent(event);
@@ -340,36 +370,17 @@ const PlanPage = () => {
           </Box>
 
           <Divider />
-                {/* {console.log(plan)} */}
-                {/* <ReactMarkdown>{plan}</ReactMarkdown> */}
-                <Calendar
-                    localizer={localizer}
-                    events={events}
-                    startAccessor="start"
-                    endAccessor="end"
-                    onSelectEvent={handleEventClick}
-                    sx={{ 
-                      height: "650px",
-                      backgroundColor: "background.default",
-                      color: "text.primary",
-                      borderRadius: "8px",
-                      boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-                    }}
-                    eventPropGetter={(event) => ({
-                      style: {
-                        backgroundColor: "background.default",
-                        color: "text.primary",
-                        borderRadius: "4px",
-                      },
-                    })}
-                    dayPropGetter={(date) => ({
-                      style: {
-                        backgroundColor: date.toDateString() === new Date().toDateString() 
-                          ? "background.default"
-                          : "text.primary"
-                      },
-                    })}
-                />
+          {/* {console.log(plan)} */}
+          {/* <ReactMarkdown>{plan}</ReactMarkdown> */}
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            onSelectEvent={handleEventClick}
+            toolbar={false}
+          />
+
             </Box>
         </ThemeProvider>
     )

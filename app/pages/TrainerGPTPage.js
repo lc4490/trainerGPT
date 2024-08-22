@@ -393,35 +393,26 @@ const TrainerGPTPage = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify([...messages, { role: 'user', content: combinedInput }, { role: 'assistant', content: combinedInput }]),
       });
-      
+
       if (!response.ok) throw new Error('Network response was not ok');
-      
+
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      
+
+      // assistant response COULD IMPLEMENT SAVING WORKOUT PLAN HERE
       let assistantResponse = '';
-      let lastMessageIndex = messages.length - 1;
-      
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-      
         const text = decoder.decode(value, { stream: true });
         assistantResponse += text;
-      
+
         setMessages((prevMessages) => {
-          const updatedMessages = [...prevMessages];
-          const lastMessage = updatedMessages[lastMessageIndex];
-          // Append the new text to the last message's content
-          updatedMessages[lastMessageIndex] = {
-            ...lastMessage,
-            content: lastMessage.content + text,
-          };
+          const lastMessage = prevMessages[prevMessages.length - 1];
+          const updatedMessages = [...prevMessages.slice(0, prevMessages.length - 1), { ...lastMessage, content: lastMessage.content + text }];
           return updatedMessages;
         });
       }
-      
-      // Optionally save the workout plan here using the assistantResponse      
       setExercisePlan(assistantResponse)
       // console.log(assistantResponse)
       // set messages with new message
@@ -714,7 +705,6 @@ const TrainerGPTPage = () => {
                       backgroundColor: 'background.default',
                       color: 'text.primary',
                       borderColor: 'text.primary',
-                      justifyContent: 'center',
                       '&:hover': {
                         backgroundColor: 'text.primary',
                         color: 'background.default',
@@ -737,7 +727,7 @@ const TrainerGPTPage = () => {
         <Stack
           direction="column"
           width="100vw"
-          height={"90vh"}
+          height={"100vh"}
           maxHeight="100vh"
           paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >

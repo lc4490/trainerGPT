@@ -110,7 +110,6 @@ const NutritionPage = () => {
   const switchCamera = () => {
     setFacingMode((prevFacingMode) => (prevFacingMode === 'user' ? 'environment' : 'user'));
   };
-  
   // ai
   const openai = new OpenAI({
     apiKey: openaiApiKey,
@@ -178,15 +177,16 @@ const NutritionPage = () => {
             let recipe = '';
             let ingredients = '';
             let instructions = '';
+            console.log(t(": "))
 
-            if (parts.length > 0 && parts[0].includes(": ")) {
-                recipe = parts[0].split(": ")[1]?.replace(/\*/g, '') || '';
+            if (parts.length > 0 && parts[0].includes(t(": "))) {
+                recipe = parts[0].split(t(": "))[1]?.replace(/\*/g, '') || '';
             }
-            if (parts.length > 1 && parts[1].includes(": ")) {
-                ingredients = parts[1].split(": ")[1]?.replace(/\*/g, '') || '';
+            if (parts.length > 1 && parts[1].includes(t(": "))) {
+                ingredients = parts[1].split(t(": "))[1]?.replace(/\*/g, '') || '';
             }
-            if (parts.length > 2 && parts[2].includes(": ")) {
-                instructions = parts[2].split(": ")[1]?.replace(/\*/g, '') || '';
+            if (parts.length > 2 && parts[2].includes(t(": "))) {
+                instructions = parts[2].split(t(": "))[1]?.replace(/\*/g, '') || '';
             }
 
             if (!recipe || !ingredients || !instructions) {

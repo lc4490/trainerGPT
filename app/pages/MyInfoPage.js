@@ -22,6 +22,8 @@ import { useContext } from 'react';
 import { GuestContext } from '../page'; // Adjust the path based on your structure
 // router
 import { useRouter, useSearchParams } from 'next/navigation';
+// info button
+import InfoIcon from '@mui/icons-material/Info';
 
 // light/dark themes
 const lightTheme = createTheme({
@@ -98,9 +100,10 @@ const MyInfoPage = () => {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const theme = prefersDarkMode ? darkTheme : lightTheme;
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
   // guest context
   const { guestData, setGuestData, guestImage, setGuestImage, guestEquipment, guestMessages} = useContext(GuestContext);
+  // info modal
+  const [openInfoModal, setOpenInfoModal] = useState(false);
 
   // move between steps
   const nextStep = () => {
@@ -580,6 +583,11 @@ const MyInfoPage = () => {
     }
   };
 
+  // open Info modal
+  const handleInfoModal = () => {
+    setOpenInfoModal(true);
+  }
+
   // loading page
   if (loading) {
     return (
@@ -613,6 +621,167 @@ const MyInfoPage = () => {
           backgroundColor="background.default"
           paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >
+          {/* camera modal */}
+          <Modal open={cameraOpen} onClose={() => setCameraOpen(false)}>
+            <Box width="100vw" height="100vh" backgroundColor="black">
+              <Stack display="flex" justifyContent="center" alignItems="center" flexDirection="column" sx={{ transform: 'translate(0%,25%)' }}>
+                <Box
+                  sx={{
+                    top: '50%',
+                    bgcolor: 'black',
+                    width: 350,
+                    height: 350,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    paddingY: 2,
+                    position: 'relative'
+                  }}
+                >
+                  <Box
+                    sx={{
+                      maxWidth: 350,
+                      aspectRatio: '1/1',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      position: 'relative',
+                      backgroundColor: 'black',
+                      borderRadius: '16px',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <Webcam
+                      ref={webcamRef}
+                      screenshotFormat="image/jpeg"
+                      videoConstraints={{
+                        facingMode: facingMode,
+                      }}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        transform: 'scaleX(-1)',
+                      }}
+                    />
+                  </Box>
+                </Box>
+                <Stack flexDirection="row" gap={2} position="relative">
+                  <Button
+                    variant="outlined"
+                    onClick={captureImage}
+                    sx={{
+                      color: 'black',
+                      borderColor: 'white',
+                      backgroundColor: 'white',
+                      '&:hover': {
+                        backgroundColor: 'white',
+                        color: 'black',
+                        borderColor: 'white',
+                      },
+                      marginTop: 1,
+                    }}
+                  >
+                    {t("Take Photo")}
+                  </Button>
+                  <Button
+                    onClick={switchCamera}
+                    sx={{
+                      color: 'black',
+                      borderColor: 'white',
+                      backgroundColor: 'white',
+                      '&:hover': {
+                        backgroundColor: 'white',
+                        color: 'black',
+                        borderColor: 'white',
+                      },
+                      marginTop: 1,
+                    }}
+                  >
+                    {t("Switch Camera")}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={() => {
+                      setCameraOpen(false);
+                    }}
+                    sx={{
+                      color: 'black',
+                      borderColor: 'white',
+                      backgroundColor: 'white',
+                      '&:hover': {
+                        backgroundColor: 'white',
+                        color: 'black',
+                        borderColor: 'white',
+                      },
+                      marginTop: 1,
+                    }}
+                  >
+                    {t('Exit')}
+                  </Button>
+                </Stack>
+              </Stack>
+            </Box>
+          </Modal>
+          {/* info modal */}
+          <Modal open = {openInfoModal} onClose = {() => setOpenInfoModal(false)}>
+            <Box 
+            overflow="auto"
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 350,
+              height: "75%",
+              bgcolor: 'background.default',
+              border: '2px solid #000',
+              boxShadow: 24,
+              p: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              borderRadius: "15px",
+            }}>
+              <Typography variant="h6" component="h2" fontWeight='600'>
+                  {t("How to use:")}
+                </Typography>
+                <Typography sx={{ mt: 2 }}>
+                  {t("1. Use the top left button to select your language.")}
+                </Typography>
+                <Typography sx = {{mt: 2}}>
+                 {t("2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.")}
+                </Typography>
+                <Typography sx = {{mt: 2}}>
+                 {t("3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.")}
+                </Typography>
+                <Typography sx = {{mt: 2}}>
+                 {t("4. After filling out your information, add an optional profile photo with the Add Photo button.")}
+                </Typography>
+                <Typography sx = {{mt: 2}}>
+                 {t("5. Sign in using the top right button to create an account or sign in.")}
+                </Typography>
+                <Box sx={{ flexGrow: 1 }} />
+                <Button 
+                  variant="outlined"
+                  onClick={() => {
+                    setOpenInfoModal(false)
+                  }}
+                  sx={{
+                    mt: 2,
+                    backgroundColor: 'text.primary',
+                    color: 'background.default',
+                    borderColor: 'text.primary',
+                    '&:hover': {
+                      backgroundColor: 'darkgray',
+                      color: 'text.primary',
+                      borderColor: 'text.primary',
+                    },
+                  }}
+                >
+                  {t('Close')}
+                </Button>
+            </Box>
+          </Modal>
           <Box width="100%" height="100%" bgcolor="background.default">
           {/* Header Box */}
             <Box
@@ -683,10 +852,21 @@ const MyInfoPage = () => {
                 </FormControl>
               )}
               {/* Title */}
-              <Box display="flex" flexDirection={"row"} alignItems={"center"}>
+              <Box display="flex" flexDirection={"row"} alignItems={"center"} gap ={2}>
                 <Typography variant="h6" color="text.primary" textAlign="center">
                   {t('My Info')}
                 </Typography>
+                <Button 
+                onClick={handleInfoModal}
+                sx={{ 
+                    minWidth: "auto",  
+                    aspectRatio: "1 / 1", 
+                    borderRadius: "50%",
+                    width: "20px",  // or adjust as needed
+                    height: "20px"  // or adjust as needed
+                }}>
+                    <InfoIcon sx={{ color: "lightgray" }}/>
+                </Button>
               </Box>
               {/* SignIn/SignOut Form */}
               <Box>
@@ -737,108 +917,6 @@ const MyInfoPage = () => {
                     width="100%"
                     height="100vh"
                   >
-                    {/* camera modal */}
-                    <Modal open={cameraOpen} onClose={() => setCameraOpen(false)}>
-                      <Box width="100vw" height="100vh" backgroundColor="black">
-                        <Stack display="flex" justifyContent="center" alignItems="center" flexDirection="column" sx={{ transform: 'translate(0%,25%)' }}>
-                          <Box
-                            sx={{
-                              top: '50%',
-                              bgcolor: 'black',
-                              width: 350,
-                              height: 350,
-                              display: 'flex',
-                              flexDirection: 'column',
-                              alignItems: 'center',
-                              paddingY: 2,
-                              position: 'relative'
-                            }}
-                          >
-                            <Box
-                              sx={{
-                                maxWidth: 350,
-                                aspectRatio: '1/1',
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                position: 'relative',
-                                backgroundColor: 'black',
-                                borderRadius: '16px',
-                                overflow: 'hidden',
-                              }}
-                            >
-                              <Webcam
-                                ref={webcamRef}
-                                screenshotFormat="image/jpeg"
-                                videoConstraints={{
-                                  facingMode: facingMode,
-                                }}
-                                style={{
-                                  width: '100%',
-                                  height: '100%',
-                                  objectFit: 'cover',
-                                  transform: 'scaleX(-1)',
-                                }}
-                              />
-                            </Box>
-                          </Box>
-                          <Stack flexDirection="row" gap={2} position="relative">
-                            <Button
-                              variant="outlined"
-                              onClick={captureImage}
-                              sx={{
-                                color: 'black',
-                                borderColor: 'white',
-                                backgroundColor: 'white',
-                                '&:hover': {
-                                  backgroundColor: 'white',
-                                  color: 'black',
-                                  borderColor: 'white',
-                                },
-                                marginTop: 1,
-                              }}
-                            >
-                              {t("Take Photo")}
-                            </Button>
-                            <Button
-                              onClick={switchCamera}
-                              sx={{
-                                color: 'black',
-                                borderColor: 'white',
-                                backgroundColor: 'white',
-                                '&:hover': {
-                                  backgroundColor: 'white',
-                                  color: 'black',
-                                  borderColor: 'white',
-                                },
-                                marginTop: 1,
-                              }}
-                            >
-                              {t("Switch Camera")}
-                            </Button>
-                            <Button
-                              variant="outlined"
-                              onClick={() => {
-                                setCameraOpen(false);
-                              }}
-                              sx={{
-                                color: 'black',
-                                borderColor: 'white',
-                                backgroundColor: 'white',
-                                '&:hover': {
-                                  backgroundColor: 'white',
-                                  color: 'black',
-                                  borderColor: 'white',
-                                },
-                                marginTop: 1,
-                              }}
-                            >
-                              {t('Exit')}
-                            </Button>
-                          </Stack>
-                        </Stack>
-                      </Box>
-                    </Modal>
 
                     <Box
                       width="100%"

@@ -114,7 +114,22 @@ const resources = {
       // trainerGPT
       "plan":"plan",
       "Change photo": "Change photo",
-
+      // demo slides
+      "How to use" : "How to use",
+      "1. Use the top left button to select your language.": "1. Use the top left button to select your language.",
+      "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.":"2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.",
+      "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.":"3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.",
+      "4. After filling out your information, add an optional profile photo with the Add Photo button.":"4. After filling out your information, add an optional profile photo with the Add Photo button.",
+      "5. Sign in using the top right button to create an account or sign in.":"5. Sign in using the top right button to create an account or sign in.",
+      "1. Use the top left button to add items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to the equipment right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the equipment.":"1. Use the top left button to add items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to the equipment right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the equipment.",
+      "2. After adding a piece of equipment, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.":"2. After adding a piece of equipment, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.",
+      "3. Use the search bar to find specific equipment by name.":"3. Use the search bar to find specific equipment by name.",
+      "4. Sign in using the top right button to create an account or sign in.":"4. Sign in using the top right button to create an account or sign in.",
+      "1. After filling out your information in the MyInfo page and entering your available equipment in the equipment page, trainerGPT is all ready to help you reach your fitness goals!":"1. After filling out your information in the MyInfo page and entering your available equipment in the equipment page, trainerGPT is all ready to help you reach your fitness goals!",
+      "2. You can further elaborate on more specific goals with trainerGPT. Try to treat it how you would treat any other personal trainer.":"2. You can further elaborate on more specific goals with trainerGPT. Try to treat it how you would treat any other personal trainer.",
+      "3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).":"3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).",
+      "4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.":"4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.",
+      "5. Sign in using the top right button to create an account or sign in.":"5. Sign in using the top right button to create an account or sign in.",
     }
   },
   cn: {
@@ -228,6 +243,23 @@ const resources = {
       // trainerGPT
       "plan": "计划",
       "Change photo": "更换照片",
+      // demo slides
+      "How to use" : "如何使用",
+      "1. Use the top left button to select your language.": "1. 使用左上角的按钮选择您的语言。",
+      "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. 回答有关您的性别、年龄、体重、身高、目标、活动水平、健康问题和锻炼天数的问题。",
+      "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. 完成这些步骤后，检查您的信息。左上角的按钮将变为编辑按钮。您仍然可以在trainerGPT页面更改系统语言。",
+      "4. After filling out your information, add an optional profile photo with the Add Photo button.": "4. 填写完您的信息后，可以使用添加照片按钮添加可选的个人资料照片。",
+      "5. Sign in using the top right button to create an account or sign in.": "5. 使用右上角的按钮创建账户或登录。",
+      "1. Use the top left button to add items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to the equipment right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the equipment.": "1. 使用左上角的按钮添加物品。您可以使用设备的相机拍照或从设备上传图像（确保渲染大小设置为小）。如果您现在无法访问设备，或者您想手动输入或编辑AI的预测，您也可以直接输入设备的名称。",
+      "2. After adding a piece of equipment, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.": "2. 添加设备后，您可以使用物品名称下方的“ - ”和“ + ”图标调整数量。将数量设置为0以删除物品。",
+      "3. Use the search bar to find specific equipment by name.": "3. 使用搜索栏按名称查找特定设备。",
+      "4. Sign in using the top right button to create an account or sign in.": "4. 使用右上角的按钮创建账户或登录。",
+      "1. After filling out your information in the MyInfo page and entering your available equipment in the equipment page, trainerGPT is all ready to help you reach your fitness goals!": "1. 在MyInfo页面填写完您的信息并在设备页面输入您可用的设备后，trainerGPT已准备好帮助您实现健身目标！",
+      "2. You can further elaborate on more specific goals with trainerGPT. Try to treat it how you would treat any other personal trainer.": "2. 您可以进一步与trainerGPT详细说明更具体的目标。尝试像对待其他私人教练一样对待它。",
+      "3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).": "3. 准备好时，要求trainerGPT为您制定一个定制的锻炼计划。您可以告诉trainerGPT根据您的喜好进一步修改程序。（如果由于网络问题而中断，只需告诉它继续）。",
+      "4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.": "4. 如果您对特定的练习有疑问，也可以询问trainerGPT如何进行特定的练习。",
+      "5. Sign in using the top right button to create an account or sign in.": "5. 使用右上角的按钮创建账户或登录。",
+
     }
   },
   tc: {
@@ -341,6 +373,23 @@ const resources = {
       // trainerGPT
       "plan": "計劃",
       "Change photo": "更換照片",
+      // demo slides
+      "How to use" : "如何使用",
+      "1. Use the top left button to select your language.": "1. 使用左上角的按钮选择您的语言。",
+      "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. 回答有关您的性别、年龄、体重、身高、目标、活动水平、健康问题和锻炼天数的问题。",
+      "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. 完成这些步骤后，检查您的信息。左上角的按钮将变为编辑按钮。您仍然可以在trainerGPT页面更改系统语言。",
+      "4. After filling out your information, add an optional profile photo with the Add Photo button.": "4. 填写完您的信息后，可以使用添加照片按钮添加可选的个人资料照片。",
+      "5. Sign in using the top right button to create an account or sign in.": "5. 使用右上角的按钮创建帐户或登录。",
+      "1. Use the top left button to add items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to the equipment right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the equipment.": "1. 使用左上角的按钮添加项目。您可以使用设备的相机拍照或从设备上传图像（确保渲染大小设置为小）。如果您现在无法访问设备，或者您想手动输入或编辑AI的预测，您也可以直接输入设备的名称。",
+      "2. After adding a piece of equipment, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.": "2. 添加设备后，您可以使用物品名称下方的“ - ”和“ + ”图标调整数量。将数量设置为0以删除物品。",
+      "3. Use the search bar to find specific equipment by name.": "3. 使用搜索栏按名称查找特定设备。",
+      "4. Sign in using the top right button to create an account or sign in.": "4. 使用右上角的按钮创建帐户或登录。",
+      "1. After filling out your information in the MyInfo page and entering your available equipment in the equipment page, trainerGPT is all ready to help you reach your fitness goals!": "1. 在MyInfo页面填写完您的信息并在设备页面输入您可用的设备后，trainerGPT已准备好帮助您实现健身目标！",
+      "2. You can further elaborate on more specific goals with trainerGPT. Try to treat it how you would treat any other personal trainer.": "2. 您可以进一步与trainerGPT详细说明更具体的目标。尝试像对待其他私人教练一样对待它。",
+      "3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).": "3. 准备好时，要求trainerGPT为您制定一个定制的锻炼计划。您可以告诉trainerGPT根据您的喜好进一步修改程序。（如果由于网络问题而中断，只需告诉它继续）。",
+      "4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.": "4. 如果您对特定的练习有疑问，也可以询问trainerGPT如何进行特定的练习。",
+      "5. Sign in using the top right button to create an account or sign in.": "5. 使用右上角的按钮创建帐户或登录。",
+
     }
   },
   es: {
@@ -454,6 +503,23 @@ const resources = {
       // TrainerGPT
       "plan": "plan",
       "Change photo": "Cambiar foto",
+      // demo slides
+      "How to use" : "Cómo usar",
+      "1. Use the top left button to select your language.": "1. Usa el botón en la esquina superior izquierda para seleccionar tu idioma.",
+      "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. Responde las preguntas sobre tu género, edad, peso, altura, objetivos, nivel de actividad, problemas de salud y días de ejercicio.",
+      "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. Después de completar los pasos, revisa tu información. El botón en la esquina superior izquierda cambiará a un botón de EDITAR. Aún puedes cambiar el idioma del sistema en la página de trainerGPT.",
+      "4. After filling out your information, add an optional profile photo with the Add Photo button.": "4. Después de completar tu información, añade una foto de perfil opcional con el botón de Agregar Foto.",
+      "5. Sign in using the top right button to create an account or sign in.": "5. Inicia sesión usando el botón en la esquina superior derecha para crear una cuenta o iniciar sesión.",
+      "1. Use the top left button to add items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to the equipment right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the equipment.": "1. Usa el botón en la esquina superior izquierda para agregar elementos. Puedes tomar una foto con la cámara de tu dispositivo o subir una imagen desde tu dispositivo (asegúrate de que el tamaño de renderizado esté configurado en pequeño). Si no tienes acceso al equipo en este momento, o si deseas ingresar manualmente o editar la predicción de la IA, también puedes escribir directamente el nombre del equipo.",
+      "2. After adding a piece of equipment, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.": "2. Después de agregar un equipo, puedes ajustar la cantidad usando los íconos '-' y '+' debajo del nombre del elemento. Establece la cantidad en 0 para eliminar un artículo.",
+      "3. Use the search bar to find specific equipment by name.": "3. Usa la barra de búsqueda para encontrar equipos específicos por nombre.",
+      "4. Sign in using the top right button to create an account or sign in.": "4. Inicia sesión usando el botón en la esquina superior derecha para crear una cuenta o iniciar sesión.",
+      "1. After filling out your information in the MyInfo page and entering your available equipment in the equipment page, trainerGPT is all ready to help you reach your fitness goals!": "1. Después de completar tu información en la página MyInfo y de ingresar tu equipo disponible en la página de equipo, ¡trainerGPT está listo para ayudarte a alcanzar tus metas de fitness!",
+      "2. You can further elaborate on more specific goals with trainerGPT. Try to treat it how you would treat any other personal trainer.": "2. Puedes profundizar en objetivos más específicos con trainerGPT. Intenta tratarlo como lo harías con cualquier otro entrenador personal.",
+      "3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).": "3. Cuando estés listo, pide a trainerGPT que te elabore un plan de entrenamiento personalizado. Puedes pedirle a trainerGPT que modifique el programa según tus preferencias. (Si se interrumpe debido a problemas de Internet, solo dile que continúe).",
+      "4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.": "4. Si tienes preguntas sobre ejercicios específicos, también puedes preguntar a trainerGPT cómo hacer ejercicios específicos.",
+      "5. Sign in using the top right button to create an account or sign in.": "5. Inicia sesión usando el botón en la esquina superior derecha para crear una cuenta o iniciar sesión.",
+
     }
   },
   fr: {
@@ -567,6 +633,23 @@ const resources = {
       // trainerGPT
       "plan": "plan",
       "Change photo": "Changer la photo",
+      // demo slides
+      "How to use" : "Comment utiliser",
+      "1. Use the top left button to select your language.": "1. Utilisez le bouton en haut à gauche pour sélectionner votre langue.",
+      "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. Répondez aux questions concernant votre sexe, âge, poids, taille, objectifs, niveau d'activité, problèmes de santé et jours d'entraînement.",
+      "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. Après avoir terminé les étapes, revoyez vos informations. Le bouton en haut à gauche deviendra un bouton MODIFIER. Vous pouvez toujours changer la langue du système sur la page trainerGPT.",
+      "4. After filling out your information, add an optional profile photo with the Add Photo button.": "4. Après avoir rempli vos informations, ajoutez une photo de profil facultative avec le bouton Ajouter une photo.",
+      "5. Sign in using the top right button to create an account or sign in.": "5. Connectez-vous en utilisant le bouton en haut à droite pour créer un compte ou vous connecter.",
+      "1. Use the top left button to add items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to the equipment right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the equipment.": "1. Utilisez le bouton en haut à gauche pour ajouter des éléments. Vous pouvez soit prendre une photo avec l'appareil photo de votre appareil, soit télécharger une image depuis votre appareil (assurez-vous que la taille de rendu est définie sur petite). Si vous n'avez pas accès à l'équipement pour le moment, ou si vous souhaitez entrer ou modifier manuellement la prédiction de l'IA, vous pouvez également taper directement le nom de l'équipement.",
+      "2. After adding a piece of equipment, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.": "2. Après avoir ajouté un équipement, vous pouvez ajuster la quantité en utilisant les icônes '-' et '+' sous le nom de l'article. Définissez la quantité sur 0 pour supprimer un article.",
+      "3. Use the search bar to find specific equipment by name.": "3. Utilisez la barre de recherche pour trouver un équipement spécifique par nom.",
+      "4. Sign in using the top right button to create an account or sign in.": "4. Connectez-vous en utilisant le bouton en haut à droite pour créer un compte ou vous connecter.",
+      "1. After filling out your information in the MyInfo page and entering your available equipment in the equipment page, trainerGPT is all ready to help you reach your fitness goals!": "1. Après avoir rempli vos informations sur la page MyInfo et entré votre équipement disponible sur la page équipement, trainerGPT est prêt à vous aider à atteindre vos objectifs de fitness !",
+      "2. You can further elaborate on more specific goals with trainerGPT. Try to treat it how you would treat any other personal trainer.": "2. Vous pouvez préciser davantage des objectifs plus spécifiques avec trainerGPT. Essayez de le traiter comme vous le feriez avec tout autre entraîneur personnel.",
+      "3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).": "3. Lorsque vous êtes prêt, demandez à trainerGPT de vous concocter un plan d'entraînement personnalisé. Vous pouvez demander à trainerGPT de modifier davantage le programme selon vos préférences. (Si cela est interrompu en raison de problèmes Internet, dites-lui simplement de continuer).",
+      "4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.": "4. Si vous avez des questions sur des exercices spécifiques, vous pouvez également demander à trainerGPT comment effectuer des exercices spécifiques.",
+      "5. Sign in using the top right button to create an account or sign in.": "5. Connectez-vous en utilisant le bouton en haut à droite pour créer un compte ou vous connecter.",
+
     }
   },
   de: {
@@ -680,6 +763,23 @@ const resources = {
       // trainerGPT
       "plan": "Plan",
       "Change photo": "Foto ändern",
+      // demo slides
+      "How to use" : "Wie zu verwenden",
+      "1. Use the top left button to select your language.": "1. Verwenden Sie die Schaltfläche oben links, um Ihre Sprache auszuwählen.",
+      "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. Beantworten Sie die Fragen zu Ihrem Geschlecht, Alter, Gewicht, Größe, Zielen, Aktivitätsniveau, Gesundheitsproblemen und Trainingstagen.",
+      "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. Überprüfen Sie nach Abschluss der Schritte Ihre Informationen. Die Schaltfläche oben links ändert sich in eine BEARBEITEN-Schaltfläche. Sie können Ihre Systemsprache weiterhin auf der trainerGPT-Seite ändern.",
+      "4. After filling out your information, add an optional profile photo with the Add Photo button.": "4. Nachdem Sie Ihre Informationen ausgefüllt haben, fügen Sie ein optionales Profilfoto mit der Schaltfläche Foto hinzufügen hinzu.",
+      "5. Sign in using the top right button to create an account or sign in.": "5. Melden Sie sich mit der Schaltfläche oben rechts an, um ein Konto zu erstellen oder sich anzumelden.",
+      "1. Use the top left button to add items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to the equipment right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the equipment.": "1. Verwenden Sie die Schaltfläche oben links, um Artikel hinzuzufügen. Sie können entweder ein Bild mit der Kamera Ihres Geräts aufnehmen oder ein Bild von Ihrem Gerät hochladen (stellen Sie sicher, dass die Rendergröße auf klein eingestellt ist). Wenn Sie derzeit keinen Zugang zu dem Gerät haben oder die Vorhersage der KI manuell eingeben oder bearbeiten möchten, können Sie auch direkt den Namen des Geräts eingeben.",
+      "2. After adding a piece of equipment, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.": "2. Nachdem Sie ein Gerät hinzugefügt haben, können Sie die Menge mit den Symbolen '-' und '+' unter dem Artikelnamen anpassen. Setzen Sie die Menge auf 0, um einen Artikel zu löschen.",
+      "3. Use the search bar to find specific equipment by name.": "3. Verwenden Sie die Suchleiste, um bestimmte Geräte nach Namen zu finden.",
+      "4. Sign in using the top right button to create an account or sign in.": "4. Melden Sie sich mit der Schaltfläche oben rechts an, um ein Konto zu erstellen oder sich anzumelden.",
+      "1. After filling out your information in the MyInfo page and entering your available equipment in the equipment page, trainerGPT is all ready to help you reach your fitness goals!": "1. Nachdem Sie Ihre Informationen auf der MyInfo-Seite ausgefüllt und Ihr verfügbares Gerät auf der Geräte-Seite eingegeben haben, ist trainerGPT bereit, Ihnen zu helfen, Ihre Fitnessziele zu erreichen!",
+      "2. You can further elaborate on more specific goals with trainerGPT. Try to treat it how you would treat any other personal trainer.": "2. Sie können mit trainerGPT weitere spezifische Ziele ausarbeiten. Versuchen Sie, es so zu behandeln, wie Sie jeden anderen persönlichen Trainer behandeln würden.",
+      "3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).": "3. Wenn Sie bereit sind, bitten Sie trainerGPT, einen maßgeschneiderten Trainingsplan für Sie zu erstellen. Sie können trainerGPT mitteilen, dass das Programm nach Ihren Wünschen weiter modifiziert werden soll. (Wenn es aufgrund von Internetproblemen unterbrochen wird, sagen Sie ihm einfach, dass es fortfahren soll).",
+      "4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.": "4. Wenn Sie Fragen zu bestimmten Übungen haben, können Sie trainerGPT auch fragen, wie Sie bestimmte Übungen durchführen.",
+      "5. Sign in using the top right button to create an account or sign in.": "5. Melden Sie sich mit der Schaltfläche oben rechts an, um ein Konto zu erstellen oder sich anzumelden.",
+
     }
   },
   jp: {
@@ -792,6 +892,23 @@ const resources = {
       "Upgrade Now": "今すぐアップグレード",
       "plan": "計画",
       "Change photo": "写真を変更",
+      // demo slides
+      "How to use" : "使い方",
+      "1. Use the top left button to select your language.": "1. 左上のボタンを使って、言語を選択してください。",
+      "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. 性別、年齢、体重、身長、目標、活動レベル、健康問題、ワークアウト日数についての質問に答えてください。",
+      "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. 手順を完了した後、情報を確認してください。左上のボタンは「編集」ボタンに変わります。システムの言語は、trainerGPTページで変更できます。",
+      "4. After filling out your information, add an optional profile photo with the Add Photo button.": "4. 情報を入力した後、「写真を追加」ボタンで任意のプロフィール写真を追加してください。",
+      "5. Sign in using the top right button to create an account or sign in.": "5. 右上のボタンを使ってサインインし、アカウントを作成またはサインインしてください。",
+      "1. Use the top left button to add items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to the equipment right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the equipment.": "1. 左上のボタンを使ってアイテムを追加します。デバイスのカメラで写真を撮るか、デバイスから画像をアップロードできます（レンダーサイズが小に設定されていることを確認してください）。現在設備にアクセスできない場合や、AIの予測を手動で入力または編集したい場合は、機器の名前を直接入力することもできます。",
+      "2. After adding a piece of equipment, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.": "2. 機器を追加した後、アイテム名の下にある「-」および「+」アイコンを使用して数量を調整できます。数量を0に設定してアイテムを削除します。",
+      "3. Use the search bar to find specific equipment by name.": "3. 検索バーを使用して、名前で特定の機器を探します。",
+      "4. Sign in using the top right button to create an account or sign in.": "4. 右上のボタンを使ってサインインし、アカウントを作成またはサインインしてください。",
+      "1. After filling out your information in the MyInfo page and entering your available equipment in the equipment page, trainerGPT is all ready to help you reach your fitness goals!": "1. MyInfoページに情報を入力し、equipmentページに利用可能な機器を入力した後、trainerGPTはフィットネス目標達成のお手伝いをする準備が整いました！",
+      "2. You can further elaborate on more specific goals with trainerGPT. Try to treat it how you would treat any other personal trainer.": "2. trainerGPTを使用して、より具体的な目標について詳しく説明できます。他のパーソナルトレーナーと同じように扱ってください。",
+      "3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).": "3. 準備ができたら、trainerGPTにカスタムワークアウトプランを作成するよう依頼してください。プログラムを好みに合わせてさらに変更するようにtrainerGPTに伝えることができます。（インターネットの問題で途中で中断された場合は、続行するように指示してください）。",
+      "4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.": "4. 特定のエクササイズに関する質問がある場合は、特定のエクササイズの方法をtrainerGPTに尋ねることもできます。",
+      "5. Sign in using the top right button to create an account or sign in.": "5. 右上のボタンを使ってサインインし、アカウントを作成またはサインインしてください。",
+
     }
   },
   kr: {
@@ -904,6 +1021,23 @@ const resources = {
       "Upgrade Now": "지금 업그레이드",
       "plan": "계획",
       "Change photo": "사진 변경",
+      // demo slides
+      "How to use" : "사용 방법",
+      "1. Use the top left button to select your language.": "1. 왼쪽 상단 버튼을 사용하여 언어를 선택하세요.",
+      "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. 성별, 나이, 체중, 키, 목표, 활동 수준, 건강 문제 및 운동 일수에 대한 질문에 답하세요.",
+      "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. 단계가 완료되면 정보를 검토하세요. 왼쪽 상단 버튼이 편집 버튼으로 변경됩니다. trainerGPT 페이지에서 시스템 언어를 여전히 변경할 수 있습니다.",
+      "4. After filling out your information, add an optional profile photo with the Add Photo button.": "4. 정보를 입력한 후, 사진 추가 버튼을 사용하여 선택적으로 프로필 사진을 추가하세요.",
+      "5. Sign in using the top right button to create an account or sign in.": "5. 오른쪽 상단 버튼을 사용하여 계정을 생성하거나 로그인하세요.",
+      "1. Use the top left button to add items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to the equipment right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the equipment.": "1. 왼쪽 상단 버튼을 사용하여 항목을 추가하세요. 기기의 카메라로 사진을 찍거나 기기에서 이미지를 업로드할 수 있습니다(렌더 크기가 작게 설정되어 있는지 확인하세요). 현재 장비에 접근할 수 없거나 AI의 예측을 수동으로 입력하거나 수정하려는 경우 장비 이름을 직접 입력할 수도 있습니다.",
+      "2. After adding a piece of equipment, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.": "2. 장비를 추가한 후, 항목 이름 아래에 있는 '-' 및 '+' 아이콘을 사용하여 수량을 조정할 수 있습니다. 항목을 삭제하려면 수량을 0으로 설정하세요.",
+      "3. Use the search bar to find specific equipment by name.": "3. 검색 창을 사용하여 이름으로 특정 장비를 찾으세요.",
+      "4. Sign in using the top right button to create an account or sign in.": "4. 오른쪽 상단 버튼을 사용하여 계정을 생성하거나 로그인하세요.",
+      "1. After filling out your information in the MyInfo page and entering your available equipment in the equipment page, trainerGPT is all ready to help you reach your fitness goals!": "1. MyInfo 페이지에서 정보를 입력하고 equipment 페이지에서 사용 가능한 장비를 입력한 후, trainerGPT가 피트니스 목표 달성을 도와줄 준비가 되었습니다!",
+      "2. You can further elaborate on more specific goals with trainerGPT. Try to treat it how you would treat any other personal trainer.": "2. trainerGPT와 함께 더 구체적인 목표를 자세히 설명할 수 있습니다. 다른 개인 트레이너를 대하는 것처럼 다뤄보세요.",
+      "3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).": "3. 준비가 되면 trainerGPT에게 맞춤형 운동 계획을 만들어 달라고 요청하세요. 프로그램을 기호에 맞게 추가로 수정하도록 trainerGPT에게 말할 수 있습니다. (인터넷 문제로 인해 중단되면 계속하도록 지시하세요).",
+      "4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.": "4. 특정 운동에 대해 질문이 있으면 특정 운동 방법을 trainerGPT에게 물어볼 수도 있습니다.",
+      "5. Sign in using the top right button to create an account or sign in.": "5. 오른쪽 상단 버튼을 사용하여 계정을 생성하거나 로그인하세요.",
+
       
     }
   }

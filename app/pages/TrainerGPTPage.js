@@ -705,6 +705,7 @@ const TrainerGPTPage = () => {
                       backgroundColor: 'background.default',
                       color: 'text.primary',
                       borderColor: 'text.primary',
+                      justifyContent: 'center',
                       '&:hover': {
                         backgroundColor: 'text.primary',
                         color: 'background.default',

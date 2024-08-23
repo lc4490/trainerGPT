@@ -222,11 +222,12 @@ const resources = {
       "Sat": "星期六",
       "Sun": "星期天",
       "Everyday": "每天",
-
       // premium
       "This feature is available to premium users only.": "此功能仅对高级用户开放。",
       "Upgrade Now": "立即升级",
-
+      // trainerGPT
+      "plan": "计划",
+      "Change photo": "更换照片",
     }
   },
   tc: {
@@ -337,6 +338,9 @@ const resources = {
       // premium
       "This feature is available to premium users only.": "此功能僅對高級用戶開放。",
       "Upgrade Now": "立即升級",
+      // trainerGPT
+      "plan": "計劃",
+      "Change photo": "更換照片",
     }
   },
   es: {
@@ -447,6 +451,9 @@ const resources = {
       // premium
       "This feature is available to premium users only.": "Esta función está disponible solo para usuarios premium.",
       "Upgrade Now": "Actualizar ahora",
+      // TrainerGPT
+      "plan": "plan",
+      "Change photo": "Cambiar foto",
     }
   },
   fr: {
@@ -557,6 +564,9 @@ const resources = {
       // premium
       "This feature is available to premium users only.": "Cette fonctionnalité est disponible uniquement pour les utilisateurs premium.",
       "Upgrade Now": "Mettre à niveau maintenant",
+      // trainerGPT
+      "plan": "plan",
+      "Change photo": "Changer la photo",
     }
   },
   de: {
@@ -667,6 +677,9 @@ const resources = {
       // premium
       "This feature is available to premium users only.": "Diese Funktion ist nur für Premium-Nutzer verfügbar.",
       "Upgrade Now": "Jetzt upgraden",
+      // trainerGPT
+      "plan": "Plan",
+      "Change photo": "Foto ändern",
     }
   },
   jp: {
@@ -777,6 +790,8 @@ const resources = {
       // premium
       "This feature is available to premium users only.": "この機能はプレミアムユーザーのみ利用可能です。",
       "Upgrade Now": "今すぐアップグレード",
+      "plan": "計画",
+      "Change photo": "写真を変更",
     }
   },
   kr: {
@@ -887,6 +902,8 @@ const resources = {
       // premium
       "This feature is available to premium users only.": "이 기능은 프리미엄 사용자만 사용할 수 있습니다.",
       "Upgrade Now": "지금 업그레이드",
+      "plan": "계획",
+      "Change photo": "사진 변경",
       
     }
   }

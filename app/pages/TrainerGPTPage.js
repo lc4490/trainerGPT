@@ -1,5 +1,5 @@
 "use client"
-import { Box, Stack, Typography, Button, TextField, CssBaseline, ThemeProvider, useMediaQuery, FormControl, InputLabel, NativeSelect, Link, Divider } from '@mui/material'
+import { Box, Stack, Typography, Button, TextField, CssBaseline, ThemeProvider, useMediaQuery, FormControl, InputLabel, NativeSelect, Link, Divider, Modal } from '@mui/material'
 import { useEffect, useState, useCallback } from 'react'
 import { createTheme } from '@mui/material';
 // import icons
@@ -20,6 +20,8 @@ import { useContext } from 'react';
 import { GuestContext } from '../page'; // Adjust the path based on your structure
 // router
 import { useRouter, useSearchParams } from 'next/navigation';
+// info button
+import InfoIcon from '@mui/icons-material/Info';
 
 // light/dark themes
 const lightTheme = createTheme({
@@ -56,42 +58,112 @@ const darkTheme = createTheme({
 const exerciseData = [
   {
     name: 'Push-Up',
+    translations: {
+      en: 'Push-Up',
+      cn: '俯卧撑',
+      tc: '俯臥撐',
+      es: 'Flexión',
+      fr: 'Pompe',
+      de: 'Liegestütz',
+      jp: 'プッシュアップ',
+      kr: '푸쉬업',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/0RdBA5ntIy0',
     ],
   },
   {
     name: 'Push Up',
+    translations: {
+      en: 'Push Up',
+      cn: '俯卧撑',
+      tc: '俯臥撐',
+      es: 'Flexión',
+      fr: 'Pompe',
+      de: 'Liegestütz',
+      jp: 'プッシュアップ',
+      kr: '푸쉬업',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/0RdBA5ntIy0',
     ],
   },
   {
     name: 'Squat',
+    translations: {
+      en: 'Squat',
+      cn: '深蹲',
+      tc: '深蹲',
+      es: 'Sentadilla',
+      fr: 'Accroupissement',
+      de: 'Kniebeuge',
+      jp: 'スクワット',
+      kr: '스쿼트',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/LnMFhMJ70HM',
     ],
   },
   {
     name: 'Plank',
+    translations: {
+      en: 'Plank',
+      cn: '平板支撑',
+      tc: '平板支撐',
+      es: 'Plancha',
+      fr: 'Planche',
+      de: 'Planke',
+      jp: 'プランク',
+      kr: '플랭크',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/SoC0faVmmrk',
     ],
   },
   {
     name: 'Burpee',
+    translations: {
+      en: 'Burpee',
+      cn: '波比跳',
+      tc: '波比跳',
+      es: 'Burpee',
+      fr: 'Burpee',
+      de: 'Burpee',
+      jp: 'バーピー',
+      kr: '버피',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/jGuv9WphUw0',
     ],
   },
   {
     name: 'Lunge',
+    translations: {
+      en: 'Lunge',
+      cn: '弓步',
+      tc: '弓步',
+      es: 'Zancada',
+      fr: 'Fente',
+      de: 'Ausfallschritt',
+      jp: 'ランジ',
+      kr: '런지',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/LDTnaPmU9HE',
     ],
   },
   {
     name: 'Deadlift',
+    translations: {
+      en: 'Deadlift',
+      cn: '硬拉',
+      tc: '硬舉',
+      es: 'Peso muerto',
+      fr: 'Soulevé de terre',
+      de: 'Kreuzheben',
+      jp: 'デッドリフト',
+      kr: '데드리프트',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/gxHZ0OYRBjI',
       'https://www.youtube.com/watch?v=bsII141KWpI&t=94s',
@@ -99,70 +171,177 @@ const exerciseData = [
   },
   {
     name: 'Bench Press',
+    translations: {
+      en: 'Bench Press',
+      cn: '卧推',
+      tc: '臥推',
+      es: 'Press de banca',
+      fr: 'Développé couché',
+      de: 'Bankdrücken',
+      jp: 'ベンチプレス',
+      kr: '벤치프레스',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/YGHJgHB4PIU',
     ],
   },
   {
     name: 'Dumbbell Press',
+    translations: {
+      en: 'Dumbbell Press',
+      cn: '哑铃推举',
+      tc: '啞鈴推舉',
+      es: 'Press con mancuernas',
+      fr: 'Développé avec haltères',
+      de: 'Kurzhantel-Drücken',
+      jp: 'ダンベルプレス',
+      kr: '덤벨 프레스',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/teARc9E-WW4',
     ],
   },
   {
     name: 'Dumbbell Flyes',
+    translations: {
+      en: 'Dumbbell Flyes',
+      cn: '哑铃飞鸟',
+      tc: '啞鈴飛鳥',
+      es: 'Aperturas con mancuernas',
+      fr: 'Écartés avec haltères',
+      de: 'Kurzhantel-Fliegen',
+      jp: 'ダンベルフライ',
+      kr: '덤벨 플라이',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/Wkqk3WMIAeY',
     ],
   },
   {
     name: 'Barbell Curl',
+    translations: {
+      en: 'Barbell Curl',
+      cn: '杠铃弯举',
+      tc: '槓鈴彎舉',
+      es: 'Curl con barra',
+      fr: 'Curl barre',
+      de: 'Langhantel-Curl',
+      jp: 'バーベルカール',
+      kr: '바벨 컬',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/mpEFR1-v12s',
-      
     ],
   },
   {
     name: 'Dumbbell Curl',
+    translations: {
+      en: 'Dumbbell Curl',
+      cn: '哑铃弯举',
+      tc: '啞鈴彎舉',
+      es: 'Curl con mancuernas',
+      fr: 'Curl haltère',
+      de: 'Kurzhantel-Curl',
+      jp: 'ダンベルカール',
+      kr: '덤벨 컬',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/Im1l3OrPRp4',
-      
     ],
   },
   {
     name: 'Bicep Curl',
+    translations: {
+      en: 'Bicep Curl',
+      cn: '肱二头肌弯举',
+      tc: '肱二頭肌彎舉',
+      es: 'Curl de bíceps',
+      fr: 'Curl biceps',
+      de: 'Bizeps-Curl',
+      jp: 'バイセップカール',
+      kr: '이두근 컬',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/mpEFR1-v12s',
       'https://youtube.com/shorts/Im1l3OrPRp4',
-      
     ],
   },
   {
     name: 'Pull-Up',
+    translations: {
+      en: 'Pull-Up',
+      cn: '引体向上',
+      tc: '引體向上',
+      es: 'Dominada',
+      fr: 'Traction',
+      de: 'Klimmzug',
+      jp: 'プルアップ',
+      kr: '풀업',
+    },
     youtubeLinks: [
       'https://www.youtube.com/shorts/bdRkHBBfDMs',
     ],
   },
   {
     name: 'Pull Up',
+    translations: {
+      en: 'Pull Up',
+      cn: '引体向上',
+      tc: '引體向上',
+      es: 'Dominada',
+      fr: 'Traction',
+      de: 'Klimmzug',
+      jp: 'プルアップ',
+      kr: '풀업',
+    },
     youtubeLinks: [
       'https://www.youtube.com/shorts/bdRkHBBfDMs',
     ],
   },
   {
     name: 'Mountain Climber',
+    translations: {
+      en: 'Mountain Climber',
+      cn: '登山者',
+      tc: '登山者',
+      es: 'Escalador de montaña',
+      fr: 'Grimpeur de montagne',
+      de: 'Bergsteiger',
+      jp: 'マウンテンクライマー',
+      kr: '마운틴 클라이머',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/SADXvZWs7Ac',
     ],
   },
   {
     name: 'Tricep Dip',
+    translations: {
+      en: 'Tricep Dip',
+      cn: '三头肌下压',
+      tc: '三頭肌下壓',
+      es: 'Fondo de triceps',
+      fr: 'Dips triceps',
+      de: 'Trizeps-Dip',
+      jp: 'トライセップディップ',
+      kr: '트라이셉 딥',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/1bZE5aJfvVc',
     ],
   },
   {
     name: 'Shoulder Press',
+    translations: {
+      en: 'Shoulder Press',
+      cn: '肩推',
+      tc: '肩推',
+      es: 'Press de hombros',
+      fr: 'Développé épaules',
+      de: 'Schulterdrücken',
+      jp: 'ショルダープレス',
+      kr: '숄더 프레스',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/gNhSyjiNy0c',
       'https://youtube.com/shorts/vYG-77uMSaY',
@@ -170,23 +349,54 @@ const exerciseData = [
   },
   {
     name: 'Dumbbell Shoulder Press',
+    translations: {
+      en: 'Dumbbell Shoulder Press',
+      cn: '哑铃肩推',
+      tc: '啞鈴肩推',
+      es: 'Press de hombros con mancuernas',
+      fr: 'Développé épaules avec haltères',
+      de: 'Kurzhantel-Schulterdrücken',
+      jp: 'ダンベルショルダープレス',
+      kr: '덤벨 숄더 프레스',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/vYG-77uMSaY',
     ]
   },
   {
     name: 'Overhead Press',
+    translations: {
+      en: 'Overhead Press',
+      cn: '头顶推举',
+      tc: '頭頂推舉',
+      es: 'Press por encima de la cabeza',
+      fr: 'Développé militaire',
+      de: 'Überkopfdrücken',
+      jp: 'オーバーヘッドプレス',
+      kr: '오버헤드 프레스',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/gNhSyjiNy0c',
     ]
   },
   {
     name: 'Face Pulls',
+    translations: {
+      en: 'Face Pulls',
+      cn: '面拉',
+      tc: '面拉',
+      es: 'Jalones hacia la cara',
+      fr: 'Tirage au visage',
+      de: 'Gesichtsziehen',
+      jp: 'フェイスプル',
+      kr: '페이스 풀',
+    },
     youtubeLinks: [
       'https://youtube.com/shorts/F3lsQMekW-4',
     ]
   },
 ];
+
 
 
 // link color
@@ -377,7 +587,7 @@ const TrainerGPTPage = () => {
       responseContent += equipmentContent;
 
       // find exercise names in message, if so, upload youtube links
-      const exerciseNames = extractExerciseName(message);
+      const exerciseNames = extractExerciseName(message, prefLanguage);
       exerciseNames.forEach((exercise) => {
         let links = getYouTubeLinksForExercise(exercise);
         responseContent += `Here are some YouTube links for ${exercise}: \n\n`;
@@ -558,25 +768,25 @@ const TrainerGPTPage = () => {
       setEquipmentList(equipment);
     }
   };
-  const extractExerciseName = (message) => {
-    let ret = []
-    // Convert the message to lowercase for case-insensitive matching
+  const extractExerciseName = (message, language) => {
+    let ret = [];
     const lowerCaseMessage = message.toLowerCase();
   
-    // Iterate through the exerciseData array to find a matching exercise name
+    // Iterate through the exerciseData array to find matching exercise names
     for (let i = 0; i < exerciseData.length; i++) {
       const exercise = exerciseData[i];
-      const exerciseName = exercise.name.toLowerCase();
+      
+      // Check if the translations object exists and contains the language key
+      if (exercise.translations && exercise.translations[language]) {
+        const exerciseName = exercise.translations[language].toLowerCase();
   
-      // Check if the exercise name exists in the message
-      if (lowerCaseMessage.includes(exerciseName)) {
-        ret.push(exercise.name); // Return the original case-sensitive exercise name
+        if (lowerCaseMessage.includes(exerciseName)) {
+          ret.push(exercise.name); // Return the original English name
+        }
       }
     }
-  
-    // If no match is found, return null or an empty string
     return ret;
-  };
+  };  
 
   // STORE PLAN
   // Store preferred language on Firebase
@@ -631,6 +841,13 @@ const TrainerGPTPage = () => {
       console.error("Error saving guest data to Firebase:", error);
     }
     };
+  // info modal
+  const [openInfoModal, setOpenInfoModal] = useState(false);
+  // open Info modal
+  const handleInfoModal = () => {
+    setOpenInfoModal(true);
+  }
+
 
   return (
     // light/dark theming
@@ -643,6 +860,65 @@ const TrainerGPTPage = () => {
         display="flex"
         flexDirection="column"
       >
+        {/* info modal */}
+        <Modal open = {openInfoModal} onClose = {() => setOpenInfoModal(false)}>
+            <Box 
+            overflow="auto"
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 350,
+              height: "75%",
+              bgcolor: 'background.default',
+              border: '2px solid #000',
+              boxShadow: 24,
+              p: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              borderRadius: "15px",
+            }}>
+              <Typography variant="h6" component="h2" fontWeight='600'>
+                  {t("How to use:")}
+                </Typography>
+                <Typography sx={{ mt: 2 }}>
+                  {t("1. After filling out your information in the MyInfo page and entering your available equipment in the equipment page, trainerGPT is all ready to help you reach your fitness goals!")}
+                </Typography>
+                <Typography sx = {{mt: 2}}>
+                 {t("2. You can further elaborate on more specific goals with trainerGPT. Try to treat it how you would treat any other personal trainer.")}
+                </Typography>
+                <Typography sx = {{mt: 2}}>
+                 {t("3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).")}
+                </Typography>
+                <Typography sx = {{mt: 2}}>
+                 {t("4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.")}
+                </Typography>
+                <Typography sx = {{mt: 2}}>
+                 {t("5. Sign in using the top right button to create an account or sign in.")}
+                </Typography>
+                <Box sx={{ flexGrow: 1 }} />
+                <Button 
+                  variant="outlined"
+                  onClick={() => {
+                    setOpenInfoModal(false)
+                  }}
+                  sx={{
+                    mt: 2,
+                    backgroundColor: 'text.primary',
+                    color: 'background.default',
+                    borderColor: 'text.primary',
+                    '&:hover': {
+                      backgroundColor: 'darkgray',
+                      color: 'text.primary',
+                      borderColor: 'text.primary',
+                    },
+                  }}
+                >
+                  {t('Close')}
+                </Button>
+            </Box>
+          </Modal>
         {/* header box */}
         <Box
           height="10%"
@@ -655,7 +931,7 @@ const TrainerGPTPage = () => {
           position="relative"
         >
           {/* switch language */}
-          <FormControl sx={{ width: '85px' }}>
+          <FormControl sx={{ width: isMobile ? '90px': '120px' }}>
             <InputLabel variant="standard" htmlFor="uncontrolled-native">
               {t('language')}
             </InputLabel>
@@ -686,10 +962,21 @@ const TrainerGPTPage = () => {
             </NativeSelect>
           </FormControl>
           {/* title */}
-          <Box display="flex" flexDirection={"row"} alignItems={"center"}>
+          <Box display="flex" flexDirection={"row"} alignItems={"center"} gap = {2}>
             <Typography variant="h6" color="text.primary" textAlign="center">
               {t('trainerGPT')}
             </Typography>
+            <Button 
+                onClick={handleInfoModal}
+                sx={{ 
+                    minWidth: "auto",  
+                    aspectRatio: "1 / 1", 
+                    borderRadius: "50%",
+                    width: "20px",  // or adjust as needed
+                    height: "20px"  // or adjust as needed
+                }}>
+                    <InfoIcon sx={{ color: "lightgray" }}/>
+                </Button>
           </Box>
           {/* signin button */}
           <Box>

@@ -156,6 +156,7 @@ export default function Home() {
   // handle user purchase
   const handleSubmit = async () => {
     if (!user) {
+      await saveGuestDataToFirebase();
       router.push('/sign-in');
       return;
     }
@@ -198,6 +199,39 @@ export default function Home() {
       }
     } else {
       console.warn('No user found, unable to update premium status');
+    }
+  };
+
+  const saveGuestDataToFirebase = async () => {
+    const guestDocRef = doc(firestore, 'users', 'guest');
+    // Save guest user data and profile picture
+    await setDoc(guestDocRef, { userData: guestData }, { merge: true });
+    await setDoc(guestDocRef, { profilePic: guestImage }, { merge: true });
+  
+    try {
+      // Save guest equipment data
+      const equipmentCollectionRef = collection(guestDocRef, 'equipment');
+      for (const item of guestEquipment) {
+        const equipmentDocRef = doc(equipmentCollectionRef, item.name);
+        await setDoc(equipmentDocRef, {
+          count: item.count || 0,
+          image: item.image || null,
+        });
+      }
+  
+      // Save guest chat data
+      const chatCollectionRef = collection(guestDocRef, 'chat');
+      const chatDocRef = doc(chatCollectionRef, 'en'); // Assuming 'en' is the language
+      await setDoc(chatDocRef, {
+        messages: guestMessages || [],
+        timestamp: new Date().toISOString(),
+      });
+  
+      
+  
+      console.log('Guest data saved to Firebase.');
+    } catch (error) {
+      console.error("Error saving guest data to Firebase:", error);
     }
   };
   

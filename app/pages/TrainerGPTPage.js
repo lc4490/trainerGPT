@@ -859,6 +859,7 @@ const TrainerGPTPage = () => {
         height="100vh"
         display="flex"
         flexDirection="column"
+        paddingBottom= '60px' // Ensure content is not cut off by the toolbar
       >
         {/* info modal */}
         <Modal open = {openInfoModal} onClose = {() => setOpenInfoModal(false)}>
@@ -931,7 +932,7 @@ const TrainerGPTPage = () => {
           position="relative"
         >
           {/* switch language */}
-          <FormControl sx={{ width: isMobile ? '90px': '120px' }}>
+          <FormControl sx={{ width: isMobile ? '85px': '85px' }}>
             <InputLabel variant="standard" htmlFor="uncontrolled-native">
               {t('language')}
             </InputLabel>
@@ -962,7 +963,7 @@ const TrainerGPTPage = () => {
             </NativeSelect>
           </FormControl>
           {/* title */}
-          <Box display="flex" flexDirection={"row"} alignItems={"center"} gap = {2}>
+          <Box display="flex" flexDirection={"row"} alignItems={"center"} gap = {1}>
             <Typography variant="h6" color="text.primary" textAlign="center">
               {t('trainerGPT')}
             </Typography>
@@ -1015,11 +1016,11 @@ const TrainerGPTPage = () => {
         <Stack
           direction="column"
           width="100vw"
-          minHeight="90vh"
+          minHeight={isMobile ? "80vh" : "90vh"}
           paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >
           {/* messages */}
-          <Stack direction="column" spacing={2} flexGrow={1} overflow='auto' padding={2} className="chat-log">
+          <Stack direction="column" spacing={2} flexGrow={1} overflow='auto' padding={2} className="chat-log" >
             {messages.map((message, index) => (
               <Box
                 key={index}

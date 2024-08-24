@@ -1,4 +1,5 @@
 // i18n.js
+import { m } from 'framer-motion';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
@@ -129,6 +130,11 @@ const resources = {
       "2. You can further elaborate on more specific goals with trainerGPT. Try to treat it how you would treat any other personal trainer.":"2. You can further elaborate on more specific goals with trainerGPT. Try to treat it how you would treat any other personal trainer.",
       "3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).":"3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).",
       "4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.":"4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.",
+      "5. Sign in using the top right button to create an account or sign in.":"5. Sign in using the top right button to create an account or sign in.",
+      "1. Use the top left button to add pantry items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to your fridge right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the pantry item.":"1. Use the top left button to add pantry items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to your fridge right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the pantry item.",
+      "2. After adding a pantry item, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.":"2. After adding a pantry item, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.",
+      "3. Use the search bar to find specific pantry items by name.":"3. Use the search bar to find specific pantry items by name.",
+      "4. Recipes will auto-generate based on the ingredients available in your pantry. Click on the recipes to see the instructions and required ingredients.":"4. Recipes will auto-generate based on the ingredients available in your pantry. Click on the recipes to see the instructions and required ingredients.",
       "5. Sign in using the top right button to create an account or sign in.":"5. Sign in using the top right button to create an account or sign in.",
     }
   },
@@ -1037,8 +1043,6 @@ const resources = {
       "3. When you are ready, ask trainerGPT to craft you a custom workout plan. You can tell trainerGPT to further modify the program to your liking. (If it gets cut off due to internet issues, just tell it to continue).": "3. 준비가 되면 trainerGPT에게 맞춤형 운동 계획을 만들어 달라고 요청하세요. 프로그램을 기호에 맞게 추가로 수정하도록 trainerGPT에게 말할 수 있습니다. (인터넷 문제로 인해 중단되면 계속하도록 지시하세요).",
       "4. If you have questions about specific exercises, you can also ask trainerGPT how to do specific exercises.": "4. 특정 운동에 대해 질문이 있으면 특정 운동 방법을 trainerGPT에게 물어볼 수도 있습니다.",
       "5. Sign in using the top right button to create an account or sign in.": "5. 오른쪽 상단 버튼을 사용하여 계정을 생성하거나 로그인하세요.",
-
-      
     }
   }
 };

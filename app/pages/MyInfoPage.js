@@ -852,7 +852,7 @@ const MyInfoPage = () => {
                 </FormControl>
               )}
               {/* Title */}
-              <Box display="flex" flexDirection={"row"} alignItems={"center"} gap ={2}>
+              <Box display="flex" flexDirection={"row"} alignItems={"center"} gap ={1}>
                 <Typography variant="h6" color="text.primary" textAlign="center">
                   {t('My Info')}
                 </Typography>

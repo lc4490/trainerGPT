@@ -27,7 +27,8 @@ import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 // import ai
 import { OpenAI } from 'openai';
-
+// info button
+import InfoIcon from '@mui/icons-material/Info';
 
 // light/dark themes
   const lightTheme = createTheme({
@@ -257,6 +258,11 @@ const PlanPage = () => {
       const handleCloseModal = () => {
           setSelectedEvent(null);
       };
+      // open Info modal
+      const [openInfoModal, setOpenInfoModal] = useState(false);
+      const handleInfoModal = () => {
+        setOpenInfoModal(true);
+      }
     return(
         // light/dark theming
         <ThemeProvider theme={theme}>
@@ -320,7 +326,54 @@ const PlanPage = () => {
                           {t('Close')}
                         </Button>
                     </Box>
-                </Modal>
+          </Modal>
+          {/* info modal */}
+          <Modal open = {openInfoModal} onClose = {() => setOpenInfoModal(false)}>
+              <Box 
+              overflow="auto"
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 350,
+                height: "75%",
+                bgcolor: 'background.default',
+                border: '2px solid #000',
+                boxShadow: 24,
+                p: 4,
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: "15px",
+              }}>
+                <Typography variant="h6" component="h2" fontWeight='600'>
+                    {t("How to use:")}
+                  </Typography>
+                  <Typography sx={{ mt: 2 }}>
+                    {t("View your custom-crafted workout plan here. Click the top right to see what days your friends are available to workout.")}
+                  </Typography>
+                  <Box sx={{ flexGrow: 1 }} />
+                  <Button 
+                    variant="outlined"
+                    onClick={() => {
+                      setOpenInfoModal(false)
+                    }}
+                    sx={{
+                      mt: 2,
+                      backgroundColor: 'text.primary',
+                      color: 'background.default',
+                      borderColor: 'text.primary',
+                      '&:hover': {
+                        backgroundColor: 'darkgray',
+                        color: 'text.primary',
+                        borderColor: 'text.primary',
+                      },
+                    }}
+                  >
+                    {t('Close')}
+                  </Button>
+              </Box>
+            </Modal>
           {/* header box */}
           <Box
             height="10%"
@@ -337,10 +390,21 @@ const PlanPage = () => {
             </Button>
             
             {/* title */}
-            <Box display="flex" flexDirection={"row"} alignItems={"center"}>
+            <Box display="flex" flexDirection={"row"} alignItems={"center"} gap={1}>
               <Typography variant="h6" color="text.primary" textAlign="center">
                 {t('My Plan')}
               </Typography>
+              <Button 
+                onClick={handleInfoModal}
+                sx={{ 
+                    minWidth: "auto",  
+                    aspectRatio: "1 / 1", 
+                    borderRadius: "50%",
+                    width: "20px",  // or adjust as needed
+                    height: "20px"  // or adjust as needed
+                }}>
+                    <InfoIcon sx={{ color: "lightgray" }}/>
+                </Button>
             </Box>
             {/* signin button */}
             <Box>

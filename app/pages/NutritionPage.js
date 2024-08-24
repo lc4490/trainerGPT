@@ -33,6 +33,9 @@ import { Brightness4, Brightness7 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n'; // Adjust the path as necessary
 
+// info button
+import InfoIcon from '@mui/icons-material/Info';
+
 const lightTheme = createTheme({
   palette: {
     mode: 'light',
@@ -331,6 +334,12 @@ const NutritionPage = () => {
     setSelectedRecipe(index);
     setOpenRecipeModal(true);
   };
+
+  // open Info modal
+  const [openInfoModal, setOpenInfoModal] = useState(false);
+  const handleInfoModal = () => {
+    setOpenInfoModal(true);
+  }
 
   // const [user, setUser] = useState(null);
   const [guestMode, setGuestMode] = useState(false);
@@ -808,6 +817,66 @@ const NutritionPage = () => {
           </Box>
         </Modal>
 
+        {/* info modal */}
+        <Modal open = {openInfoModal} onClose = {() => setOpenInfoModal(false)}>
+            <Box 
+            overflow="auto"
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 350,
+              height: "75%",
+              bgcolor: 'background.default',
+              border: '2px solid #000',
+              boxShadow: 24,
+              p: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              borderRadius: "15px",
+            }}>
+              <Typography variant="h6" component="h2" fontWeight='600'>
+                  {t("How to use:")}
+                </Typography>
+                <Typography sx={{ mt: 2 }}>
+                  {t("1. Use the top left button to add pantry items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to your fridge right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the pantry item.")}
+                </Typography>
+                <Typography sx = {{mt: 2}}>
+                  {t("2. After adding a pantry item, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.")}
+                </Typography>
+                <Typography sx = {{mt: 2}}>
+                  {t("3. Use the search bar to find specific pantry items by name.")}
+                </Typography>
+                <Typography sx = {{mt: 2}}>
+                 {t("4. Recipes will auto-generate based on the ingredients available in your pantry. Click on the recipes to see the instructions and required ingredients.")}
+                </Typography>
+                <Typography sx = {{mt: 2}}>
+                 {t("5. Sign in using the top right button to create an account or sign in.")}
+                </Typography>
+                <Box sx={{ flexGrow: 1 }} />
+                <Button 
+                  variant="outlined"
+                  onClick={() => {
+                    setOpenInfoModal(false)
+                  }}
+                  sx={{
+                    mt: 2,
+                    backgroundColor: 'text.primary',
+                    color: 'background.default',
+                    borderColor: 'text.primary',
+                    '&:hover': {
+                      backgroundColor: 'darkgray',
+                      color: 'text.primary',
+                      borderColor: 'text.primary',
+                    },
+                  }}
+                >
+                  {t('Close')}
+                </Button>
+            </Box>
+          </Modal>
+
         {/* main page */}
         <Box width="100%" height="100%" bgcolor="background.default">
           {/* header including add button, title, sign in */}
@@ -842,17 +911,21 @@ const NutritionPage = () => {
               <Typography variant="h5">+</Typography>
             </Button>
             {/* title */}
-            <Box display = "flex" flexDirection={"row"} alignItems={"center"}>
-              {/* <IconButton 
-                  sx={{ ml: 1 }} 
-                  onClick={() => setDarkMode(!darkMode)} 
-                  color="inherit"
-                >
-                  {darkMode ? <Brightness7 /> : <Brightness4 />}
-                </IconButton> */}
+            <Box display = "flex" flexDirection={"row"} alignItems={"center"} gap = {1}>
               <Typography variant="h6" color="text.primary" textAlign="center">
                 {t('myPantry')}
               </Typography>
+              <Button 
+                onClick={handleInfoModal}
+                sx={{ 
+                    minWidth: "auto",  
+                    aspectRatio: "1 / 1", 
+                    borderRadius: "50%",
+                    width: "20px",  // or adjust as needed
+                    height: "20px"  // or adjust as needed
+                }}>
+                    <InfoIcon sx={{ color: "lightgray" }}/>
+                </Button>
             </Box>
             {/* Sign in */}
             <Box>

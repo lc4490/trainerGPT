@@ -115,7 +115,7 @@ const resources = {
       "plan":"plan",
       "Change photo": "Change photo",
       // demo slides
-      "How to use" : "How to use",
+      "How to use:" : "How to use:",
       "1. Use the top left button to select your language.": "1. Use the top left button to select your language.",
       "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.":"2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.",
       "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.":"3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.",
@@ -244,7 +244,7 @@ const resources = {
       "plan": "计划",
       "Change photo": "更换照片",
       // demo slides
-      "How to use" : "如何使用",
+      "How to use:" : "如何使用：",
       "1. Use the top left button to select your language.": "1. 使用左上角的按钮选择您的语言。",
       "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. 回答有关您的性别、年龄、体重、身高、目标、活动水平、健康问题和锻炼天数的问题。",
       "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. 完成这些步骤后，检查您的信息。左上角的按钮将变为编辑按钮。您仍然可以在trainerGPT页面更改系统语言。",
@@ -374,7 +374,7 @@ const resources = {
       "plan": "計劃",
       "Change photo": "更換照片",
       // demo slides
-      "How to use" : "如何使用",
+      "How to use:" : "如何使用：",
       "1. Use the top left button to select your language.": "1. 使用左上角的按钮选择您的语言。",
       "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. 回答有关您的性别、年龄、体重、身高、目标、活动水平、健康问题和锻炼天数的问题。",
       "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. 完成这些步骤后，检查您的信息。左上角的按钮将变为编辑按钮。您仍然可以在trainerGPT页面更改系统语言。",
@@ -504,7 +504,7 @@ const resources = {
       "plan": "plan",
       "Change photo": "Cambiar foto",
       // demo slides
-      "How to use" : "Cómo usar",
+      "How to use:" : "Cómo usar:",
       "1. Use the top left button to select your language.": "1. Usa el botón en la esquina superior izquierda para seleccionar tu idioma.",
       "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. Responde las preguntas sobre tu género, edad, peso, altura, objetivos, nivel de actividad, problemas de salud y días de ejercicio.",
       "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. Después de completar los pasos, revisa tu información. El botón en la esquina superior izquierda cambiará a un botón de EDITAR. Aún puedes cambiar el idioma del sistema en la página de trainerGPT.",
@@ -634,7 +634,7 @@ const resources = {
       "plan": "plan",
       "Change photo": "Changer la photo",
       // demo slides
-      "How to use" : "Comment utiliser",
+      "How to use:" : "Comment utiliser:",
       "1. Use the top left button to select your language.": "1. Utilisez le bouton en haut à gauche pour sélectionner votre langue.",
       "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. Répondez aux questions concernant votre sexe, âge, poids, taille, objectifs, niveau d'activité, problèmes de santé et jours d'entraînement.",
       "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. Après avoir terminé les étapes, revoyez vos informations. Le bouton en haut à gauche deviendra un bouton MODIFIER. Vous pouvez toujours changer la langue du système sur la page trainerGPT.",
@@ -764,7 +764,7 @@ const resources = {
       "plan": "Plan",
       "Change photo": "Foto ändern",
       // demo slides
-      "How to use" : "Wie zu verwenden",
+      "How to use:" : "Wie zu verwenden:",
       "1. Use the top left button to select your language.": "1. Verwenden Sie die Schaltfläche oben links, um Ihre Sprache auszuwählen.",
       "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. Beantworten Sie die Fragen zu Ihrem Geschlecht, Alter, Gewicht, Größe, Zielen, Aktivitätsniveau, Gesundheitsproblemen und Trainingstagen.",
       "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. Überprüfen Sie nach Abschluss der Schritte Ihre Informationen. Die Schaltfläche oben links ändert sich in eine BEARBEITEN-Schaltfläche. Sie können Ihre Systemsprache weiterhin auf der trainerGPT-Seite ändern.",
@@ -893,7 +893,7 @@ const resources = {
       "plan": "計画",
       "Change photo": "写真を変更",
       // demo slides
-      "How to use" : "使い方",
+      "How to use:" : "使い方:",
       "1. Use the top left button to select your language.": "1. 左上のボタンを使って、言語を選択してください。",
       "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. 性別、年齢、体重、身長、目標、活動レベル、健康問題、ワークアウト日数についての質問に答えてください。",
       "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. 手順を完了した後、情報を確認してください。左上のボタンは「編集」ボタンに変わります。システムの言語は、trainerGPTページで変更できます。",
@@ -1022,7 +1022,7 @@ const resources = {
       "plan": "계획",
       "Change photo": "사진 변경",
       // demo slides
-      "How to use" : "사용 방법",
+      "How to use:" : "사용 방법:",
       "1. Use the top left button to select your language.": "1. 왼쪽 상단 버튼을 사용하여 언어를 선택하세요.",
       "2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.": "2. 성별, 나이, 체중, 키, 목표, 활동 수준, 건강 문제 및 운동 일수에 대한 질문에 답하세요.",
       "3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.": "3. 단계가 완료되면 정보를 검토하세요. 왼쪽 상단 버튼이 편집 버튼으로 변경됩니다. trainerGPT 페이지에서 시스템 언어를 여전히 변경할 수 있습니다.",

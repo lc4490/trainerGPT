@@ -374,7 +374,7 @@ export default function Home() {
           },
           {
             title: "Get a Workout Plan",
-            content: <Typography variant="h6">Once you've filled out your information, ask trainerGPT for a custom workout plan.</Typography>,
+            content: <Typography variant="h6">Once you have filled out your information, ask trainerGPT for a custom workout plan.</Typography>,
             placement: "auto",
             target: "#trainer-step",
           },

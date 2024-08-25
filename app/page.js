@@ -1,8 +1,8 @@
 "use client"
 
 // base imports
-import { createContext, useState, useEffect } from 'react';
-import { Box, Stack, Typography, Button, Modal, TextField, Grid, Autocomplete, Divider, AppBar, Toolbar, BottomNavigation, BottomNavigationAction } from '@mui/material';
+import { createContext, useState, useEffect, useContext } from 'react';
+import { Box, Stack, Typography, Button, Modal, TextField, Grid, Autocomplete, Divider, AppBar, Toolbar, BottomNavigation, BottomNavigationAction, FormControl, InputLabel, NativeSelect } from '@mui/material';
 import { firestore, auth, provider, signInWithPopup, signOut } from './firebase';
 import { collection, getDocs, query, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 // light/dark theme
@@ -29,6 +29,8 @@ import { useUser, redirectToSignIn } from "@clerk/nextjs";
 import getStripe from "@/utils/get-stripe"; // Ensure you use this if necessary, or remove the import
 // router
 import { useRouter, useSearchParams } from 'next/navigation';
+// tutorial
+import JoyRide, { STATUS } from 'react-joyride';
 
 // light/dark themes
 const lightTheme = createTheme({
@@ -270,12 +272,183 @@ export default function Home() {
     setShowDemoSlides(false);
   };
 
+  // tutorial
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Multi-language implementation
+  const [prefLanguage, setPrefLanguage] = useState('');
+  
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };
+
+  const handleLanguageChange = (event) => {
+    const newLanguage = event.target.value;
+    setPrefLanguage(newLanguage);
+    changeLanguage(newLanguage);
+  };
+
   return (
     // guest mode
     <GuestContext.Provider value={{ guestData, setGuestData, guestImage, setGuestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages, guestPlan, setGuestPlan}}>
       {/* light/dark mode */}
       <ThemeProvider theme={currentTheme}>
         <CssBaseline />
+        {/* tutorial */}
+        {mounted && (
+        
+        <JoyRide 
+        continuous
+        callback={() => {}}
+        run={!user}
+        steps={[
+          {
+            title: "Welcome to trainerGPT",
+            content: <FormControl id = {"language-button"} sx={{ width: '85px' }}>
+            <InputLabel variant="standard" htmlFor="uncontrolled-native">
+              {t('language')}
+            </InputLabel>
+            <NativeSelect
+              defaultValue={t('en')}
+              onChange={handleLanguageChange}
+              inputProps={{
+                name: t('language'),
+                id: 'uncontrolled-native',
+              }}
+              sx={{
+                '& .MuiNativeSelect-select': {
+                  '&:focus': {
+                    backgroundColor: 'transparent',
+                  },
+                },
+                '&::before': {
+                  borderBottom: 'none',
+                },
+                '&::after': {
+                  borderBottom: 'none',
+                },
+              }}
+              disableUnderline
+            >
+              <option value="en">English</option>
+              <option value="cn">中文（简体）</option>
+              <option value="tc">中文（繁體）</option>
+              <option value="es">Español</option>
+              <option value="fr">Français</option>
+              <option value="de">Deutsch</option>
+              <option value="jp">日本語</option>
+              <option value="kr">한국어</option>
+            </NativeSelect>
+          </FormControl>,
+            locale: { skip: <strong>Skip Tour</strong>, next: "Next", back: "Back" },
+            placement: "center",
+            target: "body"
+          },
+          {
+            title: "Language Selection",
+            content: <Typography variant="h6">Select your language with the top left button.</Typography>,
+            placement: "auto",
+            target: "#language-button", // Only shows when on the page with language button
+          },
+          {
+            title: "Sign In / Sign Up",
+            content: <Typography variant="h6">Sign in or sign up with the top right button.</Typography>,
+            placement: "auto",
+            target: "#auth-button", // Only shows when on the page with auth button
+          },
+          {
+            title: "Personal Information",
+            content: <Typography variant="h6">Fill out your information on this page.</Typography>,
+            placement: "auto",
+            target: "#myinfo-step",
+          },
+          {
+            title: "Log Equipment",
+            content: <Typography variant="h6">Log your available equipment on this page.</Typography>,
+            placement: "auto",
+            target: "#equipment-step",
+          },
+          {
+            title: "Get a Workout Plan",
+            content: <Typography variant="h6">Once you've filled out your information, ask trainerGPT for a custom workout plan.</Typography>,
+            placement: "auto",
+            target: "#trainer-step",
+          },
+          {
+            title: "Craft Recipes",
+            content: <Typography variant="h6">*Premium only* Use this page to craft recipes from the ingredients you have available.</Typography>,
+            placement: "auto",
+            target: "#pantry-step",
+          },
+          {
+            title: "View Your Plan",
+            content: <Typography variant="h6">*Premium only* Use this page to view your plan on a calendar, and find out when your friends are available to workout!</Typography>,
+            placement: "auto",
+            target: "#plan-step",
+          },
+          {
+            title: "Further Clarification",
+            content: <Typography variant="h6">For further clarification on what each page does, click the (i) icon at the top of the page.</Typography>,
+            placement: "auto",
+            target: "#info-icon", // Assuming there's an element with this ID
+          },
+        ]}
+        hideCloseButton
+        scrollToFirstStep
+        showSkipButton
+        showProgress
+        styles={{
+          options: {
+            arrowColor: currentTheme.palette.background.paper, // Match the tooltip background
+            backgroundColor: currentTheme.palette.background.paper, // Tooltip background color
+            overlayColor: currentTheme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)', // Overlay color
+            primaryColor: currentTheme.palette.primary.main, // Primary color for buttons
+            textColor: currentTheme.palette.text.primary, // Text color in tooltips
+            zIndex: 1000, // Ensure it is above other elements
+          },
+          buttonNext: {
+            backgroundColor: currentTheme.palette.primary.main, // Background color of the "Next" button
+            color: currentTheme.palette.primary.contrastText, // Text color on the "Next" button
+          },
+          buttonBack: {
+            color: currentTheme.palette.primary.main, // Color of the "Back" button
+          },
+          buttonSkip: {
+            color: currentTheme.palette.primary.main, // Color of the "Skip" button
+          },
+          tooltip: {
+            borderRadius: '8px', // Rounded corners for the tooltip
+            boxShadow: currentTheme.shadows[3], // Use MUI shadow for consistency
+            padding: '16px', // Padding inside the tooltip
+          },
+          tooltipContainer: {
+            textAlign: 'left', // Align text to the left for readability
+          },
+          tooltipTitle: {
+            marginBottom: '8px', // Space below the title
+            fontSize: '1.25rem', // Title font size
+            fontWeight: 'bold', // Bold title
+            color: currentTheme.palette.text.primary, // Title color
+          },
+          tooltipContent: {
+            fontSize: '1rem', // Content font size
+            color: currentTheme.palette.text.secondary, // Content text color
+          },
+          spotlight: {
+            backgroundColor: currentTheme.palette.background.paper, // Spotlight background
+            borderRadius: '8px', // Rounded corners for spotlighted element
+            boxShadow: currentTheme.shadows[2], // Add shadow to the spotlighted element
+          },
+          overlay: {
+            backgroundColor: currentTheme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)', // Dim the background
+          },
+        }}
+      />
+      )}
         {/* demo slides */}
         {showDemoSlides ? (
           <DemoSlides onFinish={handleDemoFinish} />
@@ -308,11 +481,11 @@ export default function Home() {
                 }}
                 sx={{ width: '100%', position: 'fixed', bottom: 0 }}
               >
-                <BottomNavigationAction label={t("My Info")} icon={<HomeIcon />} />
-                <BottomNavigationAction label={t("myEquipment")} icon={<FitnessCenter />} />
-                <BottomNavigationAction label={t("trainerGPT")} icon={<Person />} />
-                <BottomNavigationAction label={t("myPantry")} icon={<LocalDiningIcon />} />
-                <BottomNavigationAction label={t("Plan")} icon={<CalendarToday />} />
+                <BottomNavigationAction id = {'myinfo-step'} label={t("My Info")} icon={<HomeIcon />} />
+                <BottomNavigationAction id = {'equipment-step'} label={t("myEquipment")} icon={<FitnessCenter />} />
+                <BottomNavigationAction id = {'trainer-step'} label={t("trainerGPT")} icon={<Person />} />
+                <BottomNavigationAction id = {'pantry-step'} label={t("myPantry")} icon={<LocalDiningIcon />} />
+                <BottomNavigationAction id = {'plan-step'} label={t("Plan")} icon={<CalendarToday />} />
               </BottomNavigation>
             </Box>
           </Box>

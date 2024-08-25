@@ -239,30 +239,31 @@ const MyInfoPage = () => {
     };
 
     const initializeData = async () => {
-      if (user) {
-        const data = await getUserData();
-        const img = await getImage();
-        if (data) {
-          setFormData(data); // Set form data from Firestore if available
-          setImage(img);
-          setIsSummary(true);
-        }
-        // Transfer guest data to the user account
-        await transferGuestDataToUser();
-      } else {
-        if (guestData && guestData.Age) {
-          setFormData(guestData);
-          setIsSummary(true);
-          setImage(guestImage);
+      if(isLoaded){
+        if (user) {
+          const data = await getUserData();
+          const img = await getImage();
+          if (data) {
+            setFormData(data); // Set form data from Firestore if available
+            setImage(img);
+            setIsSummary(true);
+          }
+          // Transfer guest data to the user account
+          await transferGuestDataToUser();
         } else {
-          setIsSummary(false);
-          setFormData(guestData);
-          setImage(null);
+          if (guestData && guestData.Age) {
+            setFormData(guestData);
+            setIsSummary(true);
+            setImage(guestImage);
+          } else {
+            setIsSummary(false);
+            setFormData(guestData);
+            setImage(null);
+          }
         }
       }
-      if (isLoaded) {
-        setLoading(false);
-      }
+      setLoading(false);
+    
     };
 
     fetchAndSetLanguage();
@@ -814,12 +815,12 @@ const MyInfoPage = () => {
                   {isEditing ? t("Save") : t("Edit")}
                 </Button>
               ) : (
-                <FormControl sx={{ width: '85px' }}>
+                <FormControl id = {"language-button"} sx={{ width: '85px' }}>
                   <InputLabel variant="standard" htmlFor="uncontrolled-native">
                     {t('language')}
                   </InputLabel>
                   <NativeSelect
-                    defaultValue={t('en')}
+                    defaultValue={i18n.language}
                     onChange={handleLanguageChange}
                     inputProps={{
                       name: t('language'),
@@ -857,6 +858,7 @@ const MyInfoPage = () => {
                   {t('My Info')}
                 </Typography>
                 <Button 
+                id= {"info-icon"}
                 onClick={handleInfoModal}
                 sx={{ 
                     minWidth: "auto",  
@@ -869,7 +871,7 @@ const MyInfoPage = () => {
                 </Button>
               </Box>
               {/* SignIn/SignOut Form */}
-              <Box>
+              <Box id = {"auth-button"}>
                 {!isSignedIn ? (
                   <Button
                     color="inherit"
@@ -1142,9 +1144,7 @@ const MyInfoPage = () => {
                         </Button>
                       </Box>
                     </motion.div>
-                  ))
-                  
-                               
+                  ))            
                 )}
               </Box>
             </Container>

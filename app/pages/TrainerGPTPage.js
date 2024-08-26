@@ -1,7 +1,8 @@
 "use client"
-import { Box, Stack, Typography, Button, TextField, CssBaseline, ThemeProvider, useMediaQuery, FormControl, InputLabel, NativeSelect, Link, Divider, Modal } from '@mui/material'
+import { ToggleButtonGroup, ToggleButton, FormGroup, FormControlLabel, Checkbox, Box, Stack, Typography, Button, TextField, CssBaseline, ThemeProvider, useMediaQuery, FormControl, InputLabel, NativeSelect, Link, Divider, Modal,Container, CircularProgress } from '@mui/material'
 import { useEffect, useState, useCallback } from 'react'
 import { createTheme } from '@mui/material';
+import { motion } from 'framer-motion';
 // import icons
 import PersonIcon from '@mui/icons-material/Person';
 import AssistantIcon from '@mui/icons-material/Assistant';
@@ -397,7 +398,21 @@ const exerciseData = [
   },
 ];
 
-
+const steps = [
+  { title: 'Tell Us About Yourself', content: 'Select your gender', options: ['Male', 'Female'] },
+  { title: 'How Old Are You?', content: 'Age is important', inputType: 'string' },
+  { title: 'What is Your Weight?', content: 'Enter your weight', inputType: 'string' },
+  { title: 'What is Your Height?', content: 'Enter your height', inputType: 'string' },
+  { title: 'What is Your Goal?', content: 'Select your goal', options: ['Weight Loss', 'Muscle Gain', 'Improved Endurance', 'General Fitness'] },
+  { title: 'Physical Activity Level?', content: 'Select your activity level', options: ['Sedentary', 'Moderate', 'Active'] },
+  { title: 'Do you have any existing health issues or injuries?', content: 'Enter any existing health issues or injuries', inputType: 'string' },
+  { 
+    title: 'How many days a week can you commit to working out?', 
+    content: 'Select the days you can work out:', 
+    inputType: 'checkbox', 
+    options: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 
+  },
+];
 
 // link color
 const customComponents = {
@@ -487,10 +502,10 @@ const TrainerGPTPage = () => {
   // router
   const router = useRouter();
   // guest mode
-  const {guestData, guestImage, guestEquipment, guestMessages, setGuestMessages, setGuestPlan} = useContext(GuestContext)
+  const {guestData, setGuestData, guestImage, guestEquipment, guestMessages, setGuestMessages, setGuestPlan} = useContext(GuestContext)
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
-  const { user, isSignedIn } = useUser(); // Clerk user
+  const { user, isSignedIn, isLoaded } = useUser(); // Clerk user
   const [prefLanguage, setPrefLanguage] = useState('');
   const changeLanguage = (lng) => {
     i18n.changeLanguage(lng);
@@ -525,6 +540,7 @@ const TrainerGPTPage = () => {
     }
     return null;
   };
+  // upon user change, get prefLanguage and also data
   useEffect(() => {
     const fetchAndSetLanguage = async () => {
       const preferredLanguage = await getPreferredLanguage();
@@ -534,7 +550,32 @@ const TrainerGPTPage = () => {
       }
     };
 
+    const initializeData = async () => {
+      if(isLoaded){
+        if (user) {
+          const data = await getUserData();
+          if (data) {
+            setFormData(data); // Set form data from Firestore if available
+            await loadChatLog(user.id, i18n.language);
+            
+          }
+          // Transfer guest data to the user account
+          await transferGuestDataToUser();
+        } else {
+          if (guestData && guestData.Age) {
+            setFormData(guestData);
+            setIsSummary(true);
+          } else {
+            setIsSummary(false);
+            setFormData(guestData);
+          }
+        }
+        setLoading(false);
+      }
+    };
+
     fetchAndSetLanguage();
+    initializeData();
   }, [user]);
 
   // Implementing theming
@@ -545,6 +586,73 @@ const TrainerGPTPage = () => {
   }, [prefersDarkMode]);
   const theme = darkMode ? darkTheme : lightTheme;
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // navigate through slides/steps
+  const [currentStep, setCurrentStep] = useState(0);
+  // store filledo ut data
+  const [formData, setFormData] = useState({});
+  // if slides are finished, display summary page
+  const [isSummary, setIsSummary] = useState(false);
+  // is loading, display loading page
+  const [loading, setLoading] = useState(true); // Loading state
+
+  // move between steps
+  const nextStep = () => {
+    if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
+  };
+  const prevStep = () => {
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
+  };
+  // set filled out data
+  const handleInputChange = (key, value) => {
+    setFormData({ ...formData, [key]: value});
+  }
+
+  // Save user form data to Firestore
+  const saveUserData = async (data) => {
+    if (user) {
+      const userDocRef = doc(firestore, 'users', user.id);
+      await setDoc(userDocRef, { userData: data }, { merge: true });
+    }
+    else{
+      setGuestData(data)
+    }
+  };
+
+  // Handle form submission and save data to Firestore
+  const handleSubmit = async () => {
+    if (false) {
+      await saveUserData((formData));
+      setIsEditing(false);
+    } else {
+      await saveUserData(unpackData(formData));
+      setFormData(unpackData(formData));
+      setIsSummary(true); // Show summary page
+    }
+  };
+
+  // clean up formData 
+  function unpackData(data) {
+    const ret = {
+      "Sex": data[("Tell Us About Yourself")] || t("Not available"),
+      "Age": data[('How Old Are You?')] || t("Not available"),
+      "Weight": data[('What is Your Weight?')] || t("Not available"),
+      "Height": data[('What is Your Height?')] || t("Not available"),
+      "Goals": data[('What is Your Goal?')] || t("Not available"),
+      "Activity": data[('Physical Activity Level?')] || t("Not available"),
+      "Health issues": data[('Do you have any existing health issues or injuries?')] || t("Not available"),
+      "Availability": data[('How many days a week can you commit to working out?')]
+        ? (() => {
+              const abbreviatedDays = data[('How many days a week can you commit to working out?')]
+                .map(day => t(day.substring(0, 3)))
+                .join(',');
+              return abbreviatedDays.length === 27 ? "Everyday" : abbreviatedDays;
+            })()
+          : t("Not available"),
+
+    };
+    return ret;
+  }
 
   // Sending messages
   const [messages, setMessages] = useState([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
@@ -655,6 +763,18 @@ const TrainerGPTPage = () => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       sendMessage();
+    }
+  };
+
+  // Handle enter key
+  const handleKeyPressStep = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      if (currentStep === steps.length - 1) {
+        handleSubmit();
+      } else {
+        nextStep();
+      }
     }
   };
   // scroll to bottom after new message
@@ -840,12 +960,110 @@ const TrainerGPTPage = () => {
     } catch (error) {
       console.error("Error saving guest data to Firebase:", error);
     }
-    };
+  };
+  const transferGuestDataToUser = async () => {
+    const guestDocRef = doc(firestore, 'users', 'guest');
+    const userDocRef = doc(firestore, 'users', user.id);
+  
+    try {
+      // Transfer equipment data
+      const guestEquipmentCollectionRef = collection(guestDocRef, 'equipment');
+      const userEquipmentCollectionRef = collection(userDocRef, 'equipment');
+  
+      const guestEquipmentSnapshot = await getDocs(guestEquipmentCollectionRef);
+      guestEquipmentSnapshot.forEach(async (item) => {
+        const userEquipmentDocRef = doc(userEquipmentCollectionRef, item.id);
+        const userEquipmentDoc = await getDoc(userEquipmentDocRef);
+  
+        if (!userEquipmentDoc.exists()) {
+          // Only set guest equipment data if the user does not have it
+          await setDoc(userEquipmentDocRef, item.data());
+        }
+        await deleteDoc(item.ref);
+      });
+  
+      // Check if the user has any existing chat data
+      const guestChatCollectionRef = collection(guestDocRef, 'chat');
+      const userChatCollectionRef = collection(userDocRef, 'chat');
+      
+      const guestChatSnapshot = await getDocs(guestChatCollectionRef);
+      guestChatSnapshot.forEach(async (item) => {
+        const userChatDocRef = doc(userChatCollectionRef, item.id);
+        const userChatDoc = await getDoc(userChatDocRef)
+
+        if(!userChatDoc.exists()){
+          await setDoc(userChatDocRef, item.data());
+        }
+        await deleteDoc(item.ref);
+      })
+  
+      // Transfer user data and profile picture
+      const guestDoc = await getDoc(guestDocRef);
+      if (guestDoc.exists()) {
+        const guestData = guestDoc.data();
+        const userDoc = await getDoc(userDocRef);
+  
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+  
+          // Merge guest data only if user data does not exist
+          const mergedUserData = {
+            userData: userData?.userData || guestData.userData,
+            profilePic: userData?.profilePic || guestData.profilePic,
+          };
+  
+          await setDoc(userDocRef, mergedUserData, { merge: true });
+        } else {
+          // If no user document exists, set the guest data directly
+          await setDoc(userDocRef, {
+            userData: guestData.userData,
+            profilePic: guestData.profilePic,
+          }, { merge: true });
+        }
+      }
+  
+      // Refresh the data in the app
+      const data = await getUserData();
+      if (data) {
+        setFormData(data); // Set form data from Firestore if available
+        setIsSummary(true);
+      }
+  
+      // Delete guest data
+      await deleteDoc(guestDocRef);
+  
+      console.log('Guest data transferred to user and guest data deleted.');
+    } catch (error) {
+      console.error("Error transferring guest data to user:", error);
+    }
+  };
   // info modal
   const [openInfoModal, setOpenInfoModal] = useState(false);
   // open Info modal
   const handleInfoModal = () => {
     setOpenInfoModal(true);
+  }
+
+  // loading page
+  if (loading) {
+    return (
+      <Container maxWidth="sm">
+        <Box
+          sx={{
+            minHeight: '100vh',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            bgcolor: 'background.default',
+            color: 'text.primary'
+          }}
+        >
+          <CircularProgress />
+          <Typography variant="h6" sx={{ mt: 2 }}>{t('Loading...')}</Typography>
+        </Box>
+      </Container>
+    );
   }
 
 
@@ -932,7 +1150,7 @@ const TrainerGPTPage = () => {
           position="relative"
         >
           {/* switch language */}
-          <FormControl sx={{ width: isMobile ? '85px': '85px' }}>
+          <FormControl id = {"language-button"} sx={{ width: isMobile ? '85px': '85px' }}>
             <InputLabel variant="standard" htmlFor="uncontrolled-native">
               {t('language')}
             </InputLabel>
@@ -968,6 +1186,7 @@ const TrainerGPTPage = () => {
               {t('trainerGPT')}
             </Typography>
             <Button 
+                id= {"info-icon"}
                 onClick={handleInfoModal}
                 sx={{ 
                     minWidth: "auto",  
@@ -980,40 +1199,39 @@ const TrainerGPTPage = () => {
                 </Button>
           </Box>
           {/* signin button */}
-          <Box>
-            <Box>
-                {!isSignedIn ? (
-                  <Button 
-                    color="inherit"
-                    // href="/sign-in"
-                    onClick={handleSignInClick}
-                    sx={{
-                      justifyContent: "end",
-                      right: "2%",
-                      backgroundColor: 'background.default',
-                      color: 'text.primary',
+          <Box id = {"auth-button"}>
+              {!isSignedIn ? (
+                <Button 
+                  color="inherit"
+                  // href="/sign-in"
+                  onClick={handleSignInClick}
+                  sx={{
+                    justifyContent: "end",
+                    right: "2%",
+                    backgroundColor: 'background.default',
+                    color: 'text.primary',
+                    borderColor: 'text.primary',
+                    justifyContent: 'center',
+                    '&:hover': {
+                      backgroundColor: 'text.primary',
+                      color: 'background.default',
                       borderColor: 'text.primary',
-                      justifyContent: 'center',
-                      '&:hover': {
-                        backgroundColor: 'text.primary',
-                        color: 'background.default',
-                        borderColor: 'text.primary',
-                      },
-                    }}
-                  >
-                    {t('signIn')}
-                  </Button>
-                ) : (
-                  <UserButton />
-                )}
-              </Box>
-          </Box>
+                    },
+                  }}
+                >
+                  {t('signIn')}
+                </Button>
+              ) : (
+                <UserButton />
+              )}
+            </Box>
         </Box>
 
         <Divider />
 
         {/* body */}
-        <Stack
+        {isSummary ? (
+          <Stack
           direction="column"
           width="100vw"
           minHeight={isMobile ? "80vh" : "90vh"}
@@ -1094,6 +1312,112 @@ const TrainerGPTPage = () => {
             </Button>
           </Stack>
         </Stack>
+          ) : (
+            
+            // show slides
+            <Container maxWidth="sm">
+              <Box
+                sx={{
+                  minHeight: '80vh',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                  bgcolor: 'background.default',
+                  color: 'text.primary',
+                  paddingBottom: '60px', // Ensure content is not cut off by the toolbar
+                }}
+              >
+            {steps.map((step, index) => (
+              <motion.div
+                key={step.title}
+                initial={{ opacity: 0, y: 50 }}
+                animate={currentStep === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+                transition={{ duration: 0.5 }}
+                style={{ display: currentStep === index ? 'block' : 'none', width: '100%' }}
+              >
+                {/* title */}
+                <Typography variant="h4" gutterBottom>{t(step.title)}</Typography>
+                {/* content */}
+                <Typography variant="body1" color="textSecondary" gutterBottom>{t(step.content)}</Typography>
+            
+                {/* Handle different input types */}
+                {step.options && step.inputType === 'checkbox' ? (
+                  <FormGroup sx={{ mb: 4 }}>
+                    {step.options.map((option) => (
+                      <FormControlLabel
+                        key={option}
+                        control={
+                          <Checkbox
+                            checked={formData[step.title]?.includes(option) || false}
+                            onChange={(e) => {
+                              const updatedSelection = e.target.checked
+                                ? [...(formData[step.title] || []), option]
+                                : formData[step.title].filter((day) => day !== option);
+                              
+                              // Sort the selected days in order
+                              const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                              const sortedSelection = updatedSelection.sort((a, b) => daysOrder.indexOf(a) - daysOrder.indexOf(b));
+                              
+                              // Update the formData with the sorted selection
+                              handleInputChange(step.title, sortedSelection);
+                            }}
+                          />
+                        }
+                        label={t(option)}
+                      />
+                    ))}
+                  </FormGroup>
+                ) : step.options ? (
+                  <ToggleButtonGroup
+                    exclusive
+                    value={formData[step.title] || ''}
+                    onChange={(e, value) => handleInputChange(step.title, value)}
+                    onKeyDown={handleKeyPressStep}
+                    sx={{ mb: 4 }}
+                  >
+                    {step.options.map((option) => (
+                      <ToggleButton key={option} value={option}>
+                        {t(option)}
+                      </ToggleButton>
+                    ))}
+                  </ToggleButtonGroup>
+                ) : (
+                  step.inputType && (
+                    <TextField
+                      type={step.inputType}
+                      fullWidth
+                      variant="outlined"
+                      onChange={(e) => handleInputChange(step.title, e.target.value)}
+                      onKeyDown={handleKeyPressStep}
+                      sx={{ mb: 4 }}
+                    />
+                  )
+                )}
+            
+                {/* front/back buttons */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={prevStep}
+                    disabled={currentStep === 0}
+                  >
+                    {t('Back')}
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={currentStep === steps.length - 1 ? handleSubmit : nextStep}
+                  >
+                    {currentStep === steps.length - 1 ? t('Finish') : t('Next')}
+                  </Button>
+                </Box>
+              </motion.div>
+            ))}          
+          </Box>
+          </Container>
+          )}
       </Box>
     </ThemeProvider>
   );

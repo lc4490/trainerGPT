@@ -118,7 +118,7 @@ export default function Home() {
   const currentTheme = darkMode ? darkTheme : lightTheme;
 
   // bottom nav helper
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(2);
 
   // premium mode
   const [hasPremiumAccess, setHasPremiumAccess] = useState(false);
@@ -300,14 +300,14 @@ export default function Home() {
         <CssBaseline />
         {/* tutorial */}
         {mounted && (
-        
+        // <></>
         <JoyRide 
         continuous
         callback={() => {}}
         run={!user}
         steps={[
           {
-            title: "Welcome to trainerGPT",
+            title: t("Welcome to trainerGPT"),
             content: <FormControl id = {"language-button"} sx={{ width: '85px' }}>
             <InputLabel variant="standard" htmlFor="uncontrolled-native">
               {t('language')}
@@ -349,50 +349,50 @@ export default function Home() {
             target: "body"
           },
           {
-            title: "Language Selection",
-            content: <Typography variant="h6">Select your language with the top left button.</Typography>,
+            title: t("Language Selection"),
+            content: <Typography variant="h6">{t("Select your language with the top left button.")}</Typography>,
             placement: "auto",
             target: "#language-button", // Only shows when on the page with language button
           },
           {
-            title: "Sign In / Sign Up",
-            content: <Typography variant="h6">Sign in or sign up with the top right button.</Typography>,
+            title: t("Sign In / Sign Up"),
+            content: <Typography variant="h6">{t("Sign in or sign up with the top right button.")}</Typography>,
             placement: "auto",
             target: "#auth-button", // Only shows when on the page with auth button
           },
           {
-            title: "Personal Information",
-            content: <Typography variant="h6">Fill out your information on this page.</Typography>,
+            title: t("Personal Information"),
+            content: <Typography variant="h6">{t("Edit your information on this page.")}</Typography>,
             placement: "auto",
             target: "#myinfo-step",
           },
           {
-            title: "Log Equipment",
-            content: <Typography variant="h6">Log your available equipment on this page.</Typography>,
+            title: t("Log Equipment"),
+            content: <Typography variant="h6">{t("Log your available equipment on this page.")}</Typography>,
             placement: "auto",
             target: "#equipment-step",
           },
           {
-            title: "Get a Workout Plan",
-            content: <Typography variant="h6">Once you have filled out your information, ask trainerGPT for a custom workout plan.</Typography>,
+            title: t("Get a Workout Plan"),
+            content: <Typography variant="h6">{t("Once you have filled out your information, ask trainerGPT for a custom workout plan.")}.</Typography>,
             placement: "auto",
             target: "#trainer-step",
           },
           {
-            title: "Craft Recipes",
-            content: <Typography variant="h6">*Premium only* Use this page to craft recipes from the ingredients you have available.</Typography>,
+            title: t("Craft Recipes"),
+            content: <Typography variant="h6">{t("*Premium only* Use this page to craft recipes from the ingredients you have available.")}</Typography>,
             placement: "auto",
             target: "#pantry-step",
           },
           {
-            title: "View Your Plan",
-            content: <Typography variant="h6">*Premium only* Use this page to view your plan on a calendar, and find out when your friends are available to workout!</Typography>,
+            title: t("View Your Plan"),
+            content: <Typography variant="h6">{t("*Premium only* Use this page to view your plan on a calendar, and find out when your friends are available to workout!")}</Typography>,
             placement: "auto",
             target: "#plan-step",
           },
           {
-            title: "Further Clarification",
-            content: <Typography variant="h6">For further clarification on what each page does, click the (i) icon at the top of the page.</Typography>,
+            title: t("Further Clarification"),
+            content: <Typography variant="h6">{t("For further clarification on what each page does, click the (i) icon at the top of the page.")}</Typography>,
             placement: "auto",
             target: "#info-icon", // Assuming there's an element with this ID
           },
@@ -439,7 +439,9 @@ export default function Home() {
             color: currentTheme.palette.text.secondary, // Content text color
           },
           spotlight: {
-            backgroundColor: currentTheme.palette.background.paper, // Spotlight background
+            backgroundColor: darkMode 
+              ? 'rgba(255, 255, 255, 0.5)' // Example for light mode (50% opacity white)
+              : 'rgba(18, 18, 18, 0.5)',  // Example for dark mode (50% opacity black)
             borderRadius: '8px', // Rounded corners for spotlighted element
             boxShadow: currentTheme.shadows[2], // Add shadow to the spotlighted element
           },

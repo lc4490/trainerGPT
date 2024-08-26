@@ -154,6 +154,7 @@ const resources = {
       "Craft Recipes":"Craft Recipes",
       "View Your Plan":"View Your Plan",
       "Further Clarification":"Further Clarification",
+      "Skip Tour":"Skip Tour",
     }
   },
   cn: {
@@ -301,7 +302,7 @@ const resources = {
       "Craft Recipes": "制作食谱",
       "View Your Plan": "查看您的计划",
       "Further Clarification": "进一步说明",
-
+      "Skip Tour": "跳过导览",
     }
   },
   tc: {
@@ -449,7 +450,7 @@ const resources = {
       "Craft Recipes": "製作食譜",
       "View Your Plan": "查看您的計劃",
       "Further Clarification": "進一步說明",
-
+      "Skip Tour": "跳過導覽",
     }
   },
   es: {
@@ -597,7 +598,7 @@ const resources = {
       "Craft Recipes": "Crear recetas",
       "View Your Plan": "Ver tu plan",
       "Further Clarification": "Más aclaraciones",
-
+      "Skip Tour": "Omitir Tour",
     }
   },
   fr: {
@@ -745,7 +746,7 @@ const resources = {
       "Craft Recipes": "Créer des recettes",
       "View Your Plan": "Voir votre plan",
       "Further Clarification": "Précisions supplémentaires",
-
+      "Skip Tour": "Passer la visite",
     }
   },
   de: {
@@ -893,7 +894,7 @@ const resources = {
       "Craft Recipes": "Rezepte erstellen",
       "View Your Plan": "Ihren Plan anzeigen",
       "Further Clarification": "Weitere Erläuterungen",
-
+      "Skip Tour": "Tour überspringen",
     }
   },
   jp: {
@@ -1040,7 +1041,7 @@ const resources = {
       "Craft Recipes": "レシピを作成",
       "View Your Plan": "プランを表示",
       "Further Clarification": "さらなる説明",
-
+      "Skip Tour": "ツアーをスキップ",
     }
   },
   kr: {
@@ -1187,7 +1188,7 @@ const resources = {
       "Craft Recipes": "레시피 작성",
       "View Your Plan": "계획 보기",
       "Further Clarification": "추가 설명",
-
+      "Skip Tour": "투어 건너뛰기",
     }
   }
 };

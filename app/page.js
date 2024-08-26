@@ -344,7 +344,7 @@ export default function Home() {
               <option value="kr">한국어</option>
             </NativeSelect>
           </FormControl>,
-            locale: { skip: <strong>Skip Tour</strong>, next: "Next", back: "Back" },
+            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
             placement: "center",
             target: "body"
           },
@@ -353,48 +353,56 @@ export default function Home() {
             content: <Typography variant="h6">{t("Select your language with the top left button.")}</Typography>,
             placement: "auto",
             target: "#language-button", // Only shows when on the page with language button
+            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
           },
           {
             title: t("Sign In / Sign Up"),
             content: <Typography variant="h6">{t("Sign in or sign up with the top right button.")}</Typography>,
             placement: "auto",
             target: "#auth-button", // Only shows when on the page with auth button
+            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
           },
           {
             title: t("Personal Information"),
             content: <Typography variant="h6">{t("Edit your information on this page.")}</Typography>,
             placement: "auto",
             target: "#myinfo-step",
+            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
           },
           {
             title: t("Log Equipment"),
             content: <Typography variant="h6">{t("Log your available equipment on this page.")}</Typography>,
             placement: "auto",
             target: "#equipment-step",
+            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
           },
           {
             title: t("Get a Workout Plan"),
             content: <Typography variant="h6">{t("Once you have filled out your information, ask trainerGPT for a custom workout plan.")}.</Typography>,
             placement: "auto",
             target: "#trainer-step",
+            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
           },
           {
             title: t("Craft Recipes"),
             content: <Typography variant="h6">{t("*Premium only* Use this page to craft recipes from the ingredients you have available.")}</Typography>,
             placement: "auto",
             target: "#pantry-step",
+            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
           },
           {
             title: t("View Your Plan"),
             content: <Typography variant="h6">{t("*Premium only* Use this page to view your plan on a calendar, and find out when your friends are available to workout!")}</Typography>,
             placement: "auto",
             target: "#plan-step",
+            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
           },
           {
             title: t("Further Clarification"),
             content: <Typography variant="h6">{t("For further clarification on what each page does, click the (i) icon at the top of the page.")}</Typography>,
             placement: "auto",
             target: "#info-icon", // Assuming there's an element with this ID
+            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
           },
         ]}
         hideCloseButton

@@ -314,8 +314,8 @@ const EquipmentPage = () => {
           justifyContent="center" 
           alignItems="center"
           flexDirection="column"
-          gap={2}
-          fontFamily="sans-serif"
+          paddingBottom= '60px' // Ensure content is not cut off by the toolbar
+          // gap={2}
         >
           {/* Add item modal */}
           <Modal
@@ -726,7 +726,7 @@ const EquipmentPage = () => {
           </Modal>
 
           {/* Main page */}
-          <Box width="100%" height="100%" bgcolor="background.default">
+          <Box width="100%" height="100vh" bgcolor="background.default">
             {/* Header including add button, title, sign in */}
             <Box 
               height="10%" 

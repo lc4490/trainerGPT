@@ -618,7 +618,9 @@ const MyInfoPage = () => {
       {/* main box */}
         <Box
           width="100vw"
-          maxHeight="100vh"
+          height="100vh"
+          display="flex"
+          flexDirection="column"
           backgroundColor="background.default"
           paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >
@@ -783,7 +785,7 @@ const MyInfoPage = () => {
                 </Button>
             </Box>
           </Modal>
-          <Box width="100%" height="100%" bgcolor="background.default">
+          {/* <Box width="100vw" height="100vh" bgcolor="background.default"> */}
           {/* Header Box */}
             <Box
               height="10%"
@@ -815,7 +817,7 @@ const MyInfoPage = () => {
                   {isEditing ? t("Save") : t("Edit")}
                 </Button>
               ) : (
-                <FormControl id = {"language-button"} sx={{ width: '85px' }}>
+                <FormControl sx={{ width: '85px' }}>
                   <InputLabel variant="standard" htmlFor="uncontrolled-native">
                     {t('language')}
                   </InputLabel>
@@ -858,7 +860,6 @@ const MyInfoPage = () => {
                   {t('My Info')}
                 </Typography>
                 <Button 
-                id= {"info-icon"}
                 onClick={handleInfoModal}
                 sx={{ 
                     minWidth: "auto",  
@@ -871,7 +872,7 @@ const MyInfoPage = () => {
                 </Button>
               </Box>
               {/* SignIn/SignOut Form */}
-              <Box id = {"auth-button"}>
+              <Box >
                 {!isSignedIn ? (
                   <Button
                     color="inherit"
@@ -1149,7 +1150,7 @@ const MyInfoPage = () => {
               </Box>
             </Container>
           </Box>
-        </Box>
+        {/* </Box> */}
     </ThemeProvider>
   );
 }

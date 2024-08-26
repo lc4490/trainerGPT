@@ -1,5 +1,5 @@
 "use client"
-import { ToggleButtonGroup, ToggleButton, FormGroup, FormControlLabel, Checkbox, Box, Stack, Typography, Button, TextField, CssBaseline, ThemeProvider, useMediaQuery, FormControl, InputLabel, NativeSelect, Link, Divider, Modal,Container, CircularProgress } from '@mui/material'
+import { MenuItem, Select, ToggleButtonGroup, ToggleButton, FormGroup, FormControlLabel, Checkbox, Box, Stack, Typography, Button, TextField, CssBaseline, ThemeProvider, useMediaQuery, FormControl, InputLabel, NativeSelect, Link, Divider, Modal,Container, CircularProgress } from '@mui/material'
 import { useEffect, useState, useCallback } from 'react'
 import { createTheme } from '@mui/material';
 import { motion } from 'framer-motion';
@@ -1150,36 +1150,56 @@ const TrainerGPTPage = () => {
           position="relative"
         >
           {/* switch language */}
-          <FormControl id = {"language-button"} sx={{ width: isMobile ? '85px': '85px' }}>
-            <InputLabel variant="standard" htmlFor="uncontrolled-native">
-              {t('language')}
-            </InputLabel>
-            <NativeSelect
-              defaultValue={t('en')}
+          <FormControl 
+            id="language-button" 
+            sx={{ 
+              width: isMobile ? '85px' : '85px',
+              minWidth: '120px', // Ensures it doesn't get too small
+            }}
+          >
+            <Select
+              value={prefLanguage}
               onChange={handleLanguageChange}
-              inputProps={{
-                name: t('language'),
-                id: 'uncontrolled-native',
+              disableUnderline
+              displayEmpty
+              renderValue={(selected) => {
+                if (!selected) {
+                  return <span>{t('English')}</span>;
+                }
+                const selectedItem = {
+                  en: 'English',
+                  cn: '中文（简体）',
+                  tc: '中文（繁體）',
+                  es: 'Español',
+                  fr: 'Français',
+                  de: 'Deutsch',
+                  jp: '日本語',
+                  kr: '한국어'
+                }[selected];
+                return <span>{selectedItem}</span>;
               }}
               sx={{
-                '& .MuiNativeSelect-select': {
-                  '&:focus': { backgroundColor: 'transparent' },
+                '& .MuiSelect-select': {
+                  paddingTop: '10px',
+                  paddingBottom: '10px',
                 },
-                '&::before': { borderBottom: 'none' },
-                '&::after': { borderBottom: 'none' },
+                '& .MuiSelect-icon': {
+                  color: 'text.primary', // Adjust color as needed
+                },
               }}
-              disableUnderline
             >
-              <option value="en">English</option>
-              <option value="cn">中文（简体）</option>
-              <option value="tc">中文（繁體）</option>
-              <option value="es">Español</option>
-              <option value="fr">Français</option>
-              <option value="de">Deutsch</option>
-              <option value="jp">日本語</option>
-              <option value="kr">한국어</option>
-            </NativeSelect>
+              <MenuItem value="en">English</MenuItem>
+              <MenuItem value="cn">中文（简体）</MenuItem>
+              <MenuItem value="tc">中文（繁體）</MenuItem>
+              <MenuItem value="es">Español</MenuItem>
+              <MenuItem value="fr">Français</MenuItem>
+              <MenuItem value="de">Deutsch</MenuItem>
+              <MenuItem value="jp">日本語</MenuItem>
+              <MenuItem value="kr">한국어</MenuItem>
+            </Select>
           </FormControl>
+
+
           {/* title */}
           <Box display="flex" flexDirection={"row"} alignItems={"center"} gap = {1}>
             <Typography variant="h6" color="text.primary" textAlign="center">

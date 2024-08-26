@@ -155,6 +155,7 @@ const resources = {
       "View Your Plan":"View Your Plan",
       "Further Clarification":"Further Clarification",
       "Skip Tour":"Skip Tour",
+      "English":"English",
     }
   },
   cn: {
@@ -303,6 +304,7 @@ const resources = {
       "View Your Plan": "查看您的计划",
       "Further Clarification": "进一步说明",
       "Skip Tour": "跳过导览",
+      "English":"中文（简体）",
     }
   },
   tc: {
@@ -451,6 +453,7 @@ const resources = {
       "View Your Plan": "查看您的計劃",
       "Further Clarification": "進一步說明",
       "Skip Tour": "跳過導覽",
+      "English": '中文（繁體）',
     }
   },
   es: {
@@ -599,6 +602,7 @@ const resources = {
       "View Your Plan": "Ver tu plan",
       "Further Clarification": "Más aclaraciones",
       "Skip Tour": "Omitir Tour",
+      "English": "Español",
     }
   },
   fr: {
@@ -747,6 +751,7 @@ const resources = {
       "View Your Plan": "Voir votre plan",
       "Further Clarification": "Précisions supplémentaires",
       "Skip Tour": "Passer la visite",
+      "English": "Français",
     }
   },
   de: {
@@ -895,6 +900,7 @@ const resources = {
       "View Your Plan": "Ihren Plan anzeigen",
       "Further Clarification": "Weitere Erläuterungen",
       "Skip Tour": "Tour überspringen",
+      "English": "Deutsch",
     }
   },
   jp: {
@@ -1042,6 +1048,7 @@ const resources = {
       "View Your Plan": "プランを表示",
       "Further Clarification": "さらなる説明",
       "Skip Tour": "ツアーをスキップ",
+      "English": "日本語",
     }
   },
   kr: {
@@ -1189,6 +1196,7 @@ const resources = {
       "View Your Plan": "계획 보기",
       "Further Clarification": "추가 설명",
       "Skip Tour": "투어 건너뛰기",
+      "English":"한국어",
     }
   }
 };

@@ -44,7 +44,6 @@ const lightTheme = createTheme({
       paper: '#ffffff',
       gray: 'lightgray',
       banner: 'banner.png',
-      bannerColor: '#3C3C3C'
     },
     text: {
       primary: '#000000',
@@ -59,7 +58,6 @@ const darkTheme = createTheme({
       paper: '#121212',
       gray: 'darkgray',
       banner: 'banner.png',
-      bannerColor: '#fffff'
     },
     text: {
       primary: '#ffffff',
@@ -810,7 +808,7 @@ const EquipmentPage = () => {
             {/* if mobile */}
             {isMobile ? (
               <Box sx={{
-                backgroundImage: `url(${prefersDarkMode ? "/gym_dark.jpg" : "/gym.jpg"})`,
+                backgroundImage: `url(${prefersDarkMode ? "/gym_dark.jpg" : "/gym_dark.jpg"})`,
                 backgroundSize: '160%', // Stretch the image to cover the entire Box
                 backgroundPosition: 'center', // Center the image in the Box
                 backgroundRepeat: 'no-repeat', // Prevent the image from repeating
@@ -820,7 +818,7 @@ const EquipmentPage = () => {
                 justifyContent: "center",
                 alignItems: 'center',
                 flexDirection: 'column',
-                color: "background.bannerColor",
+                color: "white",
               }}>
                 <Typography sx={{ fontSize: "1.75rem" }}>{t("Welcome to myEquipment")}</Typography>
                 <Typography sx={{ width: "75%", display: "flex", justifyContent: "center", alignItems: 'center', textAlign: 'center', fontSize: "0.7rem" }}>
@@ -830,8 +828,8 @@ const EquipmentPage = () => {
             ) : (
               // if desktop
               <Box sx={{
-                backgroundImage: `url(${prefersDarkMode ? "/gym_dark.jpg" : "/gym.jpg"})`,
-                backgroundSize: '125%', // Stretch the image to cover the entire Box
+                backgroundImage: `url(${prefersDarkMode ? "/gym_dark.jpg" : "/gym_dark.jpg"})`,
+                backgroundSize: '200%', // Stretch the image to cover the entire Box
                 backgroundPosition: 'left', // Center the image in the Box
                 backgroundRepeat: 'no-repeat', // Prevent the image from repeating
                 width:"100%",
@@ -840,7 +838,7 @@ const EquipmentPage = () => {
                 justifyContent: "center",
                 alignItems: 'center',
                 flexDirection: 'column',
-                color: "background.bannerColor",
+                color: "white",
               }}>
                 <Typography sx={{ fontSize: "6.5rem" }}>{t("Welcome to myEquipment")}</Typography>
                 <Typography sx={{ width: "100%", display: "flex", justifyContent: "center", alignItems: 'center', fontSize: "1.5rem" }}>

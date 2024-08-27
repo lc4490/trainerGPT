@@ -289,7 +289,7 @@ const MyInfoPage = () => {
     const ret = {
       "Sex": data[("Tell Us About Yourself")] || t("Not available"),
       "Age": data[('How Old Are You?')] || t("Not available"),
-      "Weight": data[('What is Your Weight?')] || t("Not available"),
+      "Weight": data[('What is Your Weight?')] + weightUnit || t("Not available"),
       "Height": data[('What is Your Height?')] || t("Not available"),
       "Goals": data[('What is Your Goal?')] || t("Not available"),
       "Activity": data[('Physical Activity Level?')] || t("Not available"),
@@ -584,6 +584,53 @@ const MyInfoPage = () => {
           </FormGroup>
         );
       
+        case 'Weight':
+          // Extract numeric value and unit from the string
+          const weightMatch = value.match(/(\d+\.?\d*)(kg|lbs)/);
+          let weightValue = weightMatch ? parseFloat(weightMatch[1]) : '';
+          let weightUnit = weightMatch ? weightMatch[2] : 'kg';
+  
+          const handleUnitChange = (e, newUnit) => {
+            if (newUnit && newUnit !== weightUnit) {
+              if (newUnit === 'lbs') {
+                weightValue = (weightValue * 2.20462).toFixed(1); // Convert kg to lbs
+              } else {
+                weightValue = (weightValue / 2.20462).toFixed(1); // Convert lbs to kg
+              }
+              weightUnit = newUnit;
+              handleInputChange(key, `${weightValue}${weightUnit}`);
+              handleWeightUnitChange(e, newUnit); // Update weight unit globally if necessary
+            }
+          };
+  
+          return (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <TextField
+                type="number"
+                fullWidth
+                variant="outlined"
+                value={weightValue}
+                onChange={(e) => {
+                  const newWeightValue = e.target.value;
+                  handleInputChange(key, `${newWeightValue}${weightUnit}`);
+                }}
+                onKeyDown={handleKeyPress}
+                sx={{ mb: 4 }}
+                InputProps={{
+                  endAdornment: <Typography variant="body1">{weightUnit}</Typography>,
+                }}
+              />
+              <ToggleButtonGroup
+                value={weightUnit}
+                exclusive
+                onChange={handleUnitChange}
+                sx={{ mb: 4 }}
+              >
+                <ToggleButton value="kg">kg</ToggleButton>
+                <ToggleButton value="lbs">lbs</ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+          );
       default:
         return (
           <TextField
@@ -602,6 +649,25 @@ const MyInfoPage = () => {
   const handleInfoModal = () => {
     setOpenInfoModal(true);
   }
+
+  // State to manage weight and unit
+  const [weightUnit, setWeightUnit] = useState('kg'); // Default to kg
+
+  const handleWeightUnitChange = (event, newUnit) => {
+    if (newUnit !== null) {
+      setWeightUnit(newUnit);
+
+      // Convert the weight if a value is already entered
+      if (formData['What is Your Weight?']) {
+        const currentWeight = parseFloat(formData['What is Your Weight?']);
+        const convertedWeight = newUnit === 'lbs'
+          ? (currentWeight * 2.20462).toFixed(1) // kg to lbs
+          : (currentWeight / 2.20462).toFixed(1); // lbs to kg
+        setFormData({ ...formData, 'What is Your Weight?': convertedWeight});
+        return convertedWeight
+      }
+    }
+  };
 
   // loading page
   if (loading) {
@@ -624,7 +690,7 @@ const MyInfoPage = () => {
       </Container>
     );
   }
-
+{console.log(formData)}
   return (
     // light/dark mode
     <ThemeProvider theme={theme}>
@@ -1097,7 +1163,7 @@ const MyInfoPage = () => {
                       <Typography variant="h4" gutterBottom>{t(step.title)}</Typography>
                       {/* content */}
                       <Typography variant="body1" color="textSecondary" gutterBottom>{t(step.content)}</Typography>
-                  
+      
                       {/* Handle different input types */}
                       {step.options && step.inputType === 'checkbox' ? (
                         <FormGroup sx={{ mb: 4 }}>
@@ -1111,11 +1177,11 @@ const MyInfoPage = () => {
                                     const updatedSelection = e.target.checked
                                       ? [...(formData[step.title] || []), option]
                                       : formData[step.title].filter((day) => day !== option);
-                                    
+      
                                     // Sort the selected days in order
                                     const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
                                     const sortedSelection = updatedSelection.sort((a, b) => daysOrder.indexOf(a) - daysOrder.indexOf(b));
-                                    
+      
                                     // Update the formData with the sorted selection
                                     handleInputChange(step.title, sortedSelection);
                                   }}
@@ -1141,17 +1207,43 @@ const MyInfoPage = () => {
                         </ToggleButtonGroup>
                       ) : (
                         step.inputType && (
-                          <TextField
-                            type={step.inputType}
-                            fullWidth
-                            variant="outlined"
-                            onChange={(e) => handleInputChange(step.title, e.target.value)}
-                            onKeyDown={handleKeyPress}
-                            sx={{ mb: 4 }}
-                          />
+                          step.title === 'What is Your Weight?' ? (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                              <TextField
+                                type={step.inputType}
+                                fullWidth
+                                variant="outlined"
+                                value={formData[step.title] || ''}
+                                onChange={(e) => handleInputChange(step.title, e.target.value)}
+                                onKeyDown={handleKeyPress}
+                                sx={{ mb: 4 }}
+                                InputProps={{
+                                  endAdornment: <Typography variant="body1">{weightUnit}</Typography>,
+                                }}
+                              />
+                              <ToggleButtonGroup
+                                value={weightUnit}
+                                exclusive
+                                onChange={handleWeightUnitChange}
+                                sx={{ mb: 4 }}
+                              >
+                                <ToggleButton value="kg">kg</ToggleButton>
+                                <ToggleButton value="lbs">lbs</ToggleButton>
+                              </ToggleButtonGroup>
+                            </Box>
+                          ) : (
+                            <TextField
+                              type={step.inputType}
+                              fullWidth
+                              variant="outlined"
+                              onChange={(e) => handleInputChange(step.title, e.target.value)}
+                              onKeyDown={handleKeyPress}
+                              sx={{ mb: 4 }}
+                            />
+                          )
                         )
                       )}
-                  
+      
                       {/* front/back buttons */}
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
                         <Button
@@ -1171,7 +1263,7 @@ const MyInfoPage = () => {
                         </Button>
                       </Box>
                     </motion.div>
-                  ))            
+                  ))         
                 )}
               </Box>
             </Container>

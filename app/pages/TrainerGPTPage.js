@@ -722,7 +722,7 @@ const TrainerGPTPage = () => {
         // RAGS FOR LINKS
         // Extract the exercise name
         const exerciseNames = extractExerciseName(message); // Implement this as needed
-        console.log(exerciseNames)
+        // console.log(exerciseNames)
         for(const element of exerciseNames){
           let links = getYouTubeLinksForExercise(element)
           responseContent += `Here are some YouTube links for ${element}: \n\n`;
@@ -732,8 +732,7 @@ const TrainerGPTPage = () => {
         }
     
         // Combine with AI-generated response (if applicable)
-        const combinedInput = `User: ${message}\nYouTube Links: ${responseContent}`;
-        console.log(combinedInput)
+        const combinedInput = `User: ${message}\n${responseContent}`;
     
         // Generate response from the AI model
         const response = await fetch('/api/chat', {

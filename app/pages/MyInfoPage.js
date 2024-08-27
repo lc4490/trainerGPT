@@ -239,14 +239,27 @@ const MyInfoPage = () => {
     };
 
     const initializeData = async () => {
+      // fix loading speed. store all acquired data from firebase into guest storage. 
+      if(guestData.Age){
+        setFormData(guestData)
+        setIsSummary(true)
+        setLoading(false)
+      }
+      // if user logs out, clear guest storage
+      if(!user){
+        setIsSummary(false)
+        setGuestData({})
+      }
       if(isLoaded){
         if (user) {
           const data = await getUserData();
           const img = await getImage();
           if (data) {
             setFormData(data); // Set form data from Firestore if available
+            setGuestData(data)
             setImage(img);
-            setIsSummary(true);
+            setGuestImage(img)
+            // setIsSummary(true);
           }
           // Transfer guest data to the user account
           await transferGuestDataToUser();

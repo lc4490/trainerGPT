@@ -247,6 +247,10 @@ const MyInfoPage = () => {
         setLoading(false)
         setImage(localImage)
       }
+      if(!user){
+        setLocalData({})
+        setLocalImage("")
+      }
       if(isLoaded){
         if (user) {
           const data = await getUserData();

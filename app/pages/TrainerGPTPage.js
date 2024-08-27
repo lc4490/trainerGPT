@@ -1193,7 +1193,7 @@ const TrainerGPTPage = () => {
           <FormControl 
             id="language-button" 
             sx={{ 
-              // width: isMobile ? '85px' : '85px',
+              width: isMobile ? '100px' : '100px',
               minWidth: '100px', // Ensures it doesn't get too small
             }}
           >

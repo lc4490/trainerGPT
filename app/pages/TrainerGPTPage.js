@@ -658,7 +658,7 @@ const TrainerGPTPage = () => {
       "Sex": data[("Tell Us About Yourself")] || t("Not available"),
       "Age": data[('How Old Are You?')] || t("Not available"),
       "Weight": data[('What is Your Weight?')] + weightUnit|| t("Not available"),
-      "Height": data[('What is Your Height?')] || t("Not available"),
+      "Height": data[('What is Your Height?')] + heightUnit|| t("Not available"),
       "Goals": data[('What is Your Goal?')] || t("Not available"),
       "Activity": data[('Physical Activity Level?')] || t("Not available"),
       "Health issues": data[('Do you have any existing health issues or injuries?')] || t("Not available"),
@@ -1101,6 +1101,43 @@ const TrainerGPTPage = () => {
     }
   };
 
+  // state to manage height and unit
+  const [heightUnit, setHeightUnit] = useState('cm'); // Default to cm
+  const handleHeightUnitChange = (event, newUnit) => {
+    if (newUnit !== null) {
+        setHeightUnit(newUnit);
+
+        // Convert the height if a value is already entered
+        if (formData['What is Your Height?']) {
+            let convertedHeight = '';
+            if (newUnit === 'ft/in') {
+                // Convert cm to feet/inches
+                const totalInches = parseFloat(formData['What is Your Height?']) / 2.54;
+                const feet = Math.floor(totalInches / 12);
+                const inches = Math.round(totalInches % 12);
+                convertedHeight = `${feet}'${inches}"`;
+            } else {
+                // Convert feet/inches to cm
+                const heightParts = formData['What is Your Height?'].match(/(\d+)'(\d+)"/);
+                if (heightParts) {
+                    const feet = parseInt(heightParts[1], 10);
+                    const inches = parseInt(heightParts[2], 10);
+                    convertedHeight = ((feet * 12 + inches) * 2.54).toFixed(1); // Convert to cm
+                }
+            }
+            setFormData({ 
+                ...formData, 
+                'What is Your Height?': convertedHeight, 
+                'heightUnit': newUnit 
+            });
+        } else {
+            setFormData({ 
+                ...formData, 
+                'heightUnit': newUnit 
+            });
+        }
+    }
+};
   // loading page
   if (loading) {
     return (
@@ -1461,40 +1498,60 @@ const TrainerGPTPage = () => {
                   </ToggleButtonGroup>
                 ) : (
                   step.inputType && (
-                    step.title === 'What is Your Weight?' ? (
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <>
+                      {(step.title === 'What is Your Weight?' || step.title === 'What is Your Height?') ? (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                          <TextField
+                            type="text"  // Using text to support ft/in format if needed
+                            fullWidth
+                            variant="outlined"
+                            value={formData[step.title] || ''}
+                            onChange={(e) => handleInputChange(step.title, e.target.value)}
+                            onKeyDown={handleKeyPressStep}
+                            sx={{ mb: 4 }}
+                            placeholder={
+                              step.title === 'What is Your Height?' && heightUnit === 'ft/in' 
+                                ? "e.g., 5'8\"" 
+                                : (step.title === 'What is Your Height?' ? "Enter height in cm" : "")
+                            }
+                            InputProps={{
+                              endAdornment: (
+                                <Typography variant="body1">
+                                  {step.title === 'What is Your Weight?' ? weightUnit : heightUnit}
+                                </Typography>
+                              ),
+                            }}
+                          />
+                          <ToggleButtonGroup
+                            value={step.title === 'What is Your Weight?' ? weightUnit : heightUnit}
+                            exclusive
+                            onChange={step.title === 'What is Your Weight?' ? handleWeightUnitChange : handleHeightUnitChange}
+                            sx={{ mb: 4 }}
+                          >
+                            {step.title === 'What is Your Weight?' ? (
+                              <>
+                                <ToggleButton value="kg">kg</ToggleButton>
+                                <ToggleButton value="lbs">lbs</ToggleButton>
+                              </>
+                            ) : (
+                              <>
+                                <ToggleButton value="cm">cm</ToggleButton>
+                                <ToggleButton value="ft/in">ft/in</ToggleButton>
+                              </>
+                            )}
+                          </ToggleButtonGroup>
+                        </Box>
+                      ) : (
                         <TextField
                           type={step.inputType}
                           fullWidth
                           variant="outlined"
-                          value={formData[step.title] || ''}
                           onChange={(e) => handleInputChange(step.title, e.target.value)}
                           onKeyDown={handleKeyPressStep}
                           sx={{ mb: 4 }}
-                          InputProps={{
-                            endAdornment: <Typography variant="body1">{weightUnit}</Typography>,
-                          }}
                         />
-                        <ToggleButtonGroup
-                          value={weightUnit}
-                          exclusive
-                          onChange={handleWeightUnitChange}
-                          sx={{ mb: 4 }}
-                        >
-                          <ToggleButton value="kg">kg</ToggleButton>
-                          <ToggleButton value="lbs">lbs</ToggleButton>
-                        </ToggleButtonGroup>
-                      </Box>
-                    ) : (
-                      <TextField
-                        type={step.inputType}
-                        fullWidth
-                        variant="outlined"
-                        onChange={(e) => handleInputChange(step.title, e.target.value)}
-                        onKeyDown={handleKeyPressStep}
-                        sx={{ mb: 4 }}
-                      />
-                    )
+                      )}
+                    </>
                   )
                 )}
 

@@ -560,6 +560,10 @@ const TrainerGPTPage = () => {
         setIsSummary(true)
         setLoading(false)
       }
+      if(!user){
+        setLocalData({})
+        setLocalMessages([])
+      }
       if(isLoaded){
         if (user) {
           const data = await getUserData();

@@ -834,8 +834,8 @@ const MyInfoPage = () => {
                 <FormControl 
                   id="language-button" 
                   sx={{ 
-                    width: isMobile ? '85px' : '85px',
-                    minWidth: '120px', // Ensures it doesn't get too small
+                    // width: isMobile ? '85px' : '85px',
+                    minWidth: '100px', // Ensures it doesn't get too small
                   }}
                 >
                   <Select

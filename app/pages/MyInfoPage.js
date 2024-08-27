@@ -290,7 +290,7 @@ const MyInfoPage = () => {
       "Sex": data[("Tell Us About Yourself")] || t("Not available"),
       "Age": data[('How Old Are You?')] || t("Not available"),
       "Weight": data[('What is Your Weight?')] + weightUnit || t("Not available"),
-      "Height": data[('What is Your Height?')] || t("Not available"),
+      "Height": data[('What is Your Height?')] + heightUnit || t("Not available"),
       "Goals": data[('What is Your Goal?')] || t("Not available"),
       "Activity": data[('Physical Activity Level?')] || t("Not available"),
       "Health issues": data[('Do you have any existing health issues or injuries?')] || t("Not available"),
@@ -584,54 +584,132 @@ const MyInfoPage = () => {
           </FormGroup>
         );
       
-        case 'Weight':
-          // Extract numeric value and unit from the string
-          const weightMatch = value.match(/(\d+\.?\d*)(kg|lbs)/);
-          let weightValue = weightMatch ? parseFloat(weightMatch[1]) : '';
-          let weightUnit = weightMatch ? weightMatch[2] : 'kg';
-  
-          const handleUnitChange = (e, newUnit) => {
-            if (newUnit && newUnit !== weightUnit) {
-              if (newUnit === 'lbs') {
-                weightValue = (weightValue * 2.20462).toFixed(1); // Convert kg to lbs
-              } else {
-                weightValue = (weightValue / 2.20462).toFixed(1); // Convert lbs to kg
-              }
-              weightUnit = newUnit;
-              handleInputChange(key, `${weightValue}${weightUnit}`);
-              handleWeightUnitChange(e, newUnit); // Update weight unit globally if necessary
+      case 'Weight':
+        // Extract numeric value and unit from the string
+        const weightMatch = value.match(/(\d+\.?\d*)(kg|lbs)/);
+        let weightValue = weightMatch ? parseFloat(weightMatch[1]) : '';
+        let weightUnit = weightMatch ? weightMatch[2] : 'kg';
+
+        const handleUnitChange = (e, newUnit) => {
+          if (newUnit && newUnit !== weightUnit) {
+            if (newUnit === 'lbs') {
+              weightValue = (weightValue * 2.20462).toFixed(1); // Convert kg to lbs
+            } else {
+              weightValue = (weightValue / 2.20462).toFixed(1); // Convert lbs to kg
             }
-          };
-  
-          return (
+            weightUnit = newUnit;
+            handleInputChange(key, `${weightValue}${weightUnit}`);
+            handleWeightUnitChange(e, newUnit); // Update weight unit globally if necessary
+          }
+        };
+
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <TextField
+              type="number"
+              fullWidth
+              variant="outlined"
+              value={weightValue}
+              onChange={(e) => {
+                const newWeightValue = e.target.value;
+                handleInputChange(key, `${newWeightValue}${weightUnit}`);
+              }}
+              onKeyDown={handleKeyPress}
+              sx={{ mb: 4 }}
+              InputProps={{
+                endAdornment: <Typography variant="body1">{weightUnit}</Typography>,
+              }}
+            />
+            <ToggleButtonGroup
+              value={weightUnit}
+              exclusive
+              onChange={handleUnitChange}
+              sx={{ mb: 4 }}
+            >
+              <ToggleButton value="kg">kg</ToggleButton>
+              <ToggleButton value="lbs">lbs</ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+        );
+    
+      case 'Height':
+        // Extract numeric value and unit from the string
+        const heightMatch = value.match(/(\d+\.?\d*)\s*(cm|ft\/in)|(\d+)'(\d+)"/);
+
+        let heightValue = '';
+        let heightUnit = 'cm';
+
+        if (heightMatch) {
+            if (heightMatch[2] === 'cm') {
+                // If the match is for cm
+                heightValue = parseFloat(heightMatch[1]);
+                heightUnit = 'cm';
+            } else if (heightMatch[3] && heightMatch[4]) {
+                // If the match is for ft/in
+                const feet = parseInt(heightMatch[3], 10);
+                const inches = parseInt(heightMatch[4], 10);
+                heightValue = `${feet}'${inches}"`;
+                heightUnit = 'ft/in';
+            }
+        }
+
+        console.log(value)
+        console.log(heightMatch)
+        console.log(heightUnit)
+    
+        const handleUnitChangeH = (e, newUnit) => {
+            if (newUnit && newUnit !== heightUnit) {
+                if (newUnit === 'ft/in') {
+                    // Convert cm to feet and inches
+                    const totalInches = (heightValue / 2.54).toFixed(1); // cm to inches
+                    const feet = Math.floor(totalInches / 12);
+                    const inches = Math.round(totalInches % 12);
+                    heightValue = `${feet}'${inches}"`;
+                } else {
+                    // Convert feet and inches to cm
+                    const heightParts = heightValue.match(/(\d+)'(\d+)"/);
+                    if (heightParts) {
+                        const feet = parseInt(heightParts[1], 10);
+                        const inches = parseInt(heightParts[2], 10);
+                        heightValue = ((feet * 12 + inches) * 2.54).toFixed(1); // Convert to cm
+                    }
+                }
+                heightUnit = newUnit;
+                handleInputChange(key, `${heightValue}${heightUnit}`);
+            }
+        };
+    
+        return (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              <TextField
-                type="number"
-                fullWidth
-                variant="outlined"
-                value={weightValue}
-                onChange={(e) => {
-                  const newWeightValue = e.target.value;
-                  handleInputChange(key, `${newWeightValue}${weightUnit}`);
-                }}
-                onKeyDown={handleKeyPress}
-                sx={{ mb: 4 }}
-                InputProps={{
-                  endAdornment: <Typography variant="body1">{weightUnit}</Typography>,
-                }}
-              />
-              <ToggleButtonGroup
-                value={weightUnit}
-                exclusive
-                onChange={handleUnitChange}
-                sx={{ mb: 4 }}
-              >
-                <ToggleButton value="kg">kg</ToggleButton>
-                <ToggleButton value="lbs">lbs</ToggleButton>
-              </ToggleButtonGroup>
+                <TextField
+                    // type="text" // Use text to allow entry of feet and inches
+                    fullWidth
+                    variant="outlined"
+                    value={heightValue}
+                    onChange={(e) => {
+                        const newHeightValue = e.target.value;
+                        handleInputChange(key, `${newHeightValue}${heightUnit}`);
+                    }}
+                    onKeyDown={handleKeyPress}
+                    sx={{ mb: 4 }}
+                    placeholder={heightUnit === 'ft/in' ? "e.g., 5'8\"" : "Enter height in cm"}
+                    InputProps={{
+                        endAdornment: <Typography variant="body1">{heightUnit}</Typography>,
+                    }}
+                />
+                <ToggleButtonGroup
+                    value={heightUnit}
+                    exclusive
+                    onChange={handleUnitChangeH}
+                    sx={{ mb: 4 }}
+                >
+                    <ToggleButton value="cm">cm</ToggleButton>
+                    <ToggleButton value="ft/in">ft/in</ToggleButton>
+                </ToggleButtonGroup>
             </Box>
-          );
-      default:
+        );
+      
+        default:
         return (
           <TextField
             type="text"
@@ -668,6 +746,44 @@ const MyInfoPage = () => {
       }
     }
   };
+
+  // state to manage height and unit
+  const [heightUnit, setHeightUnit] = useState('cm'); // Default to cm
+  const handleHeightUnitChange = (event, newUnit) => {
+    if (newUnit !== null) {
+        setHeightUnit(newUnit);
+
+        // Convert the height if a value is already entered
+        if (formData['What is Your Height?']) {
+            let convertedHeight = '';
+            if (newUnit === 'ft/in') {
+                // Convert cm to feet/inches
+                const totalInches = parseFloat(formData['What is Your Height?']) / 2.54;
+                const feet = Math.floor(totalInches / 12);
+                const inches = Math.round(totalInches % 12);
+                convertedHeight = `${feet}'${inches}"`;
+            } else {
+                // Convert feet/inches to cm
+                const heightParts = formData['What is Your Height?'].match(/(\d+)'(\d+)"/);
+                if (heightParts) {
+                    const feet = parseInt(heightParts[1], 10);
+                    const inches = parseInt(heightParts[2], 10);
+                    convertedHeight = ((feet * 12 + inches) * 2.54).toFixed(1); // Convert to cm
+                }
+            }
+            setFormData({ 
+                ...formData, 
+                'What is Your Height?': convertedHeight, 
+                'heightUnit': newUnit 
+            });
+        } else {
+            setFormData({ 
+                ...formData, 
+                'heightUnit': newUnit 
+            });
+        }
+    }
+};
 
   // loading page
   if (loading) {
@@ -1207,40 +1323,60 @@ const MyInfoPage = () => {
                         </ToggleButtonGroup>
                       ) : (
                         step.inputType && (
-                          step.title === 'What is Your Weight?' ? (
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                          <>
+                            {(step.title === 'What is Your Weight?' || step.title === 'What is Your Height?') ? (
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                <TextField
+                                  type="text"  // Using text to support ft/in format if needed
+                                  fullWidth
+                                  variant="outlined"
+                                  value={formData[step.title] || ''}
+                                  onChange={(e) => handleInputChange(step.title, e.target.value)}
+                                  onKeyDown={handleKeyPress}
+                                  sx={{ mb: 4 }}
+                                  placeholder={
+                                    step.title === 'What is Your Height?' && heightUnit === 'ft/in' 
+                                      ? "e.g., 5'8\"" 
+                                      : (step.title === 'What is Your Height?' ? "Enter height in cm" : "")
+                                  }
+                                  InputProps={{
+                                    endAdornment: (
+                                      <Typography variant="body1">
+                                        {step.title === 'What is Your Weight?' ? weightUnit : heightUnit}
+                                      </Typography>
+                                    ),
+                                  }}
+                                />
+                                <ToggleButtonGroup
+                                  value={step.title === 'What is Your Weight?' ? weightUnit : heightUnit}
+                                  exclusive
+                                  onChange={step.title === 'What is Your Weight?' ? handleWeightUnitChange : handleHeightUnitChange}
+                                  sx={{ mb: 4 }}
+                                >
+                                  {step.title === 'What is Your Weight?' ? (
+                                    <>
+                                      <ToggleButton value="kg">kg</ToggleButton>
+                                      <ToggleButton value="lbs">lbs</ToggleButton>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <ToggleButton value="cm">cm</ToggleButton>
+                                      <ToggleButton value="ft/in">ft/in</ToggleButton>
+                                    </>
+                                  )}
+                                </ToggleButtonGroup>
+                              </Box>
+                            ) : (
                               <TextField
                                 type={step.inputType}
                                 fullWidth
                                 variant="outlined"
-                                value={formData[step.title] || ''}
                                 onChange={(e) => handleInputChange(step.title, e.target.value)}
                                 onKeyDown={handleKeyPress}
                                 sx={{ mb: 4 }}
-                                InputProps={{
-                                  endAdornment: <Typography variant="body1">{weightUnit}</Typography>,
-                                }}
                               />
-                              <ToggleButtonGroup
-                                value={weightUnit}
-                                exclusive
-                                onChange={handleWeightUnitChange}
-                                sx={{ mb: 4 }}
-                              >
-                                <ToggleButton value="kg">kg</ToggleButton>
-                                <ToggleButton value="lbs">lbs</ToggleButton>
-                              </ToggleButtonGroup>
-                            </Box>
-                          ) : (
-                            <TextField
-                              type={step.inputType}
-                              fullWidth
-                              variant="outlined"
-                              onChange={(e) => handleInputChange(step.title, e.target.value)}
-                              onKeyDown={handleKeyPress}
-                              sx={{ mb: 4 }}
-                            />
-                          )
+                            )}
+                          </>
                         )
                       )}
       
@@ -1263,7 +1399,7 @@ const MyInfoPage = () => {
                         </Button>
                       </Box>
                     </motion.div>
-                  ))         
+                  ))   
                 )}
               </Box>
             </Container>

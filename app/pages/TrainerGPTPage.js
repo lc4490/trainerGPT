@@ -598,17 +598,6 @@ const TrainerGPTPage = () => {
     initializeData();
   }, [user]);
 
-  // useEffect(() => {
-  //   if (!isSignedIn) {
-  //     // Code to run when the user logs out
-  //     console.log("User has logged out");
-  //     setIsSummary(false)
-  //     setGuestData({})
-  //     setGuestMessages(([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]))
-  //     setMessages(([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]))
-  //   }
-  // }, [isSignedIn]);
-
   // Implementing theming
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const [darkMode, setDarkMode] = useState(prefersDarkMode);
@@ -879,24 +868,24 @@ const TrainerGPTPage = () => {
       console.error("Error clearing chat log:", error);
     }
   };
-//   useEffect(() => {
-//     if (user) {
-//         const fetchData = async () => {
-//             const userData = await getUserData();
-//             setData(userData);
-//             await loadChatLog(user.id, i18n.language);
-//             await updateEquipment();
-//         };
+  useEffect(() => {
+    if (user) {
+        const fetchData = async () => {
+            const userData = await getUserData();
+            setData(userData);
+            await loadChatLog(user.id, i18n.language);
+            await updateEquipment();
+        };
 
-//         fetchData();
-//     } else if (guestMessages.length > 0) {
-//         setMessages(guestMessages);
-//     }
-//       else{
-//         clearChatLog()
-//       }
+        fetchData();
+    } else if (guestMessages.length > 0) {
+        setMessages(guestMessages);
+    }
+      else{
+        clearChatLog()
+      }
   
-// }, [user, i18n.language, guestMessages]);
+}, [user, i18n.language, guestMessages]);
 
   // USER RAG
   const [data, setData] = useState('');

@@ -307,7 +307,7 @@ const EquipmentPage = () => {
         {/* base box */}
         <Box 
           width="100vw" 
-          height= "100vh"
+          height= "90vh"
           display="flex" 
           justifyContent="center" 
           alignItems="center"
@@ -724,7 +724,7 @@ const EquipmentPage = () => {
           </Modal>
 
           {/* Main page */}
-          <Box width="100%" height="100vh" bgcolor="background.default">
+          <Box width="100%" height="100%" bgcolor="background.default">
             {/* Header including add button, title, sign in */}
             <Box 
               height="10%" 

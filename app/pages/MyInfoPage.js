@@ -629,7 +629,7 @@ const MyInfoPage = () => {
       {/* main box */}
         <Box
           width="100vw"
-          height="100vh"
+          height="90vh"
           display="flex"
           flexDirection="column"
           backgroundColor="background.default"

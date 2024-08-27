@@ -503,6 +503,7 @@ const TrainerGPTPage = () => {
   const router = useRouter();
   // guest mode
   const {guestData, setGuestData, guestImage, guestEquipment, guestMessages, setGuestMessages, setGuestPlan} = useContext(GuestContext)
+  const {localData, setLocalData, localImage, localEquipment, localMessages, setLocalMessages, setLocalPlan} = useContext(GuestContext)
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
   const { user, isSignedIn, isLoaded } = useUser(); // Clerk user
@@ -552,26 +553,22 @@ const TrainerGPTPage = () => {
 
     const initializeData = async () => {
       // fix loading speed. store all acquired data from firebase into guest storage. 
-      if(guestData.Age && guestMessages.length > 0){
-        setFormData(guestData)
-        setMessages(guestMessages)
+      if(localData.Age && localMessages.length > 0){
+        setData(localData)
+        setFormData(localData)
+        setMessages(localMessages)
         setIsSummary(true)
         setLoading(false)
-      }
-      // if user logs out, clear guest storage
-      if(!user){
-        setIsSummary(false)
-        setGuestData({})
-        setGuestMessages([])
-        setMessages([])
       }
       if(isLoaded){
         if (user) {
           const data = await getUserData();
           if (data) {
+            setData(data)
             setFormData(data); // Set form data from Firestore if available
-            setGuestData(data)
+            setLocalData(data)
             await loadChatLog(user.id, i18n.language);
+            await updateEquipment();
             // setIsSummary(true)
             
           }
@@ -579,11 +576,18 @@ const TrainerGPTPage = () => {
           await transferGuestDataToUser();
         } else {
           if (guestData && guestData.Age) {
+            setData(guestData)
             setFormData(guestData);
             setIsSummary(true);
           } else {
             setIsSummary(false);
             setFormData(guestData);
+          }
+          if(guestMessages.length > 0){
+            setMessages(guestMessages)
+          }
+          else{
+            clearChatLog()
           }
         }
         setLoading(false);
@@ -593,6 +597,17 @@ const TrainerGPTPage = () => {
     fetchAndSetLanguage();
     initializeData();
   }, [user]);
+
+  // useEffect(() => {
+  //   if (!isSignedIn) {
+  //     // Code to run when the user logs out
+  //     console.log("User has logged out");
+  //     setIsSummary(false)
+  //     setGuestData({})
+  //     setGuestMessages(([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]))
+  //     setMessages(([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]))
+  //   }
+  // }, [isSignedIn]);
 
   // Implementing theming
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -637,14 +652,11 @@ const TrainerGPTPage = () => {
 
   // Handle form submission and save data to Firestore
   const handleSubmit = async () => {
-    if (false) {
-      await saveUserData((formData));
-      setIsEditing(false);
-    } else {
-      await saveUserData(unpackData(formData));
-      setFormData(unpackData(formData));
-      setIsSummary(true); // Show summary page
-    }
+    
+    await saveUserData(unpackData(formData));
+    setFormData(unpackData(formData));
+    setIsSummary(true); // Show summary page
+    
   };
 
   // clean up formData 
@@ -676,102 +688,124 @@ const TrainerGPTPage = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const sendMessage = async () => {
-    if (!message.trim() || isLoading) return;
-    setIsLoading(true);
-
-    const userMessage = { role: 'user', content: message };
-    const initialAssistantMessage = { role: 'assistant', content: '' };
-
-    // add user message to list of all messages
-    setMessages((prevMessages) => [...prevMessages, userMessage, initialAssistantMessage]);
-
-    setMessage(''); // Clear the input field
-
-    try {
-      // RAGS FOR INFO
-      const resolvedData = user ? await data : await guestData;
-      let responseContent = ``;
-      const { Age, Sex, Weight, Height, Goals, Activity, Health, Availability } = resolvedData || {};
-      responseContent += `Based on your profile:
-      - Age: ${Age || 'Not provided'}
-      - Sex: ${Sex || 'Not provided'}
-      - Weight: ${Weight || 'Not provided'}
-      - Height: ${Height || 'Not provided'}
-      - Goals: ${Goals || 'Not provided'}
-      - Activity Level: ${Activity || 'Not provided'}
-      - Health issues or injuries: ${Health || 'Not provided'}
-      - Availability: ${Availability || 'Not provided'}
-      `;
-      // RAGS FOR EQUIPMENT
-      const resolvedEquipmentList = user ? await equipmentList : await guestEquipment;
-      let equipmentContent = `Available Equipment:\n`;
-      resolvedEquipmentList.forEach((item) => {
-        equipmentContent += `${item.name}\n`;
-      });
-      responseContent += equipmentContent;
-
-      // find exercise names in message, if so, upload youtube links
-      const exerciseNames = extractExerciseName(message, prefLanguage);
-      exerciseNames.forEach((exercise) => {
-        let links = getYouTubeLinksForExercise(exercise);
-        responseContent += `Here are some YouTube links for ${exercise}: \n\n`;
-        links.forEach((link) => {
-          responseContent += `${link}\n`;
+      if (!message.trim() || isLoading) return;
+      setIsLoading(true);
+    
+      const userMessage = { role: 'user', content: message };
+      const initialAssistantMessage = { role: 'assistant', content: '' };
+    
+      // Update the messages state with the user's message and an empty assistant message
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        userMessage,
+        initialAssistantMessage,
+      ]);
+    
+      setMessage(''); // Clear the input field
+    
+      try {
+        let responseContent = ``;
+        // RAGS FOR INFO
+        const resolvedData = user ? await data : await guestData;
+        const { Age, Sex, Weight, Height, Goals, Activity, Health, Availability } = resolvedData || {};
+        responseContent += `Based on your profile:
+        - Age: ${Age || 'Not provided'}
+        - Sex: ${Sex || 'Not provided'}
+        - Weight: ${Weight || 'Not provided'}
+        - Height: ${Height || 'Not provided'}
+        - Goals: ${Goals || 'Not provided'}
+        - Activity Level: ${Activity || 'Not provided'}
+        - Health issues or injuries: ${Health || 'Not provided'}
+        - Availability: ${Availability || 'Not provided'}
+        `;
+        // RAGS FOR EQUIPMENT
+        const resolvedEquipmentList = user ? await equipmentList : await guestEquipment;
+        let equipmentContent = `Available Equipment:\n`;
+        resolvedEquipmentList.forEach((item) => {
+          equipmentContent += `${item.name}\n`;
         });
-      });
+        responseContent += equipmentContent;
 
-      // combine input, send api request
-      const combinedInput = `User: ${message}\nPersonalized Data: ${responseContent}`;
-      const response = await fetch('../api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify([...messages, { role: 'user', content: combinedInput }, { role: 'assistant', content: combinedInput }]),
-      });
-
-      if (!response.ok) throw new Error('Network response was not ok');
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-
-      // assistant response COULD IMPLEMENT SAVING WORKOUT PLAN HERE
-      let assistantResponse = '';
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const text = decoder.decode(value, { stream: true });
-        assistantResponse += text;
-
+        // RAGS FOR LINKS
+        // Extract the exercise name
+        const exerciseNames = extractExerciseName(message); // Implement this as needed
+        console.log(exerciseNames)
+        for(const element of exerciseNames){
+          let links = getYouTubeLinksForExercise(element)
+          responseContent += `Here are some YouTube links for ${element}: \n\n`;
+          links.forEach(link => {
+            responseContent += `${link}\n`;
+          });
+        }
+    
+        // Combine with AI-generated response (if applicable)
+        const combinedInput = `User: ${message}\nYouTube Links: ${responseContent}`;
+        console.log(combinedInput)
+    
+        // Generate response from the AI model
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify([
+            ...messages, 
+            { role: 'user', content: combinedInput },
+            { role: 'assistant', content: combinedInput }
+          ]),
+        });
+    
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+    
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+    
+        let assistantResponse = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const text = decoder.decode(value, { stream: true });
+          assistantResponse += text;
+    
+          // Update the last assistant message in the messages state
+          setMessages((prevMessages) => {
+            const lastMessage = prevMessages[prevMessages.length - 1];
+            const updatedMessages = [
+              ...prevMessages.slice(0, prevMessages.length - 1),
+              { ...lastMessage, content: lastMessage.content + text },
+            ];
+    
+            return updatedMessages;
+          });
+        }
+        setExercisePlan(assistantResponse)
+        // Once the assistant response is complete, save the chat log
         setMessages((prevMessages) => {
-          const lastMessage = prevMessages[prevMessages.length - 1];
-          const updatedMessages = [...prevMessages.slice(0, prevMessages.length - 1), { ...lastMessage, content: lastMessage.content + text }];
+          const updatedMessages = prevMessages.map((msg, index) =>
+            index === prevMessages.length - 1 ? { ...msg, content: assistantResponse } : msg
+          );
+    
+          if (user) {
+            saveChatLog(user.id, i18n.language, updatedMessages);
+          }
+          else{
+            setGuestMessages(updatedMessages)
+          }
+    
           return updatedMessages;
         });
+      } catch (error) {
+        console.error('Error:', error);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { role: 'assistant', content: "I'm sorry, but I encountered an error. Please try again later." },
+        ]);
       }
-      setExercisePlan(assistantResponse)
-      // console.log(assistantResponse)
-      // set messages with new message
-      setMessages((prevMessages) => {
-        const updatedMessages = prevMessages.map((msg, index) =>
-          index === prevMessages.length - 1 ? { ...msg, content: assistantResponse } : msg
-        );
-        
-        // save chat logs
-        if (user) {
-          saveChatLog(user.id, i18n.language, updatedMessages);
-        }
-        else{
-          setGuestMessages(updatedMessages)
-        }
-
-        return updatedMessages;
-      });
-    } catch (error) {
-      console.error('Error:', error);
-      setMessages((prevMessages) => [...prevMessages, { role: 'assistant', content: "I'm sorry, but I encountered an error. Please try again later." }]);
-    }
-
-    setIsLoading(false);
-  };
+    
+      setIsLoading(false);
+    };
 
   // Quality of life improvements
   // if press enter, send message
@@ -820,7 +854,7 @@ const TrainerGPTPage = () => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setMessages(data.messages);
-        setGuestMessages(data.messages)
+        setLocalMessages(data.messages)
       } else {
         const displayName = user?.fullName || 'User';
         const personalizedWelcome = t('welcome', { name: displayName });
@@ -845,24 +879,24 @@ const TrainerGPTPage = () => {
       console.error("Error clearing chat log:", error);
     }
   };
-  useEffect(() => {
-    if (user) {
-        const fetchData = async () => {
-            const userData = await getUserData();
-            setData(userData);
-            await loadChatLog(user.id, i18n.language);
-            await updateEquipment();
-        };
+//   useEffect(() => {
+//     if (user) {
+//         const fetchData = async () => {
+//             const userData = await getUserData();
+//             setData(userData);
+//             await loadChatLog(user.id, i18n.language);
+//             await updateEquipment();
+//         };
 
-        fetchData();
-    } else if (guestMessages.length > 0) {
-        setMessages(guestMessages);
-    }
-      else{
-        clearChatLog()
-      }
+//         fetchData();
+//     } else if (guestMessages.length > 0) {
+//         setMessages(guestMessages);
+//     }
+//       else{
+//         clearChatLog()
+//       }
   
-}, [user, i18n.language, guestMessages]);
+// }, [user, i18n.language, guestMessages]);
 
   // USER RAG
   const [data, setData] = useState('');
@@ -910,15 +944,11 @@ const TrainerGPTPage = () => {
     const lowerCaseMessage = message.toLowerCase();
   
     // Iterate through the exerciseData array to find matching exercise names
-    for (let i = 0; i < exerciseData.length; i++) {
-      const exercise = exerciseData[i];
-      
-      // Check if the translations object exists and contains the language key
-      if (exercise.translations && exercise.translations[language]) {
-        const exerciseName = exercise.translations[language].toLowerCase();
-  
-        if (lowerCaseMessage.includes(exerciseName)) {
-          ret.push(exercise.name); // Return the original English name
+    for (const element of exerciseData) {
+      const exercise = element;
+      for (const [language, translation] of Object.entries(exercise.translations)) {
+        if (lowerCaseMessage.includes(translation.toLowerCase())){
+          ret.push(exercise.name)
         }
       }
     }

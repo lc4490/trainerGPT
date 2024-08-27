@@ -108,6 +108,12 @@ export default function Home() {
       window.removeEventListener('beforeunload', handleUnload);
     };
   }, []);
+  // local storage
+  const [localData, setLocalData] = useState({});
+  const [localImage, setLocalImage] = useState('');
+  const [localEquipment, setLocalEquipment] = useState([])
+  const [localMessages, setLocalMessages] = useState([])
+  const [localPlan, setLocalPlan] = useState('')
 
   // light/dark theme
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -294,7 +300,7 @@ export default function Home() {
 
   return (
     // guest mode
-    <GuestContext.Provider value={{ guestData, setGuestData, guestImage, setGuestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages, guestPlan, setGuestPlan}}>
+    <GuestContext.Provider value={{ guestData, setGuestData, guestImage, setGuestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages, guestPlan, setGuestPlan, localData, setLocalData, localImage, setLocalImage, localEquipment, setLocalEquipment, localMessages, setLocalMessages, localPlan, setLocalPlan}}>
       {/* light/dark mode */}
       <ThemeProvider theme={currentTheme}>
         <CssBaseline />

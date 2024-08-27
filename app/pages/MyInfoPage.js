@@ -102,6 +102,7 @@ const MyInfoPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   // guest context
   const { guestData, setGuestData, guestImage, setGuestImage, guestEquipment, guestMessages} = useContext(GuestContext);
+  const { localData, setLocalData, localImage, setLocalImage, localEquipment, localMessages} = useContext(GuestContext);
   // info modal
   const [openInfoModal, setOpenInfoModal] = useState(false);
 
@@ -240,15 +241,11 @@ const MyInfoPage = () => {
 
     const initializeData = async () => {
       // fix loading speed. store all acquired data from firebase into guest storage. 
-      if(guestData.Age){
-        setFormData(guestData)
+      if(localData.Age){
+        setFormData(localData)
         setIsSummary(true)
         setLoading(false)
-      }
-      // if user logs out, clear guest storage
-      if(!user){
-        setIsSummary(false)
-        setGuestData({})
+        setImage(localImage)
       }
       if(isLoaded){
         if (user) {
@@ -257,8 +254,9 @@ const MyInfoPage = () => {
           if (data) {
             setFormData(data); // Set form data from Firestore if available
             setGuestData(data)
+            setLocalData(data)
             setImage(img);
-            setGuestImage(img)
+            setLocalImage(img)
             // setIsSummary(true);
           }
           // Transfer guest data to the user account

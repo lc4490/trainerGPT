@@ -551,12 +551,28 @@ const TrainerGPTPage = () => {
     };
 
     const initializeData = async () => {
+      // fix loading speed. store all acquired data from firebase into guest storage. 
+      if(guestData.Age && guestMessages.length > 0){
+        setFormData(guestData)
+        setMessages(guestMessages)
+        setIsSummary(true)
+        setLoading(false)
+      }
+      // if user logs out, clear guest storage
+      if(!user){
+        setIsSummary(false)
+        setGuestData({})
+        setGuestMessages([])
+        setMessages([])
+      }
       if(isLoaded){
         if (user) {
           const data = await getUserData();
           if (data) {
             setFormData(data); // Set form data from Firestore if available
+            setGuestData(data)
             await loadChatLog(user.id, i18n.language);
+            // setIsSummary(true)
             
           }
           // Transfer guest data to the user account
@@ -804,6 +820,7 @@ const TrainerGPTPage = () => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setMessages(data.messages);
+        setGuestMessages(data.messages)
       } else {
         const displayName = user?.fullName || 'User';
         const personalizedWelcome = t('welcome', { name: displayName });
@@ -1160,7 +1177,7 @@ const TrainerGPTPage = () => {
             <Select
               value={prefLanguage}
               onChange={handleLanguageChange}
-              disableUnderline
+              disableunderline={true}
               displayEmpty
               renderValue={(selected) => {
                 if (!selected) {

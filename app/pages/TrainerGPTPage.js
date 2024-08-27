@@ -1121,7 +1121,7 @@ const TrainerGPTPage = () => {
       {/* main box */}
       <Box
         width="100vw"
-        height="100vh"
+        height="90vh"
         display="flex"
         flexDirection="column"
         paddingBottom= '60px' // Ensure content is not cut off by the toolbar

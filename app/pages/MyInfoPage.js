@@ -257,7 +257,6 @@ const MyInfoPage = () => {
           const img = await getImage();
           if (data) {
             setFormData(data); // Set form data from Firestore if available
-            setGuestData(data)
             setLocalData(data)
             setImage(img);
             setLocalImage(img)

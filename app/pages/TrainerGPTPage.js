@@ -239,9 +239,6 @@ const TrainerGPTPage = () => {
                   // Check if "and" is present and split by "and"
                   if (equipments[0].toLowerCase().includes("and")) {
                       equipments = equipments[0].split("and");
-                  } else {
-                      // Otherwise, split by spaces
-                      equipments = equipments[0].split(" ");
                   }
               }
               
@@ -345,15 +342,14 @@ const TrainerGPTPage = () => {
             index === prevMessages.length - 1 ? { ...msg, content: assistantResponse } : msg
           );
           equipments.forEach(async (equipment) => {
-
             const sanitizedItemName = equipment.replace(/\//g, ' and ');
             const quantity = 1; // Assuming a default quantity of 1 for each equipment item
-
+          
             if (user) {
               const userId = user.id;
               const docRef = doc(firestore, 'users', userId, 'equipment', sanitizedItemName);
               const docSnap = await getDoc(docRef);
-
+          
               if (docSnap.exists()) {
                 const { count, image: existingImage } = docSnap.data();
                 await setDoc(docRef, { count: count + quantity, image: existingImage });
@@ -361,21 +357,32 @@ const TrainerGPTPage = () => {
                 await setDoc(docRef, { count: quantity, image: '' }); // Assuming no image by default
               }
             } else {
-              setGuestEquipment((guestEquipment) => [
-                ...guestEquipment, 
-                { name: sanitizedItemName, count: quantity, image: '' } // Assuming no image by default
-              ]);
-              setEquipmentList(guestEquipment);
+              setGuestEquipment((prevGuestEquipment) => {
+                // Check if the equipment is already in the guestEquipment array
+                const equipmentExists = prevGuestEquipment.some(
+                  (item) => item.name.toLowerCase() === sanitizedItemName.toLowerCase()
+                );
+              
+                if (!equipmentExists) {
+                  const updatedEquipment = [
+                    ...prevGuestEquipment,
+                    { name: sanitizedItemName, count: quantity, image: '' } // Assuming no image by default
+                  ];
+                  setEquipmentList(updatedEquipment); // Update the equipment list based on the latest state
+                  return updatedEquipment;
+                }
+              
+                // If the equipment already exists, return the previous state without modification
+                return prevGuestEquipment;
+              });
             }
-          });
+          });          
 
           if (user) {
             saveChatLog(user.id, i18n.language, updatedMessages);
           } else {
             setGuestMessages(updatedMessages);
           }
-
-    
           return updatedMessages;
         });
       } catch (error) {

@@ -1025,7 +1025,7 @@ const MyInfoPage = () => {
                   <Select
                     value={prefLanguage}
                     onChange={handleLanguageChange}
-                    disableUnderline
+                    disableunderline="true"
                     displayEmpty
                     renderValue={(selected) => {
                       if (!selected) {
@@ -1364,15 +1364,15 @@ const MyInfoPage = () => {
                                   sx={{ mb: 4 }}
                                 >
                                   {step.title === 'What is Your Weight?' ? (
-                                    <>
-                                      <ToggleButton value="kg">kg</ToggleButton>
-                                      <ToggleButton value="lbs">lbs</ToggleButton>
-                                    </>
+                                    [
+                                      <ToggleButton key="kg" value="kg">kg</ToggleButton>,
+                                      <ToggleButton key="lbs" value="lbs">lbs</ToggleButton>,
+                                    ]
                                   ) : (
-                                    <>
-                                      <ToggleButton value="cm">cm</ToggleButton>
-                                      <ToggleButton value="ft/in">ft/in</ToggleButton>
-                                    </>
+                                    [
+                                      <ToggleButton key="cm" value="cm">cm</ToggleButton>,
+                                      <ToggleButton key="ft/in" value="ft/in">ft/in</ToggleButton>,
+                                    ]
                                   )}
                                 </ToggleButtonGroup>
                               </Box>
@@ -1393,7 +1393,7 @@ const MyInfoPage = () => {
                                     handleInputChange(step.title, e.target.value);
                                   }
                                 }}
-                                onKeyDown={handleKeyPressStep}
+                                onKeyDown={handleKeyPress}
                                 sx={{ mb: 4 }}
                               />
                             )}

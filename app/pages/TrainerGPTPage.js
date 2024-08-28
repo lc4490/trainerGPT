@@ -1254,7 +1254,7 @@ const TrainerGPTPage = () => {
             <Select
               value={prefLanguage}
               onChange={handleLanguageChange}
-              disableunderline={true}
+              disableunderline="true"
               displayEmpty
               renderValue={(selected) => {
                 if (!selected) {
@@ -1537,15 +1537,15 @@ const TrainerGPTPage = () => {
                             sx={{ mb: 4 }}
                           >
                             {step.title === 'What is Your Weight?' ? (
-                              <>
-                                <ToggleButton value="kg">kg</ToggleButton>
-                                <ToggleButton value="lbs">lbs</ToggleButton>
-                              </>
+                              [
+                                <ToggleButton key="kg" value="kg">kg</ToggleButton>,
+                                <ToggleButton key="lbs" value="lbs">lbs</ToggleButton>,
+                              ]
                             ) : (
-                              <>
-                                <ToggleButton value="cm">cm</ToggleButton>
-                                <ToggleButton value="ft/in">ft/in</ToggleButton>
-                              </>
+                              [
+                                <ToggleButton key="cm" value="cm">cm</ToggleButton>,
+                                <ToggleButton key="ft/in" value="ft/in">ft/in</ToggleButton>,
+                              ]
                             )}
                           </ToggleButtonGroup>
                         </Box>

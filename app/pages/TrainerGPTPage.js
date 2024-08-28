@@ -92,7 +92,7 @@ const TrainerGPTPage = () => {
       }
       if(!user){
         setLocalData({})
-        setLocalMessages([])
+        setLocalMessages([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
       }
       if(isLoaded){
         if (user) {

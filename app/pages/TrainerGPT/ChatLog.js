@@ -47,7 +47,8 @@ const ChatLog = ({
     <Stack direction="column" width="100vw" minHeight={isMobile ? "80vh" : "90vh"} paddingBottom='60px'>
       {/* Messages */}
       <Stack direction="column" spacing={2} flexGrow={1} overflow='auto' padding={2} className="chat-log">
-        {messages.map((message, index) => (
+        {console.log(messages)}
+        {messages?.map((message, index) => (
           <Box key={index} display="flex" justifyContent={message.role === 'assistant' ? 'flex-start' : 'flex-end'}>
             {message.role === 'assistant' && (
               <AssistantIcon sx={{ mr: 1, color: 'text.primary', fontSize: '2.5rem' }} />

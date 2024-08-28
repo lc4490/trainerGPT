@@ -162,6 +162,7 @@ const resources = {
       "This is the equipment I have available: ":"This is the equipment I have available: ",
       "Make me a workout plan":"Make me a workout plan",
       "How do I do a push up?":"How do I do a push up?",
+      ",":",",
     }
   },
   cn: {
@@ -317,6 +318,7 @@ const resources = {
       "This is the equipment I have available: ": "这是我可用的设备：",
       "Make me a workout plan": "为我制定一个锻炼计划",
       "How do I do a push up?": "我该如何做俯卧撑？",
+      ",":"，",
     }
   },
   tc: {
@@ -472,6 +474,7 @@ const resources = {
       "This is the equipment I have available: ": "這是我可用的設備：",
       "Make me a workout plan": "為我制定一個鍛鍊計劃",
       "How do I do a push up?": "我該如何做俯臥撐？",
+      ",":"，",
     }
   },
   es: {
@@ -627,6 +630,7 @@ const resources = {
       "This is the equipment I have available: ": "Este es el equipo que tengo disponible: ",
       "Make me a workout plan": "Hazme un plan de entrenamiento",
       "How do I do a push up?": "¿Cómo hago una flexión?",
+      ",":",",
     }
   },
   fr: {
@@ -782,6 +786,7 @@ const resources = {
       "This is the equipment I have available: ": "Voici l'équipement dont je dispose : ",
       "Make me a workout plan": "Faites-moi un plan d'entraînement",
       "How do I do a push up?": "Comment faire une pompe?",
+      ",":",",
     }
   },
   de: {
@@ -937,6 +942,7 @@ const resources = {
       "This is the equipment I have available: ": "Das ist das verfügbare Equipment: ",
       "Make me a workout plan": "Erstellen Sie mir einen Trainingsplan",
       "How do I do a push up?": "Wie mache ich einen Liegestütz?",
+      ",":",",
     }
   },
   jp: {
@@ -1091,7 +1097,7 @@ const resources = {
       "This is the equipment I have available: ": "これは私が利用可能な設備です：",
       "Make me a workout plan": "ワークアウトプランを作成してください",
       "How do I do a push up?": "腕立て伏せはどうやってやりますか？",
-
+      ",":"、",
     }
   },
   kr: {
@@ -1246,7 +1252,7 @@ const resources = {
       "This is the equipment I have available: ": "사용 가능한 장비는 다음과 같습니다: ",
       "Make me a workout plan": "운동 계획을 세워주세요",
       "How do I do a push up?": "푸쉬업은 어떻게 하나요?",
-
+      ",":",",
     }
   }
 };

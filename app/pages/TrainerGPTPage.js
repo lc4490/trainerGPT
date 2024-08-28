@@ -33,7 +33,7 @@ const TrainerGPTPage = () => {
   const router = useRouter();
   const { user, isSignedIn, isLoaded } = useUser(); 
   // guest mode
-  const {guestData, setGuestData, guestImage, guestEquipment, guestMessages, setGuestMessages, setGuestPlan} = useContext(GuestContext)
+  const {guestData, setGuestData, guestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages, setGuestPlan} = useContext(GuestContext)
   const {localData, setLocalData, localImage, localEquipment, localMessages, setLocalMessages, setLocalPlan} = useContext(GuestContext)
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
@@ -225,6 +225,30 @@ const TrainerGPTPage = () => {
   const sendMessage = async () => {
       if (!message.trim() || isLoading) return;
       setIsLoading(true);
+      // if message includes equipment
+      console.log(message)
+      let equipments;
+      if (message.includes(":")) {
+          let parts = message.split(":");
+          if (parts[0].toLowerCase().includes("equipment")) {
+              // Initial split by comma
+              equipments = parts[1].split(",");
+              
+              // If the result is a single item, try splitting by "and" or space
+              if (equipments.length === 1) {
+                  // Check if "and" is present and split by "and"
+                  if (equipments[0].toLowerCase().includes("and")) {
+                      equipments = equipments[0].split("and");
+                  } else {
+                      // Otherwise, split by spaces
+                      equipments = equipments[0].split(" ");
+                  }
+              }
+              
+              // Trim whitespace from each equipment item
+              equipments = equipments.map(equipment => equipment.trim());
+          }
+      }
     
       const userMessage = { role: 'user', content: message };
       const initialAssistantMessage = { role: 'assistant', content: '' };
@@ -264,7 +288,6 @@ const TrainerGPTPage = () => {
         // RAGS FOR LINKS
         // Extract the exercise name
         const exerciseNames = extractExerciseName(message); // Implement this as needed
-        // console.log(exerciseNames)
         for(const element of exerciseNames){
           let links = getYouTubeLinksForExercise(element)
           responseContent += `Here are some YouTube links for ${element}: \n\n`;
@@ -321,13 +344,39 @@ const TrainerGPTPage = () => {
           const updatedMessages = prevMessages.map((msg, index) =>
             index === prevMessages.length - 1 ? { ...msg, content: assistantResponse } : msg
           );
-    
+
+          // Example processing of equipments
+          equipments.forEach(async (equipment) => {
+
+            const sanitizedItemName = equipment.replace(/\//g, ' and ');
+            const quantity = 1; // Assuming a default quantity of 1 for each equipment item
+
+            if (user) {
+              const userId = user.id;
+              const docRef = doc(firestore, 'users', userId, 'equipment', sanitizedItemName);
+              const docSnap = await getDoc(docRef);
+
+              if (docSnap.exists()) {
+                const { count, image: existingImage } = docSnap.data();
+                await setDoc(docRef, { count: count + quantity, image: existingImage });
+              } else {
+                await setDoc(docRef, { count: quantity, image: '' }); // Assuming no image by default
+              }
+            } else {
+              setGuestEquipment((guestEquipment) => [
+                ...guestEquipment, 
+                { name: sanitizedItemName, count: quantity, image: '' } // Assuming no image by default
+              ]);
+              setEquipmentList(guestEquipment);
+            }
+          });
+
           if (user) {
             saveChatLog(user.id, i18n.language, updatedMessages);
+          } else {
+            setGuestMessages(updatedMessages);
           }
-          else{
-            setGuestMessages(updatedMessages)
-          }
+
     
           return updatedMessages;
         });

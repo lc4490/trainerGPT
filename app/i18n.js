@@ -156,6 +156,12 @@ const resources = {
       "Further Clarification":"Further Clarification",
       "Skip Tour":"Skip Tour",
       "English":"English",
+      "Last":"Last",
+      "e.g., 5'8\"":"e.g., 5'8\"",
+      "Enter height in cm":"Enter height in cm",
+      "This is the equipment I have available: ":"This is the equipment I have available: ",
+      "Make me a workout plan":"Make me a workout plan",
+      "How do I do a push up?":"How do I do a push up?",
     }
   },
   cn: {
@@ -305,6 +311,12 @@ const resources = {
       "Further Clarification": "进一步说明",
       "Skip Tour": "跳过导览",
       "English":"中文（简体）",
+      "Last": "最后",
+      "e.g., 5'8\"": "例如，5'8\"",
+      "Enter height in cm": "以厘米为单位输入身高",
+      "This is the equipment I have available: ": "这是我可用的设备：",
+      "Make me a workout plan": "为我制定一个锻炼计划",
+      "How do I do a push up?": "我该如何做俯卧撑？",
     }
   },
   tc: {
@@ -454,6 +466,12 @@ const resources = {
       "Further Clarification": "進一步說明",
       "Skip Tour": "跳過導覽",
       "English": '中文（繁體）',
+      "Last": "最後",
+      "e.g., 5'8\"": "例如，5'8\"",
+      "Enter height in cm": "以厘米為單位輸入身高",
+      "This is the equipment I have available: ": "這是我可用的設備：",
+      "Make me a workout plan": "為我制定一個鍛鍊計劃",
+      "How do I do a push up?": "我該如何做俯臥撐？",
     }
   },
   es: {
@@ -603,6 +621,12 @@ const resources = {
       "Further Clarification": "Más aclaraciones",
       "Skip Tour": "Omitir Tour",
       "English": "Español",
+      "Last": "Último",
+      "e.g., 5'8\"": "p. ej., 5'8\"",
+      "Enter height in cm": "Introduce la altura en cm",
+      "This is the equipment I have available: ": "Este es el equipo que tengo disponible: ",
+      "Make me a workout plan": "Hazme un plan de entrenamiento",
+      "How do I do a push up?": "¿Cómo hago una flexión?",
     }
   },
   fr: {
@@ -752,6 +776,12 @@ const resources = {
       "Further Clarification": "Précisions supplémentaires",
       "Skip Tour": "Passer la visite",
       "English": "Français",
+      "Last": "Dernier",
+      "e.g., 5'8\"": "par ex., 5'8\"",
+      "Enter height in cm": "Entrez la taille en cm",
+      "This is the equipment I have available: ": "Voici l'équipement dont je dispose : ",
+      "Make me a workout plan": "Faites-moi un plan d'entraînement",
+      "How do I do a push up?": "Comment faire une pompe?",
     }
   },
   de: {
@@ -901,6 +931,12 @@ const resources = {
       "Further Clarification": "Weitere Erläuterungen",
       "Skip Tour": "Tour überspringen",
       "English": "Deutsch",
+      "Last": "Letzte",
+      "e.g., 5'8\"": "z.B., 5'8\"",
+      "Enter height in cm": "Geben Sie die Höhe in cm ein",
+      "This is the equipment I have available: ": "Das ist das verfügbare Equipment: ",
+      "Make me a workout plan": "Erstellen Sie mir einen Trainingsplan",
+      "How do I do a push up?": "Wie mache ich einen Liegestütz?",
     }
   },
   jp: {
@@ -1049,6 +1085,13 @@ const resources = {
       "Further Clarification": "さらなる説明",
       "Skip Tour": "ツアーをスキップ",
       "English": "日本語",
+      "Last": "最後",
+      "e.g., 5'8\"": "例：5'8\"",
+      "Enter height in cm": "身長をセンチメートルで入力してください",
+      "This is the equipment I have available: ": "これは私が利用可能な設備です：",
+      "Make me a workout plan": "ワークアウトプランを作成してください",
+      "How do I do a push up?": "腕立て伏せはどうやってやりますか？",
+
     }
   },
   kr: {
@@ -1197,6 +1240,13 @@ const resources = {
       "Further Clarification": "추가 설명",
       "Skip Tour": "투어 건너뛰기",
       "English":"한국어",
+      "Last": "마지막",
+      "e.g., 5'8\"": "예: 5'8\"",
+      "Enter height in cm": "키를 cm로 입력하세요",
+      "This is the equipment I have available: ": "사용 가능한 장비는 다음과 같습니다: ",
+      "Make me a workout plan": "운동 계획을 세워주세요",
+      "How do I do a push up?": "푸쉬업은 어떻게 하나요?",
+
     }
   }
 };

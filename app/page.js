@@ -481,30 +481,36 @@ export default function Home() {
             bgcolor="background.default"
             fontFamily="sans-serif"
           >
-            <Box width="100%" height="100%" bgcolor="background.default">
-              {/* get page from import */}
-              <Box display="flex" justifyContent="center" alignItems="center">
-                {pages[value]}
-              </Box>
-
-              {/* bottom navigation */}
-              <Toolbar />
-              <BottomNavigation
-                showLabels
-                value={value}
-                onChange={(event, newValue) => {
-                  setValue(newValue);
-                }}
-                sx={{ width: '100%', position: 'fixed', bottom: 0 }}
-              >
-                <BottomNavigationAction id = {'myinfo-step'} label={t("My Info")} icon={<HomeIcon />} />
-                <BottomNavigationAction id = {'equipment-step'} label={t("myEquipment")} icon={<FitnessCenter />} />
-                <BottomNavigationAction id = {'trainer-step'} label={t("trainerGPT")} icon={<Person />} />
-                <BottomNavigationAction id = {'pantry-step'} label={t("myPantry")} icon={<LocalDiningIcon />} />
-                <BottomNavigationAction id = {'plan-step'} label={t("Plan")} icon={<CalendarToday />} />
-              </BottomNavigation>
+            <Box
+              width="100%"
+              flex="1" // This makes sure the content takes up the remaining height
+              bgcolor="background.default"
+              overflow="auto" // Allows scrolling if content is taller than the available space
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              {pages[value]}
             </Box>
+
+            {/* bottom navigation */}
+            <Toolbar />
+            <BottomNavigation
+              showLabels
+              value={value}
+              onChange={(event, newValue) => {
+                setValue(newValue);
+              }}
+              sx={{ width: '100%', position: 'fixed', bottom: 0 }}
+            >
+              <BottomNavigationAction id={'myinfo-step'} label={t("My Info")} icon={<HomeIcon />} />
+              <BottomNavigationAction id={'equipment-step'} label={t("myEquipment")} icon={<FitnessCenter />} />
+              <BottomNavigationAction id={'trainer-step'} label={t("trainerGPT")} icon={<Person />} />
+              <BottomNavigationAction id={'pantry-step'} label={t("myPantry")} icon={<LocalDiningIcon />} />
+              <BottomNavigationAction id={'plan-step'} label={t("Plan")} icon={<CalendarToday />} />
+            </BottomNavigation>
           </Box>
+
         )}
       </ThemeProvider>
     </GuestContext.Provider>

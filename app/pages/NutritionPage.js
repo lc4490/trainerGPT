@@ -1015,9 +1015,18 @@ const NutritionPage = () => {
             )}
 
           {/* recipes */}
-          <Stack flexDirection="row">
+          <Stack 
+            direction="row" 
+            alignItems="center" 
+            justifyContent="space-between" 
+            paddingX={2} 
+            paddingY={1}
+          >
             {/* title */}
-            <Typography padding={2} variant="h4" color="text.primary" fontWeight="bold">{t("Recipes")}</Typography>
+            <Typography variant="h4" color="text.primary" fontWeight="bold">
+              {t("Recipes")}
+            </Typography>
+
             {/* search bar */}
             <Autocomplete
               freeSolo
@@ -1040,10 +1049,6 @@ const NutritionPage = () => {
                   onFocus={() => setIsFocusedRecipe(true)}
                   onBlur={() => setIsFocusedRecipe(false)}
                   sx={{
-                    position: 'absolute',
-                    right: "2%",
-                    paddingY: 1,
-                    transform: 'translateY(0%)',
                     width: isFocusedRecipe ? '25%' : `${Math.max(recipeSearchTerm.length, 0) + 5}ch`,
                     transition: 'width 0.3s',
                     '& .MuiOutlinedInput-root': {
@@ -1069,12 +1074,13 @@ const NutritionPage = () => {
                     ),
                   }}
                   InputLabelProps={{
-                    style: { color: 'text.primary', width: '100%', textAlign: 'center', right: '1%' },
+                    style: { color: 'text.primary', textAlign: 'center' },
                   }}
                 />
               )}
             />
           </Stack>
+
           <Divider />
           {/* recipes stack */}
           <Stack paddingX={2} flexDirection="row" alignItems="flex-start" style={{ overflow: 'scroll' }}>
@@ -1143,9 +1149,18 @@ const NutritionPage = () => {
           </Stack>
 
           {/* pantry */}
-          <Stack flexDirection="row">
+          <Stack 
+            direction="row" 
+            alignItems="center" 
+            justifyContent="space-between" 
+            paddingX={2} 
+            paddingY={1}
+          >
             {/* title */}
-            <Typography padding={2} variant="h4" color="text.primary" fontWeight="bold">{t('Pantry')}</Typography>
+            <Typography variant="h4" color="text.primary" fontWeight="bold">
+              {t('Pantry')}
+            </Typography>
+
             {/* search bar */}
             <Autocomplete
               freeSolo
@@ -1168,10 +1183,6 @@ const NutritionPage = () => {
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
                   sx={{
-                    position: 'absolute',
-                    right: "2%",
-                    paddingY: 1,
-                    transform: 'translateY(0%)',
                     width: isFocused ? '25%' : `${Math.max(searchTerm.length, 0) + 5}ch`,
                     transition: 'width 0.3s',
                     '& .MuiOutlinedInput-root': {
@@ -1197,12 +1208,13 @@ const NutritionPage = () => {
                     ),
                   }}
                   InputLabelProps={{
-                    style: { color: 'text.primary', width: '100%', textAlign: 'center', right: '1%' },
+                    style: { color: 'text.primary', textAlign: 'center' },
                   }}
                 />
               )}
             />
           </Stack>
+
           <Divider />
           <Box height={25}></Box>
           {/* pantry stack */}

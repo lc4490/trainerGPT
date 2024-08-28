@@ -27,9 +27,9 @@ const ChatLog = ({
   ];
 
   // Scroll to the bottom of the chat log when new messages arrive
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  // useEffect(() => {
+  //   chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // }, [messages]);
 
   // Hide suggestions when the user starts typing
   const handleInputChange = (e) => {

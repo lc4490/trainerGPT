@@ -6,7 +6,7 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
   en: {
     translation: {
-      "welcome": "Hi {{name}}! I'm trainerGPT, your personal AI trainer. Thanks for providing your information! Do you have access to any gym equipment? You can either tell me the names directly or use the 'myEquipment' page (located on the bottom app bar) to take photos of your equipment, and I'll identify them for you. After that, you can ask me to create a workout plan for you. If you have any questions about specific exercises, feel free to ask, and I'll be happy to help!",
+      "welcome": "Hi {{name}}! I'm trainerGPT, your personal AI trainer. Thanks for providing your information! How can I help you?",
       "send": "Send",
       "signIn": "Sign In",
       "signOut": "Sign Out",
@@ -167,7 +167,7 @@ const resources = {
   },
   cn: {
     translation: {
-      "welcome": "嗨 {{name}}！我是教练GPT，您的个人AI教练。感谢您提供信息！您是否有任何健身器材？您可以直接告诉我设备的名称，或者使用“我的设备”页面（位于应用程序底部栏）拍摄设备照片，我会为您识别它们。之后，您可以让我为您制定锻炼计划。如果您对特定的练习有任何问题，请随时询问，我很乐意为您提供帮助！",
+      "welcome": "嗨 {{name}}！我是trainerGPT，您的个人AI教练。感谢您提供信息！我能帮您什么吗？",
       "send": "发",
       "signIn": "登入",
       "signOut": "登出",
@@ -323,7 +323,7 @@ const resources = {
   },
   tc: {
     translation: {
-      "welcome": "嗨 {{name}}！我是教練GPT，您的個人AI教練。感謝您提供信息！您是否有任何健身器材？您可以直接告訴我設備的名稱，或者使用“我的設備”頁面（位於應用程序底部欄）拍攝設備照片，我會為您識別它們。之後，您可以讓我為您制定鍛鍊計劃。如果您對特定的練習有任何問題，請隨時詢問，我很樂意為您提供幫助！",
+      "welcome": "嗨 {{name}}！我是trainerGPT，您的個人AI教練。感謝您提供信息！我能幫您什麼嗎？",
       "send": "發送",
       "signIn": "登入",
       "signOut": "登出",
@@ -479,7 +479,7 @@ const resources = {
   },
   es: {
     translation: {
-      "welcome": "¡Hola {{name}}! Soy entrenadorGPT, tu entrenador personal de IA. ¡Gracias por proporcionar tu información! ¿Tienes acceso a algún equipo de gimnasio? Puedes decirme los nombres directamente o usar la página 'miEquipo' (ubicada en la barra inferior de la aplicación) para tomar fotos de tu equipo, y los identificaré por ti. Después de eso, puedes pedirme que cree un plan de entrenamiento para ti. Si tienes alguna pregunta sobre ejercicios específicos, no dudes en preguntar, ¡estaré encantado de ayudarte!",
+      "welcome": "¡Hola {{name}}! Soy entrenadorGPT, tu entrenador personal de IA. ¡Gracias por proporcionar tu información! ¿En qué puedo ayudarte?",
       "send": "Enviar",
       "signIn": "Iniciar sesión",
       "signOut": "Cerrar sesión",
@@ -635,7 +635,7 @@ const resources = {
   },
   fr: {
     translation: {
-      "welcome": "Salut {{name}} ! Je suis entraineurGPT, votre entraîneur personnel IA. Merci d'avoir fourni vos informations ! Avez-vous accès à un équipement de gym ? Vous pouvez me dire les noms directement ou utiliser la page 'monÉquipement' (située dans la barre inférieure de l'application) pour prendre des photos de votre équipement, et je les identifierai pour vous. Après cela, vous pouvez me demander de créer un plan d'entraînement pour vous. Si vous avez des questions sur des exercices spécifiques, n'hésitez pas à demander, je serai heureux de vous aider !",
+      "welcome": "Salut {{name}} ! Je suis entraineurGPT, votre entraîneur personnel IA. Merci d'avoir fourni vos informations ! Comment puis-je vous aider ?",
       "send": "Envoyer",
       "signIn": "Se connecter",
       "signOut": "Se déconnecter",
@@ -791,7 +791,7 @@ const resources = {
   },
   de: {
     translation: {
-      "welcome": "Hallo {{name}}! Ich bin trainerGPT, Ihr persönlicher KI-Trainer. Danke, dass Sie Ihre Informationen bereitgestellt haben! Haben Sie Zugang zu Fitnessgeräten? Sie können mir die Namen direkt nennen oder die Seite 'meineAusrüstung' (unten in der App-Leiste) verwenden, um Fotos von Ihrem Equipment zu machen, und ich werde sie für Sie identifizieren. Danach können Sie mich bitten, einen Trainingsplan für Sie zu erstellen. Wenn Sie Fragen zu bestimmten Übungen haben, fragen Sie gerne, und ich helfe Ihnen gerne weiter!",
+      "welcome": "Hallo {{name}}! Ich bin trainerGPT, Ihr persönlicher KI-Trainer. Danke, dass Sie Ihre Informationen bereitgestellt haben! Wie kann ich Ihnen helfen?",
       "send": "Senden",
       "signIn": "Anmelden",
       "signOut": "Abmelden",
@@ -947,7 +947,7 @@ const resources = {
   },
   jp: {
     translation: {
-      "welcome": "こんにちは {{name}}！私はトレーナーGPT、あなたの個人AIトレーナーです。情報提供ありがとうございます！ジムの器具をお持ちですか？直接名前を教えていただくか、アプリの下部バーにある「私の装置」ページを使用して、機器の写真を撮影することができます。その後、機器を特定します。その後、私にワークアウトプランを作成するように頼むことができます。特定のエクササイズについて質問があれば、お気軽にお尋ねください。喜んでお手伝いします！",
+      "welcome": "こんにちは {{name}}！私はトレーナーGPT、あなたの個人AIトレーナーです。情報提供ありがとうございます！何かお手伝いできることはありますか？",
       "send": "送信",
       "signIn": "サインイン",
       "signOut": "サインアウト",
@@ -1102,7 +1102,7 @@ const resources = {
   },
   kr: {
     translation: {
-      "welcome": "안녕하세요 {{name}}! 저는 트레이너GPT, 당신의 개인 AI 트레이너입니다. 정보를 제공해주셔서 감사합니다! 헬스 장비에 접근할 수 있나요? 이름을 직접 알려주시거나, 앱 하단 바에 위치한 '내 장비' 페이지를 사용하여 장비 사진을 찍어 주시면 제가 장비를 식별해 드리겠습니다. 그 후, 저에게 운동 계획을 세워달라고 요청할 수 있습니다. 특정 운동에 대한 질문이 있으면 언제든지 물어보세요, 기꺼이 도와드리겠습니다!",
+      "welcome": "안녕하세요 {{name}}! 저는 트레이너GPT, 당신의 개인 AI 트레이너입니다. 정보를 제공해주셔서 감사합니다! 무엇을 도와드릴까요?",
       "send": "보내다",
       "signIn": "로그인",
       "signOut": "로그아웃",

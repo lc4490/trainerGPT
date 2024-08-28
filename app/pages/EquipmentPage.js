@@ -848,9 +848,12 @@ const EquipmentPage = () => {
             )}
             
             {/* Equipment list */}
-            <Stack flexDirection="row">
+            <Stack direction="row" alignItems="center" justifyContent="space-between" paddingX={2} paddingY={1}>
               {/* title */}
-              <Typography padding={2} variant="h4" color="text.primary" fontWeight="bold">{t("Equipment")}</Typography>
+              <Typography variant="h4" color="text.primary" fontWeight="bold">
+                {t("Equipment")}
+              </Typography>
+              
               {/* search bar */}
               <Autocomplete
                 freeSolo
@@ -873,10 +876,6 @@ const EquipmentPage = () => {
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     sx={{
-                      position: 'absolute',
-                      right: "2%",
-                      paddingY: 1,
-                      transform: 'translateY(0%)',
                       width: isFocused ? '25%' : `${Math.max(searchTerm.length, 0) + 5}ch`,
                       transition: 'width 0.3s',
                       '& .MuiOutlinedInput-root': {
@@ -902,12 +901,13 @@ const EquipmentPage = () => {
                       ),
                     }}
                     InputLabelProps={{
-                      style: { color: 'text.primary', width: '100%', textAlign: 'center', right: '1%' },
+                      style: { color: 'text.primary', width: '100%', textAlign: 'center' },
                     }}
                   />
                 )}
               />
             </Stack>
+
             <Divider />
             <Box height={25}></Box>
             {/* equipments display */}

@@ -1506,7 +1506,15 @@ const TrainerGPTPage = () => {
                             fullWidth
                             variant="outlined"
                             value={formData[step.title] || ''}
-                            onChange={(e) => handleInputChange(step.title, e.target.value)}
+                            onChange={(e) => {
+                              if (step.title === 'What is Your Height?' && heightUnit === 'ft/in') {
+                                // Pass the value as-is for ft/in format, without converting to float
+                                handleInputChange(step.title, e.target.value);
+                              } else {
+                                // Convert the value to a float for all other cases
+                                handleInputChange(step.title, parseFloat(e.target.value));
+                              }
+                            }}
                             onKeyDown={handleKeyPressStep}
                             sx={{ mb: 4 }}
                             placeholder={
@@ -1543,13 +1551,25 @@ const TrainerGPTPage = () => {
                         </Box>
                       ) : (
                         <TextField
-                          type={step.inputType}
+                          type="text"
                           fullWidth
                           variant="outlined"
-                          onChange={(e) => handleInputChange(step.title, e.target.value)}
+                          value={formData[step.title] || ''}
+                          onChange={(e) => {
+                            if (step.title === 'How Old Are You?') {
+                              console.log('here');
+                              // Allow only numeric input for age
+                              const numericValue = e.target.value.replace(/[^0-9]/g, ''); // Remove any non-numeric characters
+                              handleInputChange(step.title, numericValue);
+                            } else {
+                              // Handle other input normally
+                              handleInputChange(step.title, e.target.value);
+                            }
+                          }}
                           onKeyDown={handleKeyPressStep}
                           sx={{ mb: 4 }}
                         />
+
                       )}
                     </>
                   )

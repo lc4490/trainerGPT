@@ -470,9 +470,9 @@ const MyInfoPage = () => {
       case 'Age':
         return (
           <TextField
-            type="number"
-            value={value || ''}
-            onChange={(e) => handleInputChange(key, e.target.value)}
+            type="text"
+            value={parseInt(value) || ''}
+            onChange={(e) => handleInputChange(key, parseInt(e.target.value))}
             fullWidth
             variant="outlined"
             sx={{ mb: 2 }}
@@ -599,19 +599,19 @@ const MyInfoPage = () => {
             }
             weightUnit = newUnit;
             handleInputChange(key, `${weightValue}${weightUnit}`);
-            handleWeightUnitChange(e, newUnit); // Update weight unit globally if necessary
+            // handleWeightUnitChange(e, newUnit); // Update weight unit globally if necessary
           }
         };
 
         return (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <TextField
-              type="number"
+              type="text"
               fullWidth
               variant="outlined"
               value={weightValue}
               onChange={(e) => {
-                const newWeightValue = e.target.value;
+                const newWeightValue = parseFloat(e.target.value);
                 handleInputChange(key, `${newWeightValue}${weightUnit}`);
               }}
               onKeyDown={handleKeyPress}
@@ -652,10 +652,6 @@ const MyInfoPage = () => {
                 heightUnit = 'ft/in';
             }
         }
-
-        console.log(value)
-        console.log(heightMatch)
-        console.log(heightUnit)
     
         const handleUnitChangeH = (e, newUnit) => {
             if (newUnit && newUnit !== heightUnit) {
@@ -687,8 +683,15 @@ const MyInfoPage = () => {
                     variant="outlined"
                     value={heightValue}
                     onChange={(e) => {
+                      if (heightUnit === 'ft/in') {
+                        // Pass the value as-is for ft/in format, without converting to float
                         const newHeightValue = e.target.value;
                         handleInputChange(key, `${newHeightValue}${heightUnit}`);
+                      } else {
+                        // Convert the value to a float for all other cases
+                        const newHeightValue = parseFloat(e.target.value);
+                        handleInputChange(key, `${newHeightValue}${heightUnit}`);
+                      }
                     }}
                     onKeyDown={handleKeyPress}
                     sx={{ mb: 4 }}
@@ -806,7 +809,6 @@ const MyInfoPage = () => {
       </Container>
     );
   }
-{console.log(formData)}
   return (
     // light/dark mode
     <ThemeProvider theme={theme}>
@@ -1331,7 +1333,15 @@ const MyInfoPage = () => {
                                   fullWidth
                                   variant="outlined"
                                   value={formData[step.title] || ''}
-                                  onChange={(e) => handleInputChange(step.title, e.target.value)}
+                                  onChange={(e) => {
+                                    if (step.title === 'What is Your Height?' && heightUnit === 'ft/in') {
+                                      // Pass the value as-is for ft/in format, without converting to float
+                                      handleInputChange(step.title, e.target.value);
+                                    } else {
+                                      // Convert the value to a float for all other cases
+                                      handleInputChange(step.title, parseFloat(e.target.value));
+                                    }
+                                  }}
                                   onKeyDown={handleKeyPress}
                                   sx={{ mb: 4 }}
                                   placeholder={

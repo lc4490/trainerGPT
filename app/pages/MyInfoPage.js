@@ -1378,11 +1378,22 @@ const MyInfoPage = () => {
                               </Box>
                             ) : (
                               <TextField
-                                type={step.inputType}
+                                type="text"
                                 fullWidth
                                 variant="outlined"
-                                onChange={(e) => handleInputChange(step.title, e.target.value)}
-                                onKeyDown={handleKeyPress}
+                                value={formData[step.title] || ''}
+                                onChange={(e) => {
+                                  if (step.title === 'How Old Are You?') {
+                                    console.log('here');
+                                    // Allow only numeric input for age
+                                    const numericValue = e.target.value.replace(/[^0-9]/g, ''); // Remove any non-numeric characters
+                                    handleInputChange(step.title, numericValue);
+                                  } else {
+                                    // Handle other input normally
+                                    handleInputChange(step.title, e.target.value);
+                                  }
+                                }}
+                                onKeyDown={handleKeyPressStep}
                                 sx={{ mb: 4 }}
                               />
                             )}

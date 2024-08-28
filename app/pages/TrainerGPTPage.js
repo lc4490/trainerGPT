@@ -227,12 +227,12 @@ const TrainerGPTPage = () => {
       setIsLoading(true);
       // if message includes equipment
       console.log(message)
-      let equipments;
+      let equipments = [];
       if (message.includes(":")) {
           let parts = message.split(":");
           if (parts[0].toLowerCase().includes("equipment")) {
               // Initial split by comma
-              equipments = parts[1].split(",");
+              equipments = parts[1].split(t(","));
               
               // If the result is a single item, try splitting by "and" or space
               if (equipments.length === 1) {
@@ -344,8 +344,6 @@ const TrainerGPTPage = () => {
           const updatedMessages = prevMessages.map((msg, index) =>
             index === prevMessages.length - 1 ? { ...msg, content: assistantResponse } : msg
           );
-
-          // Example processing of equipments
           equipments.forEach(async (equipment) => {
 
             const sanitizedItemName = equipment.replace(/\//g, ' and ');

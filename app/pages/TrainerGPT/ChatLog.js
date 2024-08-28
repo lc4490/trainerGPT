@@ -21,9 +21,9 @@ const ChatLog = ({
 
   // Example suggested inputs
   const suggestions = [
-    "This is the equipment I have available: ",
-    "Make me a workout plan",
-    "How do I do a push up?"
+    t("This is the equipment I have available: "),
+    t("Make me a workout plan"),
+    t("How do I do a push up?")
   ];
 
   // Scroll to the bottom of the chat log when new messages arrive

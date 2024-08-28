@@ -88,8 +88,8 @@ const StepForm = ({
                         sx={{ mb: 4 }}
                         placeholder={
                           step.title === 'What is Your Height?' && heightUnit === 'ft/in' 
-                            ? "e.g., 5'8\"" 
-                            : (step.title === 'What is Your Height?' ? "Enter height in cm" : "")
+                            ? t("e.g., 5'8\"") 
+                            : (step.title === 'What is Your Height?' ? t("Enter height in cm") : "")
                         }
                         InputProps={{
                           endAdornment: (

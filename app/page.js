@@ -408,7 +408,7 @@ export default function Home() {
             content: <Typography variant="h6">{t("For further clarification on what each page does, click the (i) icon at the top of the page.")}</Typography>,
             placement: "auto",
             target: "#info-icon", // Assuming there's an element with this ID
-            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
+            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back"), last: t("Last")  },
           },
         ]}
         hideCloseButton
@@ -463,7 +463,7 @@ export default function Home() {
             backgroundColor: currentTheme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.7)', // Dim the background
           },
         }}
-      />
+        />
       )}
         {/* demo slides */}
         {showDemoSlides ? (

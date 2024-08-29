@@ -231,16 +231,8 @@ const TrainerGPTPage = () => {
       if (message.includes(":")) {
           let parts = message.split(":");
           if (parts[0].toLowerCase().includes("equipment")) {
-              // Initial split by comma
-              equipments = parts[1].split(t(","));
-              
-              // If the result is a single item, try splitting by "and" or space
-              if (equipments.length === 1) {
-                  // Check if "and" is present and split by "and"
-                  if (equipments[0].toLowerCase().includes("and")) {
-                      equipments = equipments[0].split("and");
-                  }
-              }
+              // Split by comma first, then split each part by "and"
+              equipments = parts[1].split(",").flatMap(part => part.split("and"));
               
               // Trim whitespace from each equipment item
               equipments = equipments.map(equipment => equipment.trim());

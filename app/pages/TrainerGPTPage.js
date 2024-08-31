@@ -443,6 +443,7 @@ const TrainerGPTPage = () => {
         setMessages([{ role: 'assistant', content: personalizedWelcome }]);
       } else {
         setMessages([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
+        setGuestMessages([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
       }
     } catch (error) {
       console.error("Error clearing chat log:", error);

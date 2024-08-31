@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Box, Button, Stack, TextField, CircularProgress } from '@mui/material';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import PersonIcon from '@mui/icons-material/Person';
+import SendIcon from '@mui/icons-material/Send';
+import DeleteIcon from '@mui/icons-material/Delete'; 
 import ReactMarkdown from 'react-markdown';
 
 const ChatLog = ({
@@ -69,16 +71,25 @@ const ChatLog = ({
           direction="row"
           spacing={2}
           padding={2}
-          paddingX={isMobile ? 2 : 15}
-          justifyContent="center"
+          paddingX={isMobile ? 0 : 20}
+          justifyContent="space-between" // Align items to the start for horizontal scroll
           alignItems="center"
-          flexWrap="wrap"
+          flexWrap="nowrap" // Prevent wrapping
           sx={{
-            width: isMobile ? '100%' : '92.5%',
+            // width: isMobile ? '100%' : '92.5%',
             backgroundColor: 'background.paper',
             borderRadius: 2,
             boxShadow: 1,
             gap: 2,
+            overflowX: 'auto', // Enable horizontal scrolling
+            whiteSpace: 'nowrap', // Prevent items from breaking to the next line
+            '&::-webkit-scrollbar': {
+              height: '6px',
+            },
+            '&::-webkit-scrollbar-thumb': {
+              backgroundColor: 'rgba(0, 0, 0, 0.2)',
+              borderRadius: '3px',
+            },
           }}
         >
           {suggestions.map((suggestion, index) => (
@@ -112,17 +123,28 @@ const ChatLog = ({
         </Stack>
       )}
 
+
       {/* Input Field, Send Button, Clear Chat */}
-      <Stack direction="row" spacing={2} padding={2} sx={{ width: '100%', bottom: 0 }}>
-          <TextField
-            label={t('Message')}
-            fullWidth
-            value={message}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyPress}
-            disabled={isLoading}
-            aria-label={t('Message input field')}
-          />
+      <Stack direction="row" spacing={1} padding={2} sx={{ width: '100%', bottom: 0 }}>
+        <TextField
+          placeholder={t('Message')}
+          fullWidth
+          value={message}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyPress}
+          disabled={isLoading}
+          aria-label={t('Message input field')}
+          sx={{
+            borderRadius: '9999px', // Circular shape
+            '& .MuiInputBase-root': {
+              borderRadius: '9999px', // Circular input field
+            },
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderRadius: '9999px', // Circular outline
+            },
+            height: '48px', // Adjust the height to make it more circular
+          }}
+        />
         <Button
           variant="outlined"
           onClick={sendMessage}
@@ -130,6 +152,10 @@ const ChatLog = ({
           sx={{
             color: 'text.primary',
             borderColor: 'text.primary',
+            borderRadius: '9999px', // Circular shape
+            height: '48px', // Match height with TextField
+            width: '48px', // Make it circular
+            minWidth: '48px', // Ensure button stays circular
             '&:hover': {
               backgroundColor: 'text.primary',
               color: 'background.default',
@@ -137,15 +163,23 @@ const ChatLog = ({
             },
           }}
         >
-          {isLoading ? <CircularProgress size={24} /> : t('send')}
+          {isLoading ? <CircularProgress size={24} /> : <SendIcon />}
         </Button>
         <Button
-          onClick={clearChatLog}
+          onClick={() => {
+            if (window.confirm(t('Are you sure you want to delete the chat?'))) {
+              clearChatLog(); // Only clear the chat log if the user confirms
+            }
+          }}
           variant="outlined"
           disabled={isLoading}
           sx={{
             color: 'text.primary',
             borderColor: 'text.primary',
+            borderRadius: '9999px', // Circular shape
+            height: '48px', // Match height with TextField
+            width: '48px', // Make it circular
+            minWidth: '48px', // Ensure button stays circular
             '&:hover': {
               backgroundColor: 'text.primary',
               color: 'background.default',
@@ -153,9 +187,10 @@ const ChatLog = ({
             },
           }}
         >
-          {t('clear')}
+          <DeleteIcon />
         </Button>
       </Stack>
+
     </Stack>
   );
 };

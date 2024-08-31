@@ -159,7 +159,7 @@ const resources = {
       "Last":"Last",
       "e.g., 5'8\"":"e.g., 5'8\"",
       "Enter height in cm":"Enter height in cm",
-      "This is the equipment I have available: ":"This is the equipment I have available: ",
+      "This is the equipment I have available: ":"My available equipment: ",
       "Make me a workout plan":"Make me a workout plan",
       "How do I do a push up?":"How do I do a push up?",
       ",":",",

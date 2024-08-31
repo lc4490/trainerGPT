@@ -17,9 +17,7 @@ const ChatLog = ({
   isMobile
 }) => {
   const chatEndRef = useRef(null);
-  const textFieldRef = useRef(null); // Reference for the TextField
   const [showSuggestions, setShowSuggestions] = useState(messages.length <= 1);
-  const [showTextField, setShowTextField] = useState(true); // State to control TextField rendering
 
   const suggestions = [
     t("This is the equipment I have available: "),
@@ -37,10 +35,6 @@ const ChatLog = ({
   const handleSuggestionClick = (suggestion) => {
     setMessage(suggestion);
     setShowSuggestions(false);
-
-    // Temporarily unmount and remount the TextField to trigger autoFocus
-    setShowTextField(false);
-    setTimeout(() => setShowTextField(true), 0);
   };
 
   return (
@@ -120,9 +114,7 @@ const ChatLog = ({
 
       {/* Input Field, Send Button, Clear Chat */}
       <Stack direction="row" spacing={2} padding={2} sx={{ width: '100%', bottom: 0 }}>
-        {showTextField && (
           <TextField
-            ref={textFieldRef}
             label={t('Message')}
             fullWidth
             value={message}
@@ -130,9 +122,7 @@ const ChatLog = ({
             onKeyDown={handleKeyPress}
             disabled={isLoading}
             aria-label={t('Message input field')}
-            autoFocus // Enable autoFocus
           />
-        )}
         <Button
           variant="outlined"
           onClick={sendMessage}

@@ -485,7 +485,7 @@ export default function Home() {
               width="100%"
               flex="1" // This makes sure the content takes up the remaining height
               bgcolor="background.default"
-              overflow="auto" // Allows scrolling if content is taller than the available space
+              // overflow="auto" // Allows scrolling if content is taller than the available space
               display="flex"
               justifyContent="center"
               alignItems="center"

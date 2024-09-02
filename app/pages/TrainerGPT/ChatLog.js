@@ -18,7 +18,6 @@ const ChatLog = ({
   t,
   isMobile
 }) => {
-  const chatEndRef = useRef(null);
   const [showSuggestions, setShowSuggestions] = useState(messages.length <= 1);
 
   const suggestions = [
@@ -39,8 +38,26 @@ const ChatLog = ({
     setShowSuggestions(false);
   };
 
+  // scroll to bottom
+  const messagesEndRef = useRef(null)
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollToBottom();
+    }, 100); // Delay to allow DOM to update
+    return () => clearTimeout(timer);
+  }, [messages]);  
+
   return (
-    <Stack direction="column" width="100vw" minHeight={isMobile ? "80vh" : "90vh"} paddingBottom='60px'>
+    <Stack direction="column" width="100vw" 
+    minHeight={isMobile ? "80vh" : "90vh"} 
+    height={isMobile ? "80vh" : "90vh"} 
+    paddingBottom='60px'
+    >
       {/* Messages */}
       <Stack direction="column" spacing={2} flexGrow={1} overflow='auto' padding={2} className="chat-log">
         {console.log(messages)}
@@ -63,7 +80,8 @@ const ChatLog = ({
             )}
           </Box>
         ))}
-        <div ref={chatEndRef} />
+        <div ref={messagesEndRef} />
+        
       </Stack>
 
       {showSuggestions && (

@@ -47,7 +47,7 @@ const ChatLog = ({
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      scrollToBottom();
+      if(!isMobile){scrollToBottom();}
     }, 100); // Delay to allow DOM to update
     return () => clearTimeout(timer);
   }, [messages]);  

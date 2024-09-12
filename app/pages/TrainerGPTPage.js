@@ -46,6 +46,7 @@ const TrainerGPTPage = () => {
       setMessages([{ role: 'assistant', content: personalizedWelcome }]);
     } else {
       setMessages([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
+      setGuestMessages([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
     }
   };
   const handleLanguageChange = (event) => {
@@ -192,15 +193,7 @@ const TrainerGPTPage = () => {
       "Goals": data[('What is Your Goal?')] || t("Not available"),
       "Activity": data[('Physical Activity Level?')] || t("Not available"),
       "Health issues": data[('Do you have any existing health issues or injuries?')] || t("Not available"),
-      "Availability": data[('How many days a week can you commit to working out?')]
-        ? (() => {
-              const abbreviatedDays = data[('How many days a week can you commit to working out?')]
-                .map(day => t(day.substring(0, 3)))
-                .join(',');
-              return abbreviatedDays.length === 27 ? "Everyday" : abbreviatedDays;
-            })()
-          : t("Not available"),
-
+      "Availability": data[t('How many days a week can you commit to working out?')] || "Not available",
     };
     return ret;
   }
@@ -529,13 +522,13 @@ const TrainerGPTPage = () => {
   // Store preferred language on Firebase
   const setExercisePlan = async (response) => {
     if(response.includes(t("plan"))){
-      console.log(response)
       if (user) {
         const userId = user.id;
         const userDocRef = doc(firestore, 'users', userId);
         await setDoc(userDocRef, { plan: response }, { merge: true });
       }
       else{
+        console.log("guest")
         setGuestPlan(response)
       }
     }

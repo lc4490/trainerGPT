@@ -249,8 +249,8 @@ export default function Home() {
     <EquipmentPage key="equipment" />,
     <TrainerGPTPage key="trainerGPT" />,
     // <NutritionPage key = "nutrition" />,
+    <PlanPage key="plan" />,
     hasPremiumAccess ? <NutritionPage key="nutrition" /> : <PaywallPage key="paywall" />,
-    hasPremiumAccess ? <PlanPage key="plan" /> : <PaywallPage key="paywall" />,
   ];
 
   // paywall page (NOT DONE)
@@ -465,11 +465,6 @@ export default function Home() {
         }}
         />
       )}
-        {/* demo slides */}
-        {showDemoSlides ? (
-          <DemoSlides onFinish={handleDemoFinish} />
-        ) : (
-          // main box
           <Box
             width="100vw"
             height="100vh"
@@ -506,12 +501,11 @@ export default function Home() {
               <BottomNavigationAction id={'myinfo-step'} label={t("My Info")} icon={<HomeIcon />} />
               <BottomNavigationAction id={'equipment-step'} label={t("myEquipment")} icon={<FitnessCenter />} />
               <BottomNavigationAction id={'trainer-step'} label={t("trainerGPT")} icon={<Person />} />
+              <BottomNavigationAction id={'plan-step'} label={t("myPlanner")} icon={<CalendarToday />} />
               <BottomNavigationAction id={'pantry-step'} label={t("myPantry")} icon={<LocalDiningIcon />} />
-              <BottomNavigationAction id={'plan-step'} label={t("Plan")} icon={<CalendarToday />} />
             </BottomNavigation>
           </Box>
 
-        )}
       </ThemeProvider>
     </GuestContext.Provider>
   );

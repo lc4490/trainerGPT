@@ -3,3 +3,18 @@
   padding: 0;
   margin: 0;
 }
+@media (max-width: 768px) {
+/* Increase specificity with the following */
+.fc .fc-toolbar-title {
+  font-size: 1rem !important; /* Increases title size */
+}
+
+.fc .fc-button {
+  font-size: 0.8rem !important; /* Increases button text size */
+  padding: 5px !important;     /* Increases button padding */
+}
+
+.fc .fc-toolbar {
+  padding: 10px !important;     /* Adjusts toolbar padding */
+}
+}

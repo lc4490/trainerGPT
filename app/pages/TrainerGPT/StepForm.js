@@ -30,29 +30,7 @@ const StepForm = ({
             <Typography variant="body1" color="textSecondary" gutterBottom>{t(step.content)}</Typography>
 
             {step.options && step.inputType === 'checkbox' ? (
-              <FormGroup sx={{ mb: 4 }}>
-                {step.options.map((option) => (
-                  <FormControlLabel
-                    key={option}
-                    control={
-                      <Checkbox
-                        checked={formData[step.title]?.includes(option) || false}
-                        onChange={(e) => {
-                          const updatedSelection = e.target.checked
-                            ? [...(formData[step.title] || []), option]
-                            : formData[step.title].filter((day) => day !== option);
-
-                          const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-                          const sortedSelection = updatedSelection.sort((a, b) => daysOrder.indexOf(a) - daysOrder.indexOf(b));
-
-                          handleInputChange(step.title, sortedSelection);
-                        }}
-                      />
-                    }
-                    label={t(option)}
-                  />
-                ))}
-              </FormGroup>
+              <></>
             ) : step.options ? (
               <ToggleButtonGroup
                 exclusive

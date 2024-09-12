@@ -20,15 +20,17 @@ import { useContext } from 'react';
 import { GuestContext } from '../page'; // Adjust the path based on your structure
 // import icons
 import { Group } from '@mui/icons-material';
-// calendar
-// import WorkoutCalendar from './WorkoutCalendar'; // Adjust the import path
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
 // import ai
 import { OpenAI } from 'openai';
 // info button
 import InfoIcon from '@mui/icons-material/Info';
+
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid"
+import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction"
+import tiemGridPlugin from "@fullcalendar/timegrid"
+import WarningIcon from '@mui/icons-material/Warning';
+
 
 // light/dark themes
   const lightTheme = createTheme({
@@ -61,8 +63,89 @@ import InfoIcon from '@mui/icons-material/Info';
       },
     },
   });
-  // calendar 
-  const localizer = momentLocalizer(moment);
+
+  const customComponents = {
+    a: ({ href, children }) => (
+      <Link href={href} color="background.link" underline="hover">
+        {children}
+      </Link>
+    ),
+    p: ({ children }) => (
+      <Typography variant="body1" paragraph sx={{ marginBottom: 0, lineHeight: 1.6 }}>
+        {children}
+      </Typography>
+    ),
+    h1: ({ children }) => (
+      <Typography variant="h4" gutterBottom sx={{ marginTop: 0, marginBottom: 0 }}>
+        {children}
+      </Typography>
+    ),
+    h2: ({ children }) => (
+      <Typography variant="h5" gutterBottom sx={{ marginTop: 0, marginBottom: 0 }}>
+        {children}
+      </Typography>
+    ),
+    h3: ({ children }) => (
+      <Typography variant="h6" gutterBottom sx={{ marginTop: 0, marginBottom: 0 }}>
+        {children}
+      </Typography>
+    ),
+    ul: ({ children }) => (
+      <Box component="ul" sx={{ paddingLeft: 3, marginBottom: 0 }}>
+        {children}
+      </Box>
+    ),
+    ol: ({ children }) => (
+      <Box component="ol" sx={{ paddingLeft: 3, marginBottom: 0 }}>
+        {children}
+      </Box>
+    ),
+    blockquote: ({ children }) => (
+      <Box
+        component="blockquote"
+        sx={{
+          marginLeft: 2,
+          paddingLeft: 2,
+          borderLeft: '4px solid #ccc',
+          fontStyle: 'italic',
+          color: '#555',
+          marginBottom: 0,
+        }}
+      >
+        {children}
+      </Box>
+    ),
+    code: ({ children }) => (
+      <Box
+        component="code"
+        sx={{
+          backgroundColor: '#f5f5f5',
+          padding: '8px',
+          borderRadius: '4px',
+          fontFamily: 'monospace',
+          marginBottom: 0,
+        }}
+      >
+        {children}
+      </Box>
+    ),
+    pre: ({ children }) => (
+      <Box
+        component="pre"
+        sx={{
+          backgroundColor: '#f5f5f5',
+          padding: '8px',
+          borderRadius: '4px',
+          fontFamily: 'monospace',
+          overflowX: 'auto',
+          marginBottom: 0,
+        }}
+      >
+        {children}
+      </Box>
+    ),
+  };
+  
   
 const PlanPage = () => {
     const {guestPlan} = useContext(GuestContext)
@@ -71,8 +154,6 @@ const PlanPage = () => {
     const { user, isSignedIn } = useUser(); // Clerk user
     const [prefLanguage, setPrefLanguage] = useState('');
     const [plan, setPlan] = useState("");
-    const [events, setEvents] = useState([]);
-    const [selectedEvent, setSelectedEvent] = useState(null);
 
     const changeLanguage = (lng) => {
         i18n.changeLanguage(lng);
@@ -127,76 +208,33 @@ const PlanPage = () => {
     const theme = darkMode ? darkTheme : lightTheme;
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    // AI parsing plan to events
-    const openai = new OpenAI({
-      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-      dangerouslyAllowBrowser: true
-    })
-
-    const parsePlanToEvents = async (planText) => {
-      try {
-        const response = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [
-            { role: "user", content: `${planText}\nconvert this workout plan into a JavaScript array of event objects formatted as JSON, without any extra text, just pure JSON, like this:
-            const events = [
-              {
-                "title": "Upper Body Strength",
-                "start": "2024-08-19T09:00:00",
-                "end": "2024-08-19T10:00:00",
-                "details": 
-                "Warm-Up (5-10 minutes)\\nJumping jacks\\nArm circles\\nLight jogging\\n\\nWorkout:\\nSquats with Dumbbells: 3 sets of 12 reps\\nBench Press with Barbell: 3 sets of 10 reps\\nBent-Over Rows with Dumbbells: 3 sets of 12 reps\\nDumbbell Lunges: 3 sets of 10 reps per leg\\nPlank: 3 sets of 30 seconds\\n\\nCool-Down (5-10 minutes)\\nStretching\\nDeep breathing exercises"
-              }
-              // Add other events similarly...
-              For future weeks, when the plan says "repeat with increased intensity," copy the exact details from the previous week’s workout and simply add a note at the end indicating the increase in intensity. Do not summarize or generalize the workouts; provide the full workout details for each day, just like in week 1.
-            ]`
-            }
-          ],
-        });
+    const parsePlanToEvents = (planText) => {
+      const days = planText.split("Day").slice(1); // Split by each day and exclude the first element
+      const events = [];
     
-        const responseText = response.choices[0].message.content;
-        console.log("OpenAI Response Text:", responseText);
+      days.forEach(day => {
+        const [dayTitle, ...detailsArray] = day.trim().split('\n');
+        let event = {
+          title: `Day ${dayTitle.trim().replace(/[^a-zA-Z]+$/, '')}`, // Re-add "Day" prefix
+          details: `${detailsArray.join('\\n').trim().replace(/\\n/g, '  \n').replace(/[^a-zA-Z]+$/, '')}` 
+        };
+        events.push(event);
+      });
+      setEvents(events)
     
-        if (responseText) {
-          // Try parsing the response as JSON directly
-          let events;
-          try {
-            events = JSON.parse(responseText);
-          } catch (jsonError) {
-            // Fallback to extracting JSON string manually
-            const jsonString = responseText.match(/\[\s*{[\s\S]*}\s*]/)?.[0];
-            if (jsonString) {
-              events = JSON.parse(jsonString);
-            } else {
-              throw new Error("Could not find valid JSON in response.");
-            }
-          }
-    
-          if (events) {
-            setEvents(events);
-            console.log(events);
-            if(user){
-              const userId = user.id;
-              const userDocRef = doc(firestore, 'users', userId);
-              await setDoc(userDocRef, { events: events }, { merge: true });
-            }
-          }
-        }
-      } catch (error) {
-        console.error("Error in parsePlanToEvents:", error);
-      }
     };
+    
     // plan
     const getPlan = async () => {
-        if (user) {
-          const userId = user.id;
-          const userDocRef = doc(firestore, 'users', userId);
-          const userDoc = await getDoc(userDocRef);
-          return userDoc.exists() ? userDoc.data().plan : null;
-        }
-        else{
-            return guestPlan;
-        }
+      if (user) {
+        const userId = user.id;
+        const userDocRef = doc(firestore, 'users', userId);
+        const userDoc = await getDoc(userDocRef);
+        return userDoc.exists() ? userDoc.data().plan : null;
+      }
+      else{
+          return guestPlan;
+      }
     };
     useEffect(() => {
       const fetchPlan = async () => {
@@ -211,13 +249,20 @@ const PlanPage = () => {
             const fetchedPlan = await getPlan();
             setPlan(fetchedPlan);
             if (fetchedPlan) {
-              await parsePlanToEvents(fetchedPlan);
+              parsePlanToEvents(fetchedPlan);
             }
           }
-      }
+        }
+        else{
+          const fetchedPlan = await getPlan();
+            setPlan(fetchedPlan);
+            if (fetchedPlan) {
+              parsePlanToEvents(fetchedPlan);
+            }
+        }
       };
       fetchPlan();
-      }, [user]);
+      }, [user, guestPlan]);
 
       // if plan changed, update events
       useEffect(() => {
@@ -237,7 +282,7 @@ const PlanPage = () => {
                     if (newPlan) {
                         // Define an async function to handle the async logic
                         const updateEvents = async () => {
-                            await parsePlanToEvents(newPlan);
+                            parsePlanToEvents(newPlan);
                         };
     
                         // Call the async function
@@ -250,18 +295,83 @@ const PlanPage = () => {
         // Cleanup listener on component unmount
         return () => unsubscribe();
     }, [user, plan]);
-      // event modal
-      const handleEventClick = (event) => {
-        setSelectedEvent(event);
-      };
-
-      const handleCloseModal = () => {
-          setSelectedEvent(null);
-      };
       // open Info modal
       const [openInfoModal, setOpenInfoModal] = useState(false);
       const handleInfoModal = () => {
         setOpenInfoModal(true);
+      }
+
+      const [selectedEvent, setSelectedEvent] = useState(null);
+
+      // event modal
+      const handleEventClick = (data) => {
+        setSelectedEvent({
+          title: data.event.title,
+          details: data.event.extendedProps.details, // Assuming details are stored in extendedProps
+        });
+        setIdToDelete(Number(data.event.id))
+      };
+      
+
+      const handleCloseModal = () => {
+          setSelectedEvent(null);
+      };
+
+      const [events, setEvents] = useState([])
+      const [allEvents, setAllEvents] = useState([]);
+      const [showModal, setShowModal] = useState(false)
+      const [showDeleteModal, setShowDeleteModal] = useState(false)
+      const [idToDelete, setIdToDelete] = useState(0)
+      const [newEvent, setNewEvent] = useState({title: "", start: "", id: 0, allDay: false})
+    
+      useEffect(() => {
+        let draggableEl = document.getElementById('draggable-el')
+        if(draggableEl) {
+          new Draggable(draggableEl, {
+            itemSelector: ".fc-event",
+            eventData: function(eventEl) {
+              let title = eventEl.getAttribute('title')
+              let id = eventEl.getAttribute('data')
+              let start = eventEl.getAttribute('start')
+              return {title, id, start}
+            }
+          })
+        }
+        
+      }, [])
+    
+      const handleDateClick = (arg) => {
+        setNewEvent({ ...newEvent, start: arg.date, allDay: arg.allDay, id: new Date().getTime() });
+        setShowModal(true);
+      };  
+    
+      const addEvent = (data) => {
+        // Find the event from the `events` array based on the title of the dragged element
+        const eventTitle = data.draggedEl.innerText;
+        const selectedEvent = events.find((event) => event.title === eventTitle);
+      
+        // If the event exists in the array, use its details
+        const eventDetails = selectedEvent ? selectedEvent.details : "No details available";
+      
+        const event = {
+          ...newEvent,
+          start: data.date.toISOString(),
+          title: eventTitle,
+          allDay: data.allDay,
+          id: new Date().getTime(),
+          extendedProps: {
+            details: eventDetails, // Use the details from the selected event
+          },
+        };
+      
+        // Add the new event to the `allEvents` array
+        setAllEvents([...allEvents, event]);
+      };
+      
+      const handleDelete = () => {
+        setAllEvents(allEvents.filter(event => Number(event.id) !== Number(idToDelete)))
+        handleCloseModal()
+        setIdToDelete(null)
       }
     return(
         // light/dark theming
@@ -270,63 +380,83 @@ const PlanPage = () => {
         {/* main box */}
         <Box
           width="100vw"
-          height="100vh"
+          height="90vh"
           display="flex"
           flexDirection="column"
         >
           {/* event modal */}
           <Modal
-                    open={!!selectedEvent}
-                    onClose={handleCloseModal}
-                    aria-labelledby="event-modal-title"
-                    aria-describedby="event-modal-description"
-                >
-                    <Box
-                        overflow="auto"
-                        sx={{
-                          position: 'absolute',
-                          top: '50%',
-                          left: '50%',
-                          transform: 'translate(-50%, -50%)',
-                          width: 400,
-                          height: 400,
-                          bgcolor: 'background.default',
-                          border: '2px solid #000',
-                          boxShadow: 24,
-                          p: 4,
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                        }}
-                    >
-                      <Stack>
-                        <Typography id="event-modal-title" variant="h6" component="h2">
-                            {selectedEvent?.title}
-                        </Typography>
-                        <Typography id="event-modal-description" sx={{ mt: 2 }}>
-                            {selectedEvent?.details}
-                        </Typography>
-                      </Stack>
-                        <Button 
-                          variant="outlined"
-                          onClick={() => {
-                            handleCloseModal()
-                          }}
-                          sx={{
-                            backgroundColor: 'text.primary',
-                            color: 'background.default',
-                            borderColor: 'text.primary',
-                            '&:hover': {
-                              backgroundColor: 'darkgray',
-                              color: 'text.primary',
-                              borderColor: 'text.primary',
-                            },
-                          }}
-                        >
-                          {t('Close')}
-                        </Button>
-                    </Box>
+            open={!!selectedEvent}
+            onClose={handleCloseModal}
+            aria-labelledby="event-modal-title"
+            aria-describedby="event-modal-description"
+          >
+            <Box
+              overflow="auto"
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: "90%",
+                height: "90%",
+                bgcolor: 'background.default',
+                border: '2px solid #000',
+                boxShadow: 24,
+                p: 4,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Stack overflow={"scroll"}>
+                <Typography id="event-modal-title" variant="h6" component="h2">
+                  <ReactMarkdown components={customComponents}>{selectedEvent?.title}</ReactMarkdown>
+                </Typography>
+                
+                <Typography id="event-modal-description" sx={{ mt: 2 }}>
+                  <ReactMarkdown components={customComponents}>{selectedEvent?.details}</ReactMarkdown>
+                </Typography>
+              </Stack>
+              <Stack flexDirection = "row" display="flex" justifyContent={"end"} gap = {1}>
+                <Button
+                onClick={handleCloseModal}
+                sx={{
+                  justifyContent: "end",
+                  right: "2%",
+                  backgroundColor: 'background.default',
+                  color: 'text.primary',
+                  borderColor: 'text.primary',
+                  border: "1px",
+                  justifyContent: 'center',
+                  '&:hover': {
+                      backgroundColor: 'text.primary',
+                      color: 'background.default',
+                      borderColor: 'text.primary',
+                  },
+                  }}>
+                    Close</Button>
+                <Button
+                onClick={(handleDelete)}
+                sx={{
+                  justifyContent: "end",
+                  right: "2%",
+                  backgroundColor: 'red',
+                  color: 'white',
+                  borderColor: 'text.primary',
+                  justifyContent: 'center',
+                  '&:hover': {
+                      backgroundColor: 'text.primary',
+                      color: 'background.default',
+                      borderColor: 'text.primary',
+                  },
+                  }}>Delete</Button>
+                
+              </Stack>
+              
+            </Box>
           </Modal>
+
           {/* info modal */}
           <Modal open = {openInfoModal} onClose = {() => setOpenInfoModal(false)}>
               <Box 
@@ -374,6 +504,84 @@ const PlanPage = () => {
                   </Button>
               </Box>
             </Modal>
+          {/* delete modal */}
+          <Modal open={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
+            <Box
+              overflow="auto"
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 400,
+                height: 150,
+                bgcolor: 'background.default',
+                borderRadius: 1,
+                // border: '2px solid #000',
+                boxShadow: 24,
+                p: 4,
+                gap: 2,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <Stack flexDirection= 'row' gap= {2}>
+                {/* red triangle */}
+                <Box
+                  sx={{
+                    backgroundColor: '#FFCCBB', // Light red background
+                    borderRadius: '50%', // Circular shape
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 30, // Adjust size as needed
+                    height: 30,
+                  }}
+                >
+                  <WarningIcon sx={{ color: 'red', fontSize: "1rem"}} />
+                </Box>
+                <Stack flexDirection = 'column' gap = {0.5}>
+                  <Typography sx={{fontWeight: 550}}>Delete Event</Typography>
+                  <Typography sx={{fontWeight: 200, fontSize: "0.75rem"}}>Are you sure you want to delete this event?</Typography>
+                </Stack>
+              </Stack>
+              <Stack flexDirection = "row" display="flex" justifyContent={"end"} gap = {1}>
+                <Button
+                onClick={()=>setShowDeleteModal(false)}
+                sx={{
+                  justifyContent: "end",
+                  right: "2%",
+                  backgroundColor: 'background.default',
+                  color: 'text.primary',
+                  borderColor: 'text.primary',
+                  border: "1px",
+                  justifyContent: 'center',
+                  '&:hover': {
+                      backgroundColor: 'text.primary',
+                      color: 'background.default',
+                      borderColor: 'text.primary',
+                  },
+                  }}>
+                    Cancel</Button>
+                <Button
+                onClick={(handleDelete)}
+                sx={{
+                  justifyContent: "end",
+                  right: "2%",
+                  backgroundColor: 'red',
+                  color: 'white',
+                  borderColor: 'text.primary',
+                  justifyContent: 'center',
+                  '&:hover': {
+                      backgroundColor: 'text.primary',
+                      color: 'background.default',
+                      borderColor: 'text.primary',
+                  },
+                  }}>Delete</Button>
+                
+              </Stack>
+            </Box>
+          </Modal>
           {/* header box */}
           <Box
             height="10%"
@@ -392,7 +600,7 @@ const PlanPage = () => {
             {/* title */}
             <Box display="flex" flexDirection={"row"} alignItems={"center"} gap={1}>
               <Typography variant="h6" color="text.primary" textAlign="center">
-                {t('My Plan')}
+                {t('myPlanner')}
               </Typography>
               <Button 
                 onClick={handleInfoModal}
@@ -434,20 +642,82 @@ const PlanPage = () => {
                 </Box>
             </Box>
           </Box>
-          <Box width = "100%" height = "100%" marginBottom="60px">
-
           <Divider />
-          {/* {console.log(plan)} */}
-          {/* <ReactMarkdown>{plan}</ReactMarkdown> */}
-          <Calendar
-            localizer={localizer}
-            events={events}
-            startAccessor="start"
-            endAccessor="end"
-            onSelectEvent={handleEventClick}
-            toolbar={false}
-          />
-          </Box>
+          <Stack flexDirection = "column" maxHeight = {isMobile ? "100vh" : "90vh"} paddingBottom = "60px">
+            <Box
+              width = "100%"
+              // maxHeight = "100%"
+              overflow= "scroll"
+              backgroundColor="background.default"
+              >
+                <FullCalendar
+                  plugins = {[
+                    dayGridPlugin,
+                    interactionPlugin,
+                    tiemGridPlugin
+                  ]}
+                  headerToolbar = {{
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth timeGridWeek'
+                  }}          
+                  events = {allEvents}
+                  nowIndicator={true}
+                  editable={true}
+                  droppable={true}
+                  selectable={true}
+                  selectMirror = {true}
+                  dateClick = {handleDateClick}
+                  drop = {(data) => addEvent(data) }
+                  // eventClick={(data) => handleDeleteModal(data)}
+                  eventClick={(data) => handleEventClick(data)}
+                  aspectRatio={isMobile ? 1 : 2.5}
+                  
+                />
+                
+            </Box>
+            <Stack
+              id = "draggable-el"
+              // height ="100%"
+              backgroundColor = "background.bubbles"
+              flexDirection="row"
+              display = "flex"
+              alignItems={"center"}
+              spacing={1}
+              padding = {2}
+              gap = {isMobile ? 1 : 2.5}
+              overflow = "scroll"
+              height = {isMobile ? "100px" : "100px"}
+              // paddingTop={5}
+              >
+                <Box sx={{ width: isMobile ? "100%" : "auto"}}> {/* Full width for the container */}
+                  <Box 
+                    sx={{
+                      width: "110px" // Set width explicitly within the container
+                    }}>
+                    <Typography>Drag workouts into Calendar:</Typography>
+                  </Box>
+                </Box>
+
+                {events.map(event => (
+                  <Box
+                  className = "fc-event"
+                  title={event.title}
+                  key={event.id}
+                  // width = "200px"
+                  height =  "60px"
+                  backgroundColor="background.default"
+                  padding = {1}
+                  borderRadius = {1}
+                  sx={{whiteSpace: "nowrap"}}
+                  >
+                    {event.title}
+                  </Box>
+                
+                ))}
+
+            </Stack>
+          </Stack>
 
             </Box>
         </ThemeProvider>

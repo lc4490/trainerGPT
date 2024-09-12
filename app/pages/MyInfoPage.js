@@ -65,12 +65,7 @@ const steps = [
   { title: 'What is Your Goal?', content: 'Select your goal', options: ['Weight Loss', 'Muscle Gain', 'Improved Endurance', 'General Fitness'] },
   { title: 'Physical Activity Level?', content: 'Select your activity level', options: ['Sedentary', 'Moderate', 'Active'] },
   { title: 'Do you have any existing health issues or injuries?', content: 'Enter any existing health issues or injuries', inputType: 'string' },
-  { 
-    title: 'How many days a week can you commit to working out?', 
-    content: 'Select the days you can work out:', 
-    inputType: 'checkbox', 
-    options: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], 
-  },
+  { title: 'How many days a week can you commit to working out?', content: 'When can you workout?', inputType: 'string' },
 ];
 
 
@@ -294,15 +289,7 @@ const MyInfoPage = () => {
       "Goals": data[('What is Your Goal?')] || t("Not available"),
       "Activity": data[('Physical Activity Level?')] || t("Not available"),
       "Health issues": data[('Do you have any existing health issues or injuries?')] || t("Not available"),
-      "Availability": data[('How many days a week can you commit to working out?')]
-        ? (() => {
-              const abbreviatedDays = data[('How many days a week can you commit to working out?')]
-                .map(day => t(day.substring(0, 3)))
-                .join(',');
-              return abbreviatedDays.length === 27 ? "Everyday" : abbreviatedDays;
-            })()
-          : t("Not available"),
-
+      "Availability": data[t('How many days a week can you commit to working out?')] || "Not available",
     };
     return ret;
   }
@@ -519,71 +506,7 @@ const MyInfoPage = () => {
             ))}
           </ToggleButtonGroup>
         );
-  
-      case 'Availability':
-        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        const abbreviations = {
-          'Monday': 'Mon',
-          'Tuesday': 'Tue',
-          'Wednesday': 'Wed',
-          'Thursday': 'Thu',
-          'Friday': 'Fri',
-          'Saturday': 'Sat',
-          'Sunday': 'Sun'
-        };
-      
-        return (
-          <FormGroup 
-            sx={{ 
-              mb: 2, 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(2, 1fr)', // Two columns
-              gap: 1,  // Adds some gap between the checkboxes
-            }}
-          >
-            {daysOfWeek.map(day => (
-              <FormControlLabel
-                key={day}
-                control={
-                  <Checkbox
-                    checked={value === 'Everyday' || value?.includes(abbreviations[day])}
-                    onChange={(e) => {
-                      let updatedSelection;
-      
-                      if (e.target.checked) {
-                        // If 'Everyday' was the previous value, convert it to an array of all days
-                        if (value === 'Everyday') {
-                          updatedSelection = daysOfWeek.map(d => abbreviations[d]);
-                        } else {
-                          // Otherwise, just add the current day abbreviation to the selection
-                          updatedSelection = [...(value ? value.split(',') : []), abbreviations[day]];
-                        }
-      
-                        // If all days are selected, set value to 'Everyday'
-                        if (updatedSelection.length === 7) {
-                          updatedSelection = 'Everyday';
-                        } else {
-                          updatedSelection = updatedSelection.join(',');
-                        }
-                      } else {
-                        // If the current value is 'Everyday', remove the unchecked day
-                        updatedSelection = value === 'Everyday' 
-                          ? daysOfWeek.map(d => abbreviations[d]).filter(d => d !== abbreviations[day]) 
-                          : value.split(',').filter(selectedDay => selectedDay !== abbreviations[day]);
-                        
-                        updatedSelection = updatedSelection.length === 0 ? '' : updatedSelection.join(',');
-                      }
-      
-                      handleInputChange(key, updatedSelection);
-                    }}
-                  />
-                }
-                label={t(day)}
-              />
-            ))}
-          </FormGroup>
-        );
-      
+       
       case 'Weight':
         // Extract numeric value and unit from the string
         const weightMatch = value.match(/(\d+\.?\d*)(kg|lbs)/);

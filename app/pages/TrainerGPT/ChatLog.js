@@ -60,7 +60,6 @@ const ChatLog = ({
     >
       {/* Messages */}
       <Stack direction="column" spacing={2} flexGrow={1} overflow='auto' padding={2} className="chat-log">
-        {console.log(messages)}
         {messages?.map((message, index) => (
           <Box key={index} display="flex" justifyContent={message.role === 'assistant' ? 'flex-start' : 'flex-end'}>
             {message.role === 'assistant' && (

@@ -21,8 +21,6 @@ import NutritionPage from './pages/NutritionPage';
 // use translation
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
-// demo slides
-import DemoSlides from './pages/DemoSlides';
 // clerk
 import { useUser, redirectToSignIn } from "@clerk/nextjs";
 // stripe
@@ -83,6 +81,7 @@ export default function Home() {
   const [guestEquipment, setGuestEquipment] = useState([])
   const [guestMessages, setGuestMessages] = useState([])
   const [guestPlan, setGuestPlan] = useState('')
+  const [guestEvents, setGuestEvents] = useState([])
   // guest mode hooks
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -114,6 +113,7 @@ export default function Home() {
   const [localEquipment, setLocalEquipment] = useState([])
   const [localMessages, setLocalMessages] = useState([])
   const [localPlan, setLocalPlan] = useState('')
+  const [localEvents, setLocalEvents] = useState([])
 
   // light/dark theme
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -300,7 +300,7 @@ export default function Home() {
 
   return (
     // guest mode
-    <GuestContext.Provider value={{ guestData, setGuestData, guestImage, setGuestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages, guestPlan, setGuestPlan, localData, setLocalData, localImage, setLocalImage, localEquipment, setLocalEquipment, localMessages, setLocalMessages, localPlan, setLocalPlan}}>
+    <GuestContext.Provider value={{ guestData, setGuestData, guestImage, setGuestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages, guestPlan, setGuestPlan, guestEvents, setGuestEvents, localData, setLocalData, localImage, setLocalImage, localEquipment, setLocalEquipment, localMessages, setLocalMessages, localPlan, setLocalPlan, localEvents, setLocalEvents}}>
       {/* light/dark mode */}
       <ThemeProvider theme={currentTheme}>
         <CssBaseline />

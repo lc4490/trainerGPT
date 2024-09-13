@@ -390,17 +390,17 @@ export default function Home() {
             locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
           },
           {
-            title: t("Craft Recipes"),
-            content: <Typography variant="h6">{t("*Premium only* Use this page to craft recipes from the ingredients you have available.")}</Typography>,
-            placement: "auto",
-            target: "#pantry-step",
-            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
-          },
-          {
             title: t("View Your Plan"),
             content: <Typography variant="h6">{t("*Premium only* Use this page to view your plan on a calendar, and find out when your friends are available to workout!")}</Typography>,
             placement: "auto",
             target: "#plan-step",
+            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
+          },
+          {
+            title: t("Craft Recipes"),
+            content: <Typography variant="h6">{t("*Premium only* Use this page to craft recipes from the ingredients you have available.")}</Typography>,
+            placement: "auto",
+            target: "#pantry-step",
             locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
           },
           {

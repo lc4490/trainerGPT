@@ -148,7 +148,7 @@ import WarningIcon from '@mui/icons-material/Warning';
   
   
 const PlanPage = () => {
-    const {guestPlan} = useContext(GuestContext)
+    const {guestPlan, guestEvents, setGuestEvents} = useContext(GuestContext)
     // Implementing multi-languages
     const { t, i18n } = useTranslation();
     const { user, isSignedIn } = useUser(); // Clerk user
@@ -319,7 +319,6 @@ const PlanPage = () => {
 
       const [events, setEvents] = useState([])
       const [allEvents, setAllEvents] = useState([]);
-      const [showModal, setShowModal] = useState(false)
       const [showDeleteModal, setShowDeleteModal] = useState(false)
       const [idToDelete, setIdToDelete] = useState(0)
       const [newEvent, setNewEvent] = useState({title: "", start: "", id: 0, allDay: false})
@@ -339,11 +338,6 @@ const PlanPage = () => {
         }
         
       }, [])
-    
-      const handleDateClick = (arg) => {
-        setNewEvent({ ...newEvent, start: arg.date, allDay: arg.allDay, id: new Date().getTime() });
-        setShowModal(true);
-      };  
     
       const addEvent = (data) => {
         // Find the event from the `events` array based on the title of the dragged element
@@ -365,14 +359,90 @@ const PlanPage = () => {
         };
       
         // Add the new event to the `allEvents` array
-        setAllEvents([...allEvents, event]);
+        if(user){
+          setAllEvents([...allEvents, event]);
+        }
+        else{
+          setGuestEvents([...guestEvents, event]);
+        }
       };
       
-      const handleDelete = () => {
-        setAllEvents(allEvents.filter(event => Number(event.id) !== Number(idToDelete)))
+      const handleDelete = async () => {
+        if(user){
+          setAllEvents(allEvents.filter(event => Number(event.id) !== Number(idToDelete)))
+        }
+        else{
+          setGuestEvents(guestEvents.filter(event => Number(event.id) !== Number(idToDelete)));
+        }
         handleCloseModal()
         setIdToDelete(null)
       }
+
+      useEffect(() => {
+        const updateEventsInFirestore = async () => {
+          if (user) {
+            const userId = user.id;
+            const eventsCollectionRef = collection(firestore, 'users', userId, 'events');
+      
+            try {
+              // Fetch all events in Firestore
+              const querySnapshot = await getDocs(eventsCollectionRef);
+      
+              // Delete each event
+              const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
+              await Promise.all(deletePromises);
+      
+              console.log("All events deleted successfully.");
+      
+              // Re-upload all the events in `allEvents`
+              allEvents.forEach(async (event) => {
+                const docRef = doc(firestore, 'users', userId, 'events', event.id.toString());
+      
+                // Upload the new event to Firestore
+                await setDoc(docRef, event);
+              });
+      
+              console.log("All events updated in Firestore.");
+            } catch (error) {
+              console.error("Error updating events in Firestore:", error);
+            }
+          }
+        };
+      
+        if (allEvents.length > 0) {
+          updateEventsInFirestore();
+        }
+      }, [allEvents, user]);
+      
+      
+      const updateEvents = async () => {
+        if (user) {
+          const userId = user.id;
+          const docRef = collection(firestore, 'users', userId, 'events');
+          const docs = await getDocs(docRef);
+          const events = [];
+          docs.forEach((doc) => {
+            events.push({ name: doc.id, ...doc.data() });
+          });
+          setAllEvents(events);
+        }
+        else{
+          setAllEvents(guestEvents)
+        }
+      };
+    
+      // update equipment everytime the user changes or guestEquipment changes
+      useEffect(() => {
+          updateEvents();
+      }, [user, guestEvents]);
+
+      // when logging out, setEvents to blank
+      useEffect(()=> {
+        if(!user){
+          setEvents([])
+        }
+
+      }, [user])
     return(
         // light/dark theming
         <ThemeProvider theme={theme}>
@@ -667,7 +737,6 @@ const PlanPage = () => {
                   droppable={true}
                   selectable={true}
                   selectMirror = {true}
-                  dateClick = {handleDateClick}
                   drop = {(data) => addEvent(data) }
                   // eventClick={(data) => handleDeleteModal(data)}
                   eventClick={(data) => handleEventClick(data)}

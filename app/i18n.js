@@ -163,6 +163,9 @@ const resources = {
       "Make me a workout plan":"Make me a workout plan",
       "How do I do a push up?":"How do I do a push up?",
       ",":",",
+      "days":"days",
+      "Select the number of workout days":"Select the number of workout days",
+      "myPlanner":"myPlanner",
     }
   },
   cn: {
@@ -319,6 +322,9 @@ const resources = {
       "Make me a workout plan": "为我制定一个锻炼计划",
       "How do I do a push up?": "我该如何做俯卧撑？",
       ",":"，",
+      "days": "天",
+      "Select the number of workout days": "选择锻炼天数",
+      "myPlanner": "我的计划",
     }
   },
   tc: {
@@ -475,6 +481,9 @@ const resources = {
       "Make me a workout plan": "為我制定一個鍛鍊計劃",
       "How do I do a push up?": "我該如何做俯臥撐？",
       ",":"，",
+      "days": "天",
+      "Select the number of workout days": "選擇鍛鍊天數",
+      "myPlanner": "我的計劃",
     }
   },
   es: {
@@ -631,6 +640,9 @@ const resources = {
       "Make me a workout plan": "Hazme un plan de entrenamiento",
       "How do I do a push up?": "¿Cómo hago una flexión?",
       ",":",",
+      "days": "días",
+      "Select the number of workout days": "Selecciona el número de días de entrenamiento",
+      "myPlanner": "miPlanificador",
     }
   },
   fr: {
@@ -787,6 +799,9 @@ const resources = {
       "Make me a workout plan": "Faites-moi un plan d'entraînement",
       "How do I do a push up?": "Comment faire une pompe?",
       ",":",",
+      "days": "jours",
+      "Select the number of workout days": "Sélectionnez le nombre de jours d'entraînement",
+      "myPlanner": "monPlanificateur",
     }
   },
   de: {
@@ -943,6 +958,9 @@ const resources = {
       "Make me a workout plan": "Erstellen Sie mir einen Trainingsplan",
       "How do I do a push up?": "Wie mache ich einen Liegestütz?",
       ",":",",
+      "days": "Tage",
+      "Select the number of workout days": "Wählen Sie die Anzahl der Trainingstage",
+      "myPlanner": "meinPlaner",
     }
   },
   jp: {
@@ -1098,6 +1116,9 @@ const resources = {
       "Make me a workout plan": "ワークアウトプランを作成してください",
       "How do I do a push up?": "腕立て伏せはどうやってやりますか？",
       ",":"、",
+      "days": "日",
+      "Select the number of workout days": "ワークアウト日数を選択してください",
+      "myPlanner": "マイプランナー",
     }
   },
   kr: {
@@ -1253,6 +1274,9 @@ const resources = {
       "Make me a workout plan": "운동 계획을 세워주세요",
       "How do I do a push up?": "푸쉬업은 어떻게 하나요?",
       ",":",",
+      "days": "일",
+      "Select the number of workout days": "운동 일수를 선택하세요",
+      "myPlanner": "내 플래너",
     }
   }
 };

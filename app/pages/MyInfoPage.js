@@ -2,7 +2,7 @@
 // base imports
 import { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Select, MenuItem, Container, Box, Typography, Button, TextField, ToggleButtonGroup, ToggleButton, CircularProgress, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack, Grid, FormControl, InputLabel, NativeSelect, FormGroup, FormControlLabel, Checkbox } from '@mui/material';
+import { Select, MenuItem, Container, Box, Typography, Button, TextField, ToggleButtonGroup, ToggleButton, CircularProgress, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack, Grid, FormControl, InputLabel, NativeSelect, FormGroup, FormControlLabel, Checkbox, Slider } from '@mui/material';
 // Firebase imports
 import { firestore } from '../firebase'
 import { collection, getDocs, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
@@ -65,7 +65,7 @@ const steps = [
   { title: 'What is Your Goal?', content: 'Select your goal', options: ['Weight Loss', 'Muscle Gain', 'Improved Endurance', 'General Fitness'] },
   { title: 'Physical Activity Level?', content: 'Select your activity level', options: ['Sedentary', 'Moderate', 'Active'] },
   { title: 'Do you have any existing health issues or injuries?', content: 'Enter any existing health issues or injuries', inputType: 'string' },
-  { title: 'How many days a week can you commit to working out?', content: 'When can you workout?', inputType: 'string' },
+  { title: 'How many days a week can you commit to working out?', content: 'Select the number of workout days', inputType: 'dial', range: { min: 1, max: 7 } },
 ];
 
 
@@ -635,6 +635,23 @@ const MyInfoPage = () => {
             </Box>
         );
       
+      case 'Availability':
+        // Adding the slider (dial) for workout days
+        return (
+          <Box sx={{ mb: 4 }}>
+            <Typography gutterBottom>{t('Availability')}</Typography>
+            <Slider
+              defaultValue={value || 3}  // Default value if no value is set
+              step={1}
+              marks
+              min={1}
+              max={7}
+              valueLabelDisplay="auto"
+              value={value || 1} // Default to 1 day if no value exists
+              onChange={(e, newValue) => handleInputChange(key, newValue)}
+            />
+          </Box>
+        );
         default:
         return (
           <TextField
@@ -1171,18 +1188,7 @@ const MyInfoPage = () => {
                                   color: 'text.secondary', // Subtle color for secondary text
                                 }}
                               >
-                                {/* display each value for key, except for Availability. For Availability, split by comma and translate each day. */}
-                                {key === 'Availability' 
-                                  ? formData[key]
-                                      .split(',')
-                                      .map(day => t(day)) // Translate each day abbreviation
-                                      .sort((a, b) => {
-                                        const dayOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-                                        return dayOrder.indexOf(a) - dayOrder.indexOf(b);
-                                      })
-                                      .join(', ')
-                                  : t(formData[key]) || 'N/A'
-                                }
+                                {key === 'Availability' ? `${formData[key]} ${t("days")}` : formData[key]}
                               </Typography>
                             )}
                           </Grid>
@@ -1206,33 +1212,7 @@ const MyInfoPage = () => {
                       <Typography variant="body1" color="textSecondary" gutterBottom>{t(step.content)}</Typography>
       
                       {/* Handle different input types */}
-                      {step.options && step.inputType === 'checkbox' ? (
-                        <FormGroup sx={{ mb: 4 }}>
-                          {step.options.map((option) => (
-                            <FormControlLabel
-                              key={option}
-                              control={
-                                <Checkbox
-                                  checked={formData[step.title]?.includes(option) || false}
-                                  onChange={(e) => {
-                                    const updatedSelection = e.target.checked
-                                      ? [...(formData[step.title] || []), option]
-                                      : formData[step.title].filter((day) => day !== option);
-      
-                                    // Sort the selected days in order
-                                    const daysOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-                                    const sortedSelection = updatedSelection.sort((a, b) => daysOrder.indexOf(a) - daysOrder.indexOf(b));
-      
-                                    // Update the formData with the sorted selection
-                                    handleInputChange(step.title, sortedSelection);
-                                  }}
-                                />
-                              }
-                              label={t(option)}
-                            />
-                          ))}
-                        </FormGroup>
-                      ) : step.options ? (
+                      {step.options ? (
                         <ToggleButtonGroup
                           exclusive
                           value={formData[step.title] || ''}
@@ -1298,6 +1278,19 @@ const MyInfoPage = () => {
                                     ]
                                   )}
                                 </ToggleButtonGroup>
+                              </Box>
+                            ) : step.inputType === 'dial' ? (
+                              <Box sx={{ mb: 4 }}>
+                                <Slider
+                                  defaultValue={3}
+                                  step={1}
+                                  marks
+                                  min={1}
+                                  max={7}
+                                  valueLabelDisplay="auto"
+                                  value={formData[step.title] || 1} // Default to 1 day if no value exists
+                                  onChange={(e, value) => handleInputChange(step.title, value)}
+                                />
                               </Box>
                             ) : (
                               <TextField

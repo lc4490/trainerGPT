@@ -44,9 +44,11 @@ const TrainerGPTPage = () => {
       const displayName = user.fullName || 'User';
       const personalizedWelcome = t('welcome', { name: displayName });
       setMessages([{ role: 'assistant', content: personalizedWelcome }]);
+      setLocalMessages([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
     } else {
       setMessages([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
       setGuestMessages([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
+      setLocalMessages([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
     }
   };
   const handleLanguageChange = (event) => {

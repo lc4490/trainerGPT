@@ -1,4 +1,4 @@
-import { Container, Box, Button, FormGroup, FormControlLabel, Checkbox, TextField, ToggleButtonGroup, ToggleButton, Typography } from '@mui/material';
+import { Container, Box, Button, FormGroup, FormControlLabel, Checkbox, TextField, ToggleButtonGroup, ToggleButton, Typography, Slider } from '@mui/material';
 import { motion } from 'framer-motion';
 
 const StepForm = ({
@@ -29,9 +29,7 @@ const StepForm = ({
             <Typography variant="h4" gutterBottom>{t(step.title)}</Typography>
             <Typography variant="body1" color="textSecondary" gutterBottom>{t(step.content)}</Typography>
 
-            {step.options && step.inputType === 'checkbox' ? (
-              <></>
-            ) : step.options ? (
+            {step.options ? (
               <ToggleButtonGroup
                 exclusive
                 value={formData[step.title] || ''}
@@ -96,6 +94,19 @@ const StepForm = ({
                         )}
                       </ToggleButtonGroup>
                     </Box>
+                  ) : step.inputType === 'dial' ? (
+                    <Box sx={{ mb: 4 }}>
+                      <Slider
+                        defaultValue={3}
+                        step={1}
+                        marks
+                        min={1}
+                        max={7}
+                        valueLabelDisplay="auto"
+                        value={formData[step.title] || 1} // Default to 1 day if no value exists
+                        onChange={(e, value) => handleInputChange(step.title, value)}
+                      />
+                    </Box>
                   ) : (
                     <TextField
                       type="text"
@@ -137,6 +148,7 @@ const StepForm = ({
             </Box>
           </motion.div>
         ))}
+
       </Box>
     </Container>
   );

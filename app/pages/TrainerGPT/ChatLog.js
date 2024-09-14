@@ -53,7 +53,7 @@ const ChatLog = ({
   }, [messages]);  
 
   return (
-    <Stack direction="column" width="100vw" 
+    <Stack direction="column" width="100%" 
     minHeight={isMobile ? "80vh" : "90vh"} 
     height={isMobile ? "80vh" : "90vh"} 
     paddingBottom='60px'

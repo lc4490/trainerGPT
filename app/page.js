@@ -69,8 +69,6 @@ export default function Home() {
   // router
   const router = useRouter();
   const searchParams = useSearchParams();
-  // demo slides
-  const [showDemoSlides, setShowDemoSlides] = useState(false);
   // use translation
   const { t } = useTranslation();
   // user
@@ -272,11 +270,6 @@ export default function Home() {
       </Box>
     );
   }
-
-  // demo slides
-  const handleDemoFinish = () => {
-    setShowDemoSlides(false);
-  };
 
   // tutorial
   const [mounted, setMounted] = useState(false);

@@ -2,7 +2,7 @@
 
 // base imports
 import { useEffect, useState, } from 'react';
-import { Box, Typography, Button, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack} from '@mui/material';
+import { Box, Typography, Button, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack, Menu, MenuItem} from '@mui/material';
 // Firebase imports
 import { firestore } from '../firebase'
 import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, onSnapshot } from 'firebase/firestore';
@@ -20,6 +20,7 @@ import { GuestContext } from '../page'; // Adjust the path based on your structu
 import { Group } from '@mui/icons-material';
 // info button
 import InfoIcon from '@mui/icons-material/Info';
+import MenuIcon from '@mui/icons-material/Menu';
 
 // calendar
 import FullCalendar from "@fullcalendar/react";
@@ -93,6 +94,106 @@ const PlanPage = () => {
     const theme = darkMode ? darkTheme : lightTheme;
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+    // menu + calendar exporting
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+
+    const handleMenuClick = (event) => {
+      setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = (action) => {
+      if (action === 'export') {
+          exportEvents(); // Call the export function when Export is clicked
+      }
+      setAnchorEl(null);
+    };
+
+    // import calendar fucntion
+    const handleFileImport = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+    
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const icsData = e.target.result;
+    
+        // Send the ICS data to the server-side API for parsing
+        const response = await fetch('/api/ical', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ icsData }),
+        });
+    
+        const { events } = await response.json();
+    
+        // Modify each event to add an id and set default color to red
+        const modifiedEvents = events.map((event) => ({
+          ...event,
+          id: event.id || new Date().getTime().toString() + Math.random(), // Generate a unique id
+          backgroundColor: 'orange',
+        }));
+    
+        // Add imported events to FullCalendar
+        if (user) {
+          setAllEvents([...allEvents, ...modifiedEvents]);
+        } else {
+          setGuestEvents([...guestEvents, ...modifiedEvents]);
+        }
+      };
+    
+      reader.readAsText(file); // Read the file as text
+    };
+    
+
+    // export calendar function
+    const exportEvents = () => {
+      const eventsToExport = user ? allEvents : guestEvents; // Select events based on user status
+  
+      // Create the iCalendar header
+      let icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//YourAppName//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n`;
+  
+      // Iterate through the events and format them for iCalendar
+      eventsToExport.forEach(event => {
+          const { title, start, end, allDay, extendedProps } = event;
+  
+          // Convert dates to the iCalendar format (YYYYMMDDTHHMMSSZ)
+          const startDate = new Date(start).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+          const endDate = end ? new Date(end).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z' : null;
+  
+          icsContent += `BEGIN:VEVENT\n`;
+          icsContent += `SUMMARY:${title}\n`;
+          icsContent += `UID:${event.id}@yourapp.com\n`; // Unique ID for each event
+          icsContent += `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').split('.')[0]}Z\n`; // Current time
+          icsContent += `DTSTART:${startDate}\n`;
+          if (endDate) icsContent += `DTEND:${endDate}\n`;
+          if (allDay) icsContent += `X-MICROSOFT-CDO-ALLDAYEVENT:TRUE\n`;
+  
+          if (extendedProps?.details) {
+              icsContent += `DESCRIPTION:${extendedProps.details.replace(/\n/g, '\\n')}\n`; // Escape newlines
+          }
+  
+          icsContent += `END:VEVENT\n`;
+      });
+  
+      // Add the iCalendar footer
+      icsContent += `END:VCALENDAR`;
+  
+      // Create a Blob from the iCalendar content
+      const blob = new Blob([icsContent], { type: 'text/calendar' });
+  
+      // Create a link to trigger the download of the .ics file
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'calendar-events.ics'; // The downloaded file will have the .ics extension
+  
+      // Append the link to the document and trigger the download
+      document.body.appendChild(link);
+      link.click();
+  
+      // Clean up by removing the link element
+      document.body.removeChild(link);
+    };
     // get plan from firebase or guest plan
     const getPlan = async () => {
       if (user) {
@@ -271,8 +372,8 @@ const PlanPage = () => {
               console.log("All events deleted successfully.");
       
               // Re-upload all the events in `allEvents`
-              allEvents.forEach(async (event) => {
-                const docRef = doc(firestore, 'users', userId, 'events', event.id.toString());
+              allEvents?.forEach(async (event) => {
+                const docRef = doc(firestore, 'users', userId, 'events', event?.id?.toString());
       
                 // Upload the new event to Firestore
                 await setDoc(docRef, event);
@@ -558,9 +659,51 @@ const PlanPage = () => {
             alignItems="center"
             position="relative"
           >
-            <Button>
-                <Group />
+            <Button 
+              variant="outlined" 
+              onClick={handleMenuClick}
+              sx={{
+                height: "55px",
+                fontSize: '1rem',
+                backgroundColor: 'background.default',
+                color: 'text.primary',
+                borderColor: 'background.default',
+                borderRadius: '55px',
+                '&:hover': {
+                  backgroundColor: 'text.primary',
+                  color: 'background.default',
+                  borderColor: 'text.primary',
+                },
+              }}
+            >
+              <MenuIcon />
             </Button>
+
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleMenuClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+            >
+              <MenuItem>
+                <label htmlFor="upload-ics-file">Import</label>
+                <input
+                  type="file"
+                  accept=".ics"
+                  id="upload-ics-file"
+                  style={{ display: 'none' }}
+                  onChange={handleFileImport}
+                />
+              </MenuItem>
+              <MenuItem onClick={() => handleMenuClose('export')}>Export</MenuItem>
+            </Menu>
             
             {/* title */}
             <Box display="flex" flexDirection={"row"} alignItems={"center"} gap={1}>

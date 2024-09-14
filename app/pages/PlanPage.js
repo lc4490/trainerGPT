@@ -445,7 +445,7 @@ const PlanPage = () => {
         <CssBaseline />
         {/* main box */}
         <Box
-          width="100vw"
+          width="100%"
           height="90vh"
           display="flex"
           flexDirection="column"

@@ -755,7 +755,7 @@ const MyInfoPage = () => {
       <CssBaseline />
       {/* main box */}
         <Box
-          width="100vw"
+          width="100%"
           height="90vh"
           display="flex"
           flexDirection="column"
@@ -764,7 +764,7 @@ const MyInfoPage = () => {
         >
           {/* camera modal */}
           <Modal open={cameraOpen} onClose={() => setCameraOpen(false)}>
-            <Box width="100vw" height="100vh" backgroundColor="black">
+            <Box width="100%" height="100vh" backgroundColor="black">
               <Stack display="flex" justifyContent="center" alignItems="center" flexDirection="column" sx={{ transform: 'translate(0%,25%)' }}>
                 <Box
                   sx={{
@@ -923,7 +923,6 @@ const MyInfoPage = () => {
                 </Button>
             </Box>
           </Modal>
-          {/* <Box width="100vw" height="100vh" bgcolor="background.default"> */}
           {/* Header Box */}
             <Box
               height="10%"

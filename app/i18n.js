@@ -72,7 +72,7 @@ const resources = {
       "Sign out failed: ": "Sign out failed: ",
       "Guest": "Guest",
       "Loading...": "Loading...",
-      "My Info": "My Info",
+      "My Info": "myInfo",
       "signIn": "Sign In",
       "signOut": "Sign Out",
       "Edit": "Edit",
@@ -166,6 +166,7 @@ const resources = {
       "days":"days",
       "Select the number of workout days":"Select the number of workout days",
       "myPlanner":"myPlanner",
+      "Drag workouts into Calendar:":"Drag workouts into Calendar:",
     }
   },
   cn: {
@@ -325,6 +326,7 @@ const resources = {
       "days": "天",
       "Select the number of workout days": "选择锻炼天数",
       "myPlanner": "我的计划",
+      "Drag workouts into Calendar:": "将锻炼拖入日历：",
     }
   },
   tc: {
@@ -484,6 +486,7 @@ const resources = {
       "days": "天",
       "Select the number of workout days": "選擇鍛鍊天數",
       "myPlanner": "我的計劃",
+      "Drag workouts into Calendar:": "將鍛鍊拖入日曆：",
     }
   },
   es: {
@@ -643,6 +646,7 @@ const resources = {
       "days": "días",
       "Select the number of workout days": "Selecciona el número de días de entrenamiento",
       "myPlanner": "miPlanificador",
+      "Drag workouts into Calendar:": "Arrastra los entrenamientos al calendario:",
     }
   },
   fr: {
@@ -802,6 +806,7 @@ const resources = {
       "days": "jours",
       "Select the number of workout days": "Sélectionnez le nombre de jours d'entraînement",
       "myPlanner": "monPlanificateur",
+      "Drag workouts into Calendar:": "Glissez les entraînements dans le calendrier :",
     }
   },
   de: {
@@ -961,6 +966,7 @@ const resources = {
       "days": "Tage",
       "Select the number of workout days": "Wählen Sie die Anzahl der Trainingstage",
       "myPlanner": "meinPlaner",
+      "Drag workouts into Calendar:": "Ziehen Sie die Workouts in den Kalender:",
     }
   },
   jp: {
@@ -1119,6 +1125,7 @@ const resources = {
       "days": "日",
       "Select the number of workout days": "ワークアウト日数を選択してください",
       "myPlanner": "マイプランナー",
+      "Drag workouts into Calendar:": "ワークアウトをカレンダーにドラッグ:",
     }
   },
   kr: {
@@ -1277,6 +1284,7 @@ const resources = {
       "days": "일",
       "Select the number of workout days": "운동 일수를 선택하세요",
       "myPlanner": "내 플래너",
+      "Drag workouts into Calendar:": "운동을 캘린더로 드래그하세요:",
     }
   }
 };

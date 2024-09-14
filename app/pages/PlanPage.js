@@ -336,7 +336,7 @@ const PlanPage = () => {
         return language; // Default to the selected language
       };
 
-      const calendarLocale = getCalendarLocale(prefLanguage); // Get the correct locale for FullCalendar
+      const calendarLocale = getCalendarLocale(i18n.language); // Get the correct locale for FullCalendar
 
     return(
         // light/dark theming
@@ -640,7 +640,6 @@ const PlanPage = () => {
                   
                   locale = {calendarLocale}
                 />
-                {console.log(prefLanguage)}
                 
             </Box>
             <Stack

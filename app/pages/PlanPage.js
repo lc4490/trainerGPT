@@ -1,10 +1,8 @@
 "use client"
 
 // base imports
-import { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { Container, Box, Typography, Button, TextField, ToggleButtonGroup, ToggleButton, CircularProgress, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack, Grid, FormControl, InputLabel, NativeSelect, Link } from '@mui/material';
-import { createTheme } from '@mui/material';
+import { useEffect, useState, } from 'react';
+import { Box, Typography, Button, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack} from '@mui/material';
 // Firebase imports
 import { firestore } from '../firebase'
 import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, onSnapshot } from 'firebase/firestore';
@@ -20,131 +18,19 @@ import { useContext } from 'react';
 import { GuestContext } from '../page'; // Adjust the path based on your structure
 // import icons
 import { Group } from '@mui/icons-material';
-// import ai
-import { OpenAI } from 'openai';
 // info button
 import InfoIcon from '@mui/icons-material/Info';
 
+// calendar
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid"
 import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction"
 import tiemGridPlugin from "@fullcalendar/timegrid"
 import WarningIcon from '@mui/icons-material/Warning';
+import allLocales from '@fullcalendar/core/locales-all';
 
-
-// light/dark themes
-  const lightTheme = createTheme({
-    palette: {
-      mode: 'light',
-      background: {
-        default: '#ffffff',
-        paper: '#ffffff',
-        bubbles: 'lightgray',
-        userBubble: '#95EC69',
-        link: 'darkblue'
-      },
-      text: {
-        primary: '#000000',
-      },
-    },
-  });
-  const darkTheme = createTheme({
-    palette: {
-      mode: 'dark',
-      background: {
-        default: '#121212',
-        paper: '#121212',
-        bubbles: '#2C2C2C',
-        userBubble: '#29B560',
-        link: 'lightblue',
-      },
-      text: {
-        primary: '#ffffff',
-      },
-    },
-  });
-
-  const customComponents = {
-    a: ({ href, children }) => (
-      <Link href={href} color="background.link" underline="hover">
-        {children}
-      </Link>
-    ),
-    p: ({ children }) => (
-      <Typography variant="body1" paragraph sx={{ marginBottom: 0, lineHeight: 1.6 }}>
-        {children}
-      </Typography>
-    ),
-    h1: ({ children }) => (
-      <Typography variant="h4" gutterBottom sx={{ marginTop: 0, marginBottom: 0 }}>
-        {children}
-      </Typography>
-    ),
-    h2: ({ children }) => (
-      <Typography variant="h5" gutterBottom sx={{ marginTop: 0, marginBottom: 0 }}>
-        {children}
-      </Typography>
-    ),
-    h3: ({ children }) => (
-      <Typography variant="h6" gutterBottom sx={{ marginTop: 0, marginBottom: 0 }}>
-        {children}
-      </Typography>
-    ),
-    ul: ({ children }) => (
-      <Box component="ul" sx={{ paddingLeft: 3, marginBottom: 0 }}>
-        {children}
-      </Box>
-    ),
-    ol: ({ children }) => (
-      <Box component="ol" sx={{ paddingLeft: 3, marginBottom: 0 }}>
-        {children}
-      </Box>
-    ),
-    blockquote: ({ children }) => (
-      <Box
-        component="blockquote"
-        sx={{
-          marginLeft: 2,
-          paddingLeft: 2,
-          borderLeft: '4px solid #ccc',
-          fontStyle: 'italic',
-          color: '#555',
-          marginBottom: 0,
-        }}
-      >
-        {children}
-      </Box>
-    ),
-    code: ({ children }) => (
-      <Box
-        component="code"
-        sx={{
-          backgroundColor: '#f5f5f5',
-          padding: '8px',
-          borderRadius: '4px',
-          fontFamily: 'monospace',
-          marginBottom: 0,
-        }}
-      >
-        {children}
-      </Box>
-    ),
-    pre: ({ children }) => (
-      <Box
-        component="pre"
-        sx={{
-          backgroundColor: '#f5f5f5',
-          padding: '8px',
-          borderRadius: '4px',
-          fontFamily: 'monospace',
-          overflowX: 'auto',
-          marginBottom: 0,
-        }}
-      >
-        {children}
-      </Box>
-    ),
-  };
+import { lightTheme, darkTheme } from '../theme';
+import { customComponents } from '../customMarkdownComponents'; 
   
   
 const PlanPage = () => {
@@ -171,7 +57,6 @@ const PlanPage = () => {
         changeLanguage(newLanguage);
         setPreferredLanguage(newLanguage);
     };
-    // Store preferred language on Firebase
     const setPreferredLanguage = async (language) => {
         if (user) {
         const userId = user.id;
@@ -208,23 +93,7 @@ const PlanPage = () => {
     const theme = darkMode ? darkTheme : lightTheme;
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    const parsePlanToEvents = (planText) => {
-      const days = planText.split("Day").slice(1); // Split by each day and exclude the first element
-      const events = [];
-    
-      days.forEach(day => {
-        const [dayTitle, ...detailsArray] = day.trim().split('\n');
-        let event = {
-          title: `Day ${dayTitle.trim().replace(/[^a-zA-Z]+$/, '')}`, // Re-add "Day" prefix
-          details: `${detailsArray.join('\\n').trim().replace(/\\n/g, '  \n').replace(/[^a-zA-Z]+$/, '')}` 
-        };
-        events.push(event);
-      });
-      setEvents(events)
-    
-    };
-    
-    // plan
+    // get plan from firebase or guest plan
     const getPlan = async () => {
       if (user) {
         const userId = user.id;
@@ -236,21 +105,33 @@ const PlanPage = () => {
           return guestPlan;
       }
     };
+    // turn plan into events
+    const parsePlanToEvents = (planText) => {
+      const days = planText.split(/Day\s*\d+:/).slice(1); // Split by "Day" followed by any number and a colon, and exclude the first empty element
+      const events = [];
+      let index = 1;
+      days.forEach(day => {
+        const [dayTitle, ...detailsArray] = day.trim().split('\n');
+        const detailsText = detailsArray.join('\\n').trim().replace(/\\n/g, '  \n').replace(/\*/g,"")
+        let event = {
+          title: `Day ${index}: ${dayTitle.replace(/\*/g,"").trim()}`, // Re-add "Day" prefix
+          details: `${detailsText}` 
+        };
+        index = index + 1
+        events.push(event);
+      });
+      setEvents(events)
+    
+    };
+    
+    // hook to get plan
     useEffect(() => {
       const fetchPlan = async () => {
         if(user){
-          const userId = user.id;
-          const userDocRef = doc(firestore, 'users', userId);
-          const userDoc = await getDoc(userDocRef);
-          if(userDoc.exists() && userDoc.data().events){
-            setEvents(userDoc.data().events)
-          }
-          else{
-            const fetchedPlan = await getPlan();
-            setPlan(fetchedPlan);
-            if (fetchedPlan) {
-              parsePlanToEvents(fetchedPlan);
-            }
+          const fetchedPlan = await getPlan();
+          setPlan(fetchedPlan);
+          if (fetchedPlan) {
+            parsePlanToEvents(fetchedPlan);
           }
         }
         else{
@@ -264,46 +145,20 @@ const PlanPage = () => {
       fetchPlan();
       }, [user, guestPlan]);
 
-      // if plan changed, update events
-      useEffect(() => {
-        if (!user) return;
-    
-        const userId = user.id;
-        const userDocRef = doc(firestore, 'users', userId);
-    
-        const unsubscribe = onSnapshot(userDocRef, (docSnapshot) => {
-            if (docSnapshot.exists()) {
-                const userData = docSnapshot.data();
-                const newPlan = userData.plan;
-    
-                // Check if the plan has changed
-                if (newPlan !== plan) {
-                    setPlan(newPlan);
-                    if (newPlan) {
-                        // Define an async function to handle the async logic
-                        const updateEvents = async () => {
-                            parsePlanToEvents(newPlan);
-                        };
-    
-                        // Call the async function
-                        updateEvents();
-                    }
-                }
-            }
-        });
-    
-        // Cleanup listener on component unmount
-        return () => unsubscribe();
-    }, [user, plan]);
-      // open Info modal
+      // info modal open close
       const [openInfoModal, setOpenInfoModal] = useState(false);
       const handleInfoModal = () => {
         setOpenInfoModal(true);
       }
 
+      const [events, setEvents] = useState([])
+      const [allEvents, setAllEvents] = useState([]);
+      const [showDeleteModal, setShowDeleteModal] = useState(false)
+      const [idToDelete, setIdToDelete] = useState(0)
+      const [newEvent, setNewEvent] = useState({title: "", start: "", id: 0, allDay: false})
       const [selectedEvent, setSelectedEvent] = useState(null);
 
-      // event modal
+      // handle event modal
       const handleEventClick = (data) => {
         setSelectedEvent({
           title: data.event.title,
@@ -311,18 +166,11 @@ const PlanPage = () => {
         });
         setIdToDelete(Number(data.event.id))
       };
-      
-
       const handleCloseModal = () => {
           setSelectedEvent(null);
       };
 
-      const [events, setEvents] = useState([])
-      const [allEvents, setAllEvents] = useState([]);
-      const [showDeleteModal, setShowDeleteModal] = useState(false)
-      const [idToDelete, setIdToDelete] = useState(0)
-      const [newEvent, setNewEvent] = useState({title: "", start: "", id: 0, allDay: false})
-    
+      // draggable feature
       useEffect(() => {
         let draggableEl = document.getElementById('draggable-el')
         if(draggableEl) {
@@ -338,7 +186,35 @@ const PlanPage = () => {
         }
         
       }, [])
+
+      // handle moving events
+      const handleEventDrop = (dropInfo) => {
+        const { event } = dropInfo;
+      
+        const updatedEvent = {
+          id: event.id,
+          title: event.title,
+          start: event.start.toISOString(),
+          end: event.end ? event.end.toISOString() : null,
+          allDay: event.allDay,
+          extendedProps: {
+            details: event.extendedProps.details, // Keep the event details unchanged
+          },
+        };
+      
+        // Update the `allEvents` or `guestEvents` array
+        if(user){
+          setAllEvents(allEvents.filter(event => Number(event.id) !== Number(idToDelete)))
+          setAllEvents([...allEvents, updatedEvent]);
+        }
+        else{
+          setGuestEvents(guestEvents.filter(event => Number(event.id) !== Number(idToDelete)));
+          setGuestEvents([...guestEvents, updatedEvent]);
+        }
+      };
+      
     
+      // add/delete/update to firebase events
       const addEvent = (data) => {
         // Find the event from the `events` array based on the title of the dragged element
         const eventTitle = data.draggedEl.innerText;
@@ -414,7 +290,7 @@ const PlanPage = () => {
         }
       }, [allEvents, user]);
       
-      
+      // update equipment everytime the user changes or guestEquipment changes
       const updateEvents = async () => {
         if (user) {
           const userId = user.id;
@@ -430,8 +306,7 @@ const PlanPage = () => {
           setAllEvents(guestEvents)
         }
       };
-    
-      // update equipment everytime the user changes or guestEquipment changes
+
       useEffect(() => {
           updateEvents();
       }, [user, guestEvents]);
@@ -443,6 +318,26 @@ const PlanPage = () => {
         }
 
       }, [user])
+
+      // Function to handle custom locale mapping
+      const getCalendarLocale = (language) => {
+        if (language === 'cn') {
+          return 'zh-cn';  // Map 'cn' or 'tc' to 'zh' for Chinese
+        }
+        if(language === 'tc'){
+          return 'zh-tw'
+        }
+        if(language ==='jp'){
+          return 'ja'
+        }
+        if(language ==='kr'){
+          return 'ko'
+        }
+        return language; // Default to the selected language
+      };
+
+      const calendarLocale = getCalendarLocale(prefLanguage); // Get the correct locale for FullCalendar
+
     return(
         // light/dark theming
         <ThemeProvider theme={theme}>
@@ -453,6 +348,7 @@ const PlanPage = () => {
           height="90vh"
           display="flex"
           flexDirection="column"
+          paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >
           {/* event modal */}
           <Modal
@@ -526,7 +422,6 @@ const PlanPage = () => {
               
             </Box>
           </Modal>
-
           {/* info modal */}
           <Modal open = {openInfoModal} onClose = {() => setOpenInfoModal(false)}>
               <Box 
@@ -738,11 +633,14 @@ const PlanPage = () => {
                   selectable={true}
                   selectMirror = {true}
                   drop = {(data) => addEvent(data) }
-                  // eventClick={(data) => handleDeleteModal(data)}
+                  eventDrop={(data) => handleEventDrop(data)} 
                   eventClick={(data) => handleEventClick(data)}
                   aspectRatio={isMobile ? 1 : 2.5}
+                  locales= {allLocales}
                   
+                  locale = {calendarLocale}
                 />
+                {console.log(prefLanguage)}
                 
             </Box>
             <Stack
@@ -764,7 +662,7 @@ const PlanPage = () => {
                     sx={{
                       width: "110px" // Set width explicitly within the container
                     }}>
-                    <Typography>Drag workouts into Calendar:</Typography>
+                    <Typography>{t("Drag workouts into Calendar:")}</Typography>
                   </Box>
                 </Box>
 

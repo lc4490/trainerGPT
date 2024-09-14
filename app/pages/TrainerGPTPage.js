@@ -26,7 +26,7 @@ import StepForm from './TrainerGPT/StepForm';
 import { lightTheme, darkTheme } from '../theme';
 import { exerciseData } from './TrainerGPT/exerciseData'; 
 import { steps } from './TrainerGPT/steps'; 
-import { customComponents } from './TrainerGPT/customMarkdownComponents'; 
+import { customComponents } from '../customMarkdownComponents'; 
 
 
 const TrainerGPTPage = () => {

@@ -2,7 +2,7 @@ import { Box, Button, Typography, Divider } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import { UserButton } from '@clerk/nextjs';
 
-const Header = ({ handleOpenAddAndOpenCamera, handleSignInClick, handleInfoModal, isSignedIn, t }) => {
+const Header = ({ handleOpenAddAndOpenCamera, handleSignInClick, handleInfoModal, isSignedIn, isMobile, t }) => {
     return (
         <>
   <Box
@@ -76,7 +76,7 @@ const Header = ({ handleOpenAddAndOpenCamera, handleSignInClick, handleInfoModal
       )}
     </Box>
   </Box>
-  <Divider />
+  {isMobile && (<Divider />)}
   </>
 );
 }

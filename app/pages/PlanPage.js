@@ -446,7 +446,7 @@ const PlanPage = () => {
         {/* main box */}
         <Box
           width="100%"
-          height="90vh"
+          height = "100%"
           display="flex"
           flexDirection="column"
           paddingBottom= '60px' // Ensure content is not cut off by the toolbar
@@ -750,13 +750,13 @@ const PlanPage = () => {
                 </Box>
             </Box>
           </Box>
-          <Divider />
-          <Stack flexDirection = "column" maxHeight = {isMobile ? "100vh" : "90vh"} paddingBottom = "60px">
+          {isMobile && (<Divider />)}
+          <Stack flexDirection = "column" width = "100%" maxHeight = {isMobile ? "100vh" : "90vh"} paddingBottom = "60px">
             <Box
               width = "100%"
               // maxHeight = "100%"
               overflow= "scroll"
-              backgroundColor="background.default"
+              backgroundColor="background.calendar"
               >
                 <FullCalendar
                   plugins = {[
@@ -786,6 +786,7 @@ const PlanPage = () => {
                 
             </Box>
             <Stack
+              width = "100%"
               id = "draggable-el"
               // height ="100%"
               backgroundColor = "background.bubbles"

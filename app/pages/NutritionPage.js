@@ -379,7 +379,7 @@ const NutritionPage = () => {
       <CssBaseline />
       <Box 
         width="100%" 
-        height="90vh"
+        height = "100%"
         display="flex" 
         justifyContent="center" 
         alignItems="center"
@@ -954,7 +954,7 @@ const NutritionPage = () => {
               </Box>
           </Box>
 
-          <Divider />
+          {isMobile && (<Divider />)}
           
           {/* banner image */}
           {/* <Image 

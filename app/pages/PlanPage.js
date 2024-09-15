@@ -819,7 +819,6 @@ const PlanPage = () => {
                   backgroundColor="background.default"
                   padding = {1}
                   borderRadius = {1}
-                  sx={{whiteSpace: "nowrap"}}
                   >
                     {event.title}
                   </Box>

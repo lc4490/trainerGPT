@@ -10,6 +10,7 @@ export const lightTheme = createTheme({
       bubbles: 'lightgray',
       userBubble: '#95EC69',
       link: 'darkblue',
+      calendar: "#FAF8F6",
     },
     text: {
       primary: '#000000',
@@ -26,6 +27,7 @@ export const darkTheme = createTheme({
       bubbles: '#2C2C2C',
       userBubble: '#29B560',
       link: 'lightblue',
+      calendar: "#232323",
     },
     text: {
       primary: '#ffffff',

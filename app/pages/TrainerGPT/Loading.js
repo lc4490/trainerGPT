@@ -2,10 +2,11 @@ import { Box, CircularProgress, Container, Typography } from '@mui/material';
 
 const Loading = ({ t }) => {
   return (
-    <Container maxWidth="sm">
+    <Container>
       <Box
         sx={{
-          minHeight: '100vh',
+          width: "100%",
+          height: "100%",
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

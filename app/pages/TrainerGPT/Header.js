@@ -108,7 +108,7 @@ const Header = ({ t, prefLanguage, handleLanguageChange, isSignedIn, handleSignI
         )}
     </Box>
     </Box>
-    <Divider />
+    {isMobile && (<Divider />)}
     </>
     
   );

@@ -290,6 +290,7 @@ export default function Home() {
     setPrefLanguage(newLanguage);
     changeLanguage(newLanguage);
   };
+  const isMobile = useMediaQuery('(max-width:600px)'); // Adjust the max-width as necessary
 
   return (
     // guest mode
@@ -469,20 +470,57 @@ export default function Home() {
             bgcolor="background.default"
             fontFamily="sans-serif"
           >
-            <Box
-              width="100%"
+            <Box 
+            width = "100%"
+            height = "100%"
+            display = "flex"
+            flexDirection={"row"}
+            // backgroundColor="blue"
+            >
+              {!isMobile && (
+              <Box
+              width = "90px"
+              height = "450px"
+              backgroundColor = "red"
+              >
+                <BottomNavigation
+                orientation="vertical"
+                value={value}
+                onChange={(event, newValue) => setValue(newValue)}
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <BottomNavigationAction id={'myinfo-step'} label={t("My Info")} icon={<HomeIcon />} showLabel/>
+                <BottomNavigationAction id={'equipment-step'} label={t("myEquipment")} icon={<FitnessCenter />} showLabel/>
+                <BottomNavigationAction id={'trainer-step'} label={t("trainerGPT")} icon={<Person />} showLabel/>
+                <BottomNavigationAction id={'plan-step'} label={t("myPlanner")} icon={<CalendarToday />} showLabel/>
+                <BottomNavigationAction id={'pantry-step'} label={t("myPantry")} icon={<LocalDiningIcon />} showLabel/>
+              </BottomNavigation>
+              </Box>
+              )}
+              <Box
+              width = "100%"
               flex="1" // This makes sure the content takes up the remaining height
               bgcolor="background.default"
               // overflow="auto" // Allows scrolling if content is taller than the available space
               display="flex"
               justifyContent="center"
               alignItems="center"
-            >
-              {pages[value]}
+              >
+                {pages[value]}
+
+              </Box>
             </Box>
 
             {/* bottom navigation */}
-            <Toolbar />
+            {isMobile && 
+            (
             <BottomNavigation
               showLabels
               value={value}
@@ -497,6 +535,7 @@ export default function Home() {
               <BottomNavigationAction id={'plan-step'} label={t("myPlanner")} icon={<CalendarToday />} />
               <BottomNavigationAction id={'pantry-step'} label={t("myPantry")} icon={<LocalDiningIcon />} />
             </BottomNavigation>
+            )}
           </Box>
 
       </ThemeProvider>

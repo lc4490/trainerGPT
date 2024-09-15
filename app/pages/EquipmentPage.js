@@ -289,7 +289,7 @@ const EquipmentPage = () => {
         {/* base box */}
         <Box 
           width="100%" 
-          height= "90vh"
+          height = "100%"
           display="flex" 
           justifyContent="center" 
           alignItems="center"
@@ -333,6 +333,7 @@ const EquipmentPage = () => {
               handleSignInClick={handleSignInClick}
               handleInfoModal={handleInfoModal}
               isSignedIn={isSignedIn}
+              isMobile={isMobile}
               t={t}
             />
             

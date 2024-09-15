@@ -756,7 +756,7 @@ const MyInfoPage = () => {
       {/* main box */}
         <Box
           width="100%"
-          height="90vh"
+          height = "100%"
           display="flex"
           flexDirection="column"
           backgroundColor="background.default"
@@ -1048,7 +1048,7 @@ const MyInfoPage = () => {
                 )}
               </Box>
             </Box>
-            <Divider />
+            {isMobile && (<Divider />)}
             {/* body */}
             <Container maxWidth="sm">
               <Box

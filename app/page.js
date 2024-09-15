@@ -480,7 +480,7 @@ export default function Home() {
               {!isMobile && (
               <Box
               width = "90px"
-              height = "450px"
+              height = "400px"
               backgroundColor = "red"
               >
                 <BottomNavigation

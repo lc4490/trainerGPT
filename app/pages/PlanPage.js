@@ -819,6 +819,7 @@ const PlanPage = () => {
                   backgroundColor="background.default"
                   padding = {1}
                   borderRadius = {1}
+                  whiteSpace={isMobile ? "nowrap": ""}
                   >
                     {event.title}
                   </Box>

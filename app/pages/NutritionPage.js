@@ -210,10 +210,10 @@ const NutritionPage = () => {
   }
   // function to craft ai images from label (ai)
   async function createImage(label) {
-    return
+    // return
     try {
         const response = await openai.images.generate({
-            model: 'dall-e-3',
+            model: 'dall-e-2',
             prompt: label,
             n: 1,
             size: "256x256",
@@ -1049,7 +1049,7 @@ const NutritionPage = () => {
                   onFocus={() => setIsFocusedRecipe(true)}
                   onBlur={() => setIsFocusedRecipe(false)}
                   sx={{
-                    width: isFocusedRecipe ? '25%' : `${Math.max(recipeSearchTerm.length, 0) + 5}ch`,
+                    width: isFocusedRecipe ? '100%' : `${Math.max(recipeSearchTerm.length, 0) + 5}ch`,
                     transition: 'width 0.3s',
                     '& .MuiOutlinedInput-root': {
                       '& fieldset': {
@@ -1183,7 +1183,7 @@ const NutritionPage = () => {
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
                   sx={{
-                    width: isFocused ? '25%' : `${Math.max(searchTerm.length, 0) + 5}ch`,
+                    width: isFocused ? '100%' : `${Math.max(searchTerm.length, 0) + 5}ch`,
                     transition: 'width 0.3s',
                     '& .MuiOutlinedInput-root': {
                       '& fieldset': {

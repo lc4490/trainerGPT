@@ -710,7 +710,98 @@ const TrainerGPTPage = () => {
             });
         }
     }
-};
+  };
+
+  // text to speech
+  const [isListening, setIsListening] = useState(false); // Track whether speech recognition is in progress
+  const [isSpeaking, setIsSpeaking] = useState(false); // Track whether speech synthesis is in progress
+  const [recognition, setRecognition] = useState(null);
+
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognition();
+      recognitionInstance.continuous = true;
+      recognitionInstance.interimResults = true;
+      recognitionInstance.lang = prefLanguage;
+
+      recognitionInstance.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
+        }
+        setMessage(finalTranscript + interimTranscript); // Update the message input field with both final and interim results
+      };
+      
+
+      recognitionInstance.onend = () => {
+        setIsListening(false);
+        setMessage('')
+      };
+      
+
+      setRecognition(recognitionInstance);
+    } else {
+      alert(t('Your browser does not support speech recognition.'));
+    }
+  }, []);
+
+  const startListening = () => {
+    if (recognition) {
+      const audio = new Audio('/start-sound.mp3'); // Use a small audio file for the cue
+      audio.play();
+      recognition.lang = microphoneLocale
+      recognition.start();
+      setIsListening(true);
+    }
+  };
+
+  const stopListening = () => {
+    if (recognition) {
+      recognition.stop();
+      setIsListening(false);
+    }
+  };
+
+  const handleMicrophoneClick = () => {
+    if (isSpeaking) {
+      // Stop the speech
+      window.speechSynthesis.cancel(); // Stop speech synthesis completely
+      setIsSpeaking(false);
+    } else if (!isListening) {
+      // Start listening for speech input
+      startListening();
+    } else {
+      // Stop listening
+      stopListening();
+      sendMessage();
+    }
+  };
+
+  // Function to handle custom locale mapping
+  const getMicrophoneLocale = (language) => {
+    if (language === 'cn') {
+      return 'zh-cn';  // Map 'cn' or 'tc' to 'zh' for Chinese
+    }
+    if(language === 'tc'){
+      return 'zh-tw'
+    }
+    if(language ==='jp'){
+      return 'ja'
+    }
+    if(language ==='kr'){
+      return 'ko'
+    }
+    return language; // Default to the selected language
+  };
+
+  const microphoneLocale = getMicrophoneLocale(i18n.language); // Get the correct locale for FullCalendar
+
   // loading page
   if (loading) {
     return <Loading t={t} />;
@@ -753,6 +844,9 @@ const TrainerGPTPage = () => {
           clearChatLog={clearChatLog}
           handleKeyPress={handleKeyPress}
           customComponents={customComponents}
+          handleMicrophoneClick={handleMicrophoneClick}
+          isSpeaking={isSpeaking}
+          isListening={isListening}
           t={t}
           isMobile={isMobile}
         />

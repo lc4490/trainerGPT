@@ -4,6 +4,9 @@ import AssistantIcon from '@mui/icons-material/Assistant';
 import PersonIcon from '@mui/icons-material/Person';
 import SendIcon from '@mui/icons-material/Send';
 import DeleteIcon from '@mui/icons-material/Delete'; 
+import KeyboardVoiceIcon from '@mui/icons-material/KeyboardVoice';
+import SettingsVoiceIcon from '@mui/icons-material/SettingsVoice';
+import StopIcon from '@mui/icons-material/Stop';
 import ReactMarkdown from 'react-markdown';
 
 const ChatLog = ({
@@ -15,6 +18,9 @@ const ChatLog = ({
   clearChatLog,
   handleKeyPress,
   customComponents,
+  handleMicrophoneClick,
+  isSpeaking,
+  isListening,
   t,
   isMobile
 }) => {
@@ -162,6 +168,27 @@ const ChatLog = ({
             height: '48px', // Adjust the height to make it more circular
           }}
         />
+
+          <Button
+            onClick={handleMicrophoneClick} // Single click handler for all states
+            variant="outlined"
+            disabled={isLoading} // Disable while loading
+            sx={{
+              color: 'text.primary',
+              borderColor: 'text.primary',
+              borderRadius: '9999px', // Circular shape
+              height: '48px', // Match height with TextField
+              width: '48px', // Make it circular
+              minWidth: '48px', // Ensure button stays circular
+              '&:hover': {
+                backgroundColor: 'text.primary',
+                color: 'background.default',
+                borderColor: 'text.primary',
+              },
+            }}
+          >
+            {isSpeaking ? <StopIcon /> : isListening ? <SettingsVoiceIcon /> : <KeyboardVoiceIcon />}
+          </Button>
         <Button
           variant="outlined"
           onClick={sendMessage}

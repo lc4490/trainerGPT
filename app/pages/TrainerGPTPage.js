@@ -834,7 +834,6 @@ const TrainerGPTPage = () => {
         />
 
         {/* body */}
-        {isSummary ? (
           <ChatLog
           messages={messages}
           message={message}
@@ -850,23 +849,6 @@ const TrainerGPTPage = () => {
           t={t}
           isMobile={isMobile}
         />
-          ) : (
-            <StepForm
-            steps={steps}
-            currentStep={currentStep}
-            formData={formData}
-            handleInputChange={handleInputChange}
-            handleKeyPressStep={handleKeyPressStep}
-            handleWeightUnitChange={handleWeightUnitChange}
-            weightUnit={weightUnit}
-            handleHeightUnitChange={handleHeightUnitChange}
-            heightUnit={heightUnit}
-            t={t}
-            nextStep={nextStep}
-            prevStep={prevStep}
-            handleSubmit={handleSubmit}
-          />
-          )}
       </Box>
     </ThemeProvider>
   );

@@ -30,6 +30,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 // tutorial
 import JoyRide, { STATUS } from 'react-joyride';
 
+import StepForm from './pages/TrainerGPT/StepForm';
+import { steps } from './pages/TrainerGPT/steps';
+
 // light/dark themes
 const lightTheme = createTheme({
   palette: {
@@ -160,7 +163,7 @@ export default function Home() {
   }, [isLoaded, user, searchParams]);
 
   // handle user purchase
-  const handleSubmit = async () => {
+  const handlePurchase = async () => {
     if (!user) {
       await saveGuestDataToFirebase();
       router.push('/sign-in');
@@ -262,7 +265,7 @@ export default function Home() {
           <Button 
           variant="contained" 
           color="primary"
-          onClick={handleSubmit}
+          onClick={handlePurchase}
           > 
             {t("Upgrade Now")}
           </Button>
@@ -291,6 +294,170 @@ export default function Home() {
     changeLanguage(newLanguage);
   };
   const isMobile = useMediaQuery('(max-width:600px)'); // Adjust the max-width as necessary
+
+  // step form
+
+  // navigate through slides/steps
+  const [currentStep, setCurrentStep] = useState(0);
+  // store filledo ut data
+  const [formData, setFormData] = useState({});
+  // if slides are finished, display summary page
+  const [isSummary, setIsSummary] = useState(false);
+  // is loading, display loading page
+  const [loading, setLoading] = useState(true); // Loading state
+
+  // move between steps
+  const nextStep = () => {
+    if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
+  };
+  const prevStep = () => {
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
+  };
+  // set filled out data
+  const handleInputChange = (key, value) => {
+    setFormData({ ...formData, [key]: value});
+  }
+
+  // Save user form data to Firestore
+  const saveUserData = async (data) => {
+    if (user) {
+      const userDocRef = doc(firestore, 'users', user.id);
+      await setDoc(userDocRef, { userData: data }, { merge: true });
+    } else {
+      // Updating guest data
+      setGuestData((prevState) => {
+        const updatedGuestData = { ...prevState, ...data };
+        console.log(updatedGuestData); // Log updated guestData here
+        return updatedGuestData;
+      });
+    }
+  };
+  
+
+  // Handle form submission and save data to Firestore
+  const handleSubmit = async () => {
+    
+    await saveUserData(unpackData(formData));
+    setFormData(unpackData(formData));
+    setIsSummary(true); // Show summary page
+    
+  };
+
+  // clean up formData 
+  function unpackData(data) {
+    const ret = {
+      "Sex": data[("Tell Us About Yourself")] || t("Not available"),
+      "Age": data[('How Old Are You?')] || t("Not available"),
+      "Weight": data[('What is Your Weight?')] + weightUnit|| t("Not available"),
+      "Height": data[('What is Your Height?')] + heightUnit|| t("Not available"),
+      "Goals": data[('What is Your Goal?')] || t("Not available"),
+      "Activity": data[('Physical Activity Level?')] || t("Not available"),
+      "Health issues": data[('Do you have any existing health issues or injuries?')] || t("Not available"),
+      "Availability": data[t('How many days a week can you commit to working out?')] || "Not available",
+    };
+    return ret;
+  }
+
+  // Handle enter key
+  const handleKeyPressStep = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      if (currentStep === steps.length - 1) {
+        handleSubmit();
+      } else {
+        nextStep();
+      }
+    }
+  };
+
+  // State to manage weight and unit
+  const [weightUnit, setWeightUnit] = useState('kg'); // Default to kg
+
+  const handleWeightUnitChange = (event, newUnit) => {
+    if (newUnit !== null) {
+      setWeightUnit(newUnit);
+
+      // Convert the weight if a value is already entered
+      if (formData['What is Your Weight?']) {
+        const currentWeight = parseFloat(formData['What is Your Weight?']);
+        const convertedWeight = newUnit === 'lbs'
+          ? (currentWeight * 2.20462).toFixed(1) // kg to lbs
+          : (currentWeight / 2.20462).toFixed(1); // lbs to kg
+        setFormData({ ...formData, 'What is Your Weight?': convertedWeight});
+      }
+    }
+  };
+
+  // state to manage height and unit
+  const [heightUnit, setHeightUnit] = useState('cm'); // Default to cm
+  const handleHeightUnitChange = (event, newUnit) => {
+    if (newUnit !== null) {
+        setHeightUnit(newUnit);
+
+        // Convert the height if a value is already entered
+        if (formData['What is Your Height?']) {
+            let convertedHeight = '';
+            if (newUnit === 'ft/in') {
+                // Convert cm to feet/inches
+                const totalInches = parseFloat(formData['What is Your Height?']) / 2.54;
+                const feet = Math.floor(totalInches / 12);
+                const inches = Math.round(totalInches % 12);
+                convertedHeight = `${feet}'${inches}"`;
+            } else {
+                // Convert feet/inches to cm
+                const heightParts = formData['What is Your Height?'].match(/(\d+)'(\d+)"/);
+                if (heightParts) {
+                    const feet = parseInt(heightParts[1], 10);
+                    const inches = parseInt(heightParts[2], 10);
+                    convertedHeight = ((feet * 12 + inches) * 2.54).toFixed(1); // Convert to cm
+                }
+            }
+            setFormData({ 
+                ...formData, 
+                'What is Your Height?': convertedHeight, 
+                'heightUnit': newUnit 
+            });
+        } else {
+            setFormData({ 
+                ...formData, 
+                'heightUnit': newUnit 
+            });
+        }
+    }
+  };
+
+  // upon user change, get prefLanguage and also data
+  useEffect(() => {
+
+    const initializeData = async () => {
+      // fix loading speed. store all acquired data from firebase into guest storage. 
+      if(localData.Age && localMessages.length > 0){
+        setFormData(localData)
+        setIsSummary(true)
+        setLoading(false)
+      }
+      if(isLoaded){
+        if (user) {
+          const userId = user.id;
+          const userDocRef = doc(firestore, 'users', userId);
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists() ? userDoc.data().userData : null) {
+            setIsSummary(true)
+            
+          }
+        } else {
+          if (guestData && guestData.Age) {
+            setIsSummary(true);
+          } else {
+            setIsSummary(false);
+          }
+        }
+        setLoading(false);
+      }
+    };
+
+    initializeData();
+  }, [user]);
 
   return (
     // guest mode
@@ -459,7 +626,8 @@ export default function Home() {
         }}
         />
       )}
-          <Box
+          {isSummary ? (
+            <Box
             width="100vw"
             height="100vh"
             display="flex"
@@ -537,6 +705,23 @@ export default function Home() {
             </BottomNavigation>
             )}
           </Box>
+        ) : (
+          <StepForm
+            steps={steps}
+            currentStep={currentStep}
+            formData={formData}
+            handleInputChange={handleInputChange}
+            handleKeyPressStep={handleKeyPressStep}
+            handleWeightUnitChange={handleWeightUnitChange}
+            weightUnit={weightUnit}
+            handleHeightUnitChange={handleHeightUnitChange}
+            heightUnit={heightUnit}
+            t={t}
+            nextStep={nextStep}
+            prevStep={prevStep}
+            handleSubmit={handleSubmit}
+          />
+        )}
 
       </ThemeProvider>
     </GuestContext.Provider>

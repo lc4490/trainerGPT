@@ -77,7 +77,7 @@ const MyInfoPage = () => {
   // store filledo ut data
   const [formData, setFormData] = useState({});
   // if slides are finished, display summary page
-  const [isSummary, setIsSummary] = useState(false);
+  const [isSummary, setIsSummary] = useState(true);
   // is loading, display loading page
   const [loading, setLoading] = useState(true); // Loading state
   // edit mode
@@ -101,13 +101,6 @@ const MyInfoPage = () => {
   // info modal
   const [openInfoModal, setOpenInfoModal] = useState(false);
 
-  // move between steps
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
-  };
-  const prevStep = () => {
-    if (currentStep > 0) setCurrentStep(currentStep - 1);
-  };
   // set filled out data
   const handleInputChange = (key, value) => {
     setFormData({ ...formData, [key]: value});
@@ -304,18 +297,6 @@ const MyInfoPage = () => {
     'Health issues',
     'Availability',
   ];
-
-  // Handle enter key
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      if (currentStep === steps.length - 1) {
-        handleSubmit();
-      } else {
-        nextStep();
-      }
-    }
-  };
 
    // Save guest data when sign-in button is clicked
    const handleSignInClick = async () => {
@@ -537,7 +518,6 @@ const MyInfoPage = () => {
                 const newWeightValue = parseFloat(e.target.value);
                 handleInputChange(key, `${newWeightValue}${weightUnit}`);
               }}
-              onKeyDown={handleKeyPress}
               sx={{ mb: 4 }}
               InputProps={{
                 endAdornment: <Typography variant="body1">{weightUnit}</Typography>,
@@ -616,7 +596,6 @@ const MyInfoPage = () => {
                         handleInputChange(key, `${newHeightValue}${heightUnit}`);
                       }
                     }}
-                    onKeyDown={handleKeyPress}
                     sx={{ mb: 4 }}
                     placeholder={heightUnit === 'ft/in' ? "e.g., 5'8\"" : "Enter height in cm"}
                     InputProps={{
@@ -674,59 +653,9 @@ const MyInfoPage = () => {
   // State to manage weight and unit
   const [weightUnit, setWeightUnit] = useState('kg'); // Default to kg
 
-  const handleWeightUnitChange = (event, newUnit) => {
-    if (newUnit !== null) {
-      setWeightUnit(newUnit);
-
-      // Convert the weight if a value is already entered
-      if (formData['What is Your Weight?']) {
-        const currentWeight = parseFloat(formData['What is Your Weight?']);
-        const convertedWeight = newUnit === 'lbs'
-          ? (currentWeight * 2.20462).toFixed(1) // kg to lbs
-          : (currentWeight / 2.20462).toFixed(1); // lbs to kg
-        setFormData({ ...formData, 'What is Your Weight?': convertedWeight});
-        return convertedWeight
-      }
-    }
-  };
-
   // state to manage height and unit
   const [heightUnit, setHeightUnit] = useState('cm'); // Default to cm
-  const handleHeightUnitChange = (event, newUnit) => {
-    if (newUnit !== null) {
-        setHeightUnit(newUnit);
-
-        // Convert the height if a value is already entered
-        if (formData['What is Your Height?']) {
-            let convertedHeight = '';
-            if (newUnit === 'ft/in') {
-                // Convert cm to feet/inches
-                const totalInches = parseFloat(formData['What is Your Height?']) / 2.54;
-                const feet = Math.floor(totalInches / 12);
-                const inches = Math.round(totalInches % 12);
-                convertedHeight = `${feet}'${inches}"`;
-            } else {
-                // Convert feet/inches to cm
-                const heightParts = formData['What is Your Height?'].match(/(\d+)'(\d+)"/);
-                if (heightParts) {
-                    const feet = parseInt(heightParts[1], 10);
-                    const inches = parseInt(heightParts[2], 10);
-                    convertedHeight = ((feet * 12 + inches) * 2.54).toFixed(1); // Convert to cm
-                }
-            }
-            setFormData({ 
-                ...formData, 
-                'What is Your Height?': convertedHeight, 
-                'heightUnit': newUnit 
-            });
-        } else {
-            setFormData({ 
-                ...formData, 
-                'heightUnit': newUnit 
-            });
-        }
-    }
-};
+  
 
   // loading page
   if (loading) {
@@ -934,75 +863,24 @@ const MyInfoPage = () => {
               alignItems="center"
               position="relative"
             >
-              {/* if displaying steps, show language-changer. if displaying summary, show edit mode */}
-              {isSummary ? (
-                <Button
-                  onClick={handleEditOrSave}
-                  sx={{
-                    height: "55px",
-                    fontSize: '1rem',
-                    backgroundColor: 'background.default',
-                    color: 'text.primary',
-                    borderColor: 'background.default',
-                    '&:hover': {
-                      backgroundColor: 'text.primary',
-                      color: 'background.default',
-                      borderColor: 'text.primary',
-                    },
-                  }}
-                >
-                  {isEditing ? t("Save") : t("Edit")}
-                </Button>
-              ) : (
-                <FormControl 
-                  id="language-button" 
-                  sx={{ 
-                    width: isMobile ? '100px' : '100px',
-                    minWidth: '100px', // Ensures it doesn't get too small
-                  }}
-                >
-                  <Select
-                    value={prefLanguage}
-                    onChange={handleLanguageChange}
-                    disableunderline="true"
-                    displayEmpty
-                    renderValue={(selected) => {
-                      if (!selected) {
-                        return <span>{t('English')}</span>;
-                      }
-                      const selectedItem = {
-                        en: 'English',
-                        cn: '中文（简体）',
-                        tc: '中文（繁體）',
-                        es: 'Español',
-                        fr: 'Français',
-                        de: 'Deutsch',
-                        jp: '日本語',
-                        kr: '한국어'
-                      }[selected];
-                      return <span>{selectedItem}</span>;
-                    }}
-                    sx={{
-                      '& .MuiSelect-select': {
-                        paddingTop: '10px',
-                        paddingBottom: '10px',
-                      },
-                      '& .MuiSelect-icon': {
-                        color: 'text.primary', // Adjust color as needed
-                      },
-                    }}
-                  >
-                    <MenuItem value="en">English</MenuItem>
-                    <MenuItem value="cn">中文（简体）</MenuItem>
-                    <MenuItem value="tc">中文（繁體）</MenuItem>
-                    <MenuItem value="es">Español</MenuItem>
-                    <MenuItem value="fr">Français</MenuItem>
-                    <MenuItem value="de">Deutsch</MenuItem>
-                    <MenuItem value="jp">日本語</MenuItem>
-                    <MenuItem value="kr">한국어</MenuItem>
-                  </Select>
-                </FormControl>
-              )}
+              <Button
+                onClick={handleEditOrSave}
+                sx={{
+                  height: "55px",
+                  fontSize: '1rem',
+                  backgroundColor: 'background.default',
+                  color: 'text.primary',
+                  borderColor: 'background.default',
+                  '&:hover': {
+                    backgroundColor: 'text.primary',
+                    color: 'background.default',
+                    borderColor: 'text.primary',
+                  },
+                }}
+              >
+                {isEditing ? t("Save") : t("Edit")}
+              </Button>
+              
               {/* Title */}
               <Box display="flex" flexDirection={"row"} alignItems={"center"} gap ={1}>
                 <Typography variant="h6" color="text.primary" textAlign="center">
@@ -1064,7 +942,6 @@ const MyInfoPage = () => {
                 }}
               >
                 {/* show summary */}
-                {isSummary ? (
                   <Box
                     width="100%"
                     height="100vh"
@@ -1195,148 +1072,6 @@ const MyInfoPage = () => {
                       </Grid>
                     </Box>
                   </Box>
-                ) : (
-                  // show slides
-                  steps.map((step, index) => (
-                    <motion.div
-                      key={step.title}
-                      initial={{ opacity: 0, y: 50 }}
-                      animate={currentStep === index ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-                      transition={{ duration: 0.5 }}
-                      style={{ display: currentStep === index ? 'block' : 'none', width: '100%' }}
-                    >
-                      {/* title */}
-                      <Typography variant="h4" gutterBottom>{t(step.title)}</Typography>
-                      {/* content */}
-                      <Typography variant="body1" color="textSecondary" gutterBottom>{t(step.content)}</Typography>
-      
-                      {/* Handle different input types */}
-                      {step.options ? (
-                        <ToggleButtonGroup
-                          exclusive
-                          value={formData[step.title] || ''}
-                          onChange={(e, value) => handleInputChange(step.title, value)}
-                          onKeyDown={handleKeyPress}
-                          sx={{ mb: 4 }}
-                        >
-                          {step.options.map((option) => (
-                            <ToggleButton key={option} value={option}>
-                              {t(option)}
-                            </ToggleButton>
-                          ))}
-                        </ToggleButtonGroup>
-                      ) : (
-                        step.inputType && (
-                          <>
-                            {(step.title === 'What is Your Weight?' || step.title === 'What is Your Height?') ? (
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                <TextField
-                                  type="text"  // Using text to support ft/in format if needed
-                                  fullWidth
-                                  variant="outlined"
-                                  value={formData[step.title] || ''}
-                                  onChange={(e) => {
-                                    if (step.title === 'What is Your Height?' && heightUnit === 'ft/in') {
-                                      // Pass the value as-is for ft/in format, without converting to float
-                                      handleInputChange(step.title, e.target.value);
-                                    } else {
-                                      // Convert the value to a float for all other cases
-                                      handleInputChange(step.title, parseFloat(e.target.value));
-                                    }
-                                  }}
-                                  onKeyDown={handleKeyPress}
-                                  sx={{ mb: 4 }}
-                                  placeholder={
-                                    step.title === 'What is Your Height?' && heightUnit === 'ft/in' 
-                                      ? "e.g., 5'8\"" 
-                                      : (step.title === 'What is Your Height?' ? "Enter height in cm" : "")
-                                  }
-                                  InputProps={{
-                                    endAdornment: (
-                                      <Typography variant="body1">
-                                        {step.title === 'What is Your Weight?' ? weightUnit : heightUnit}
-                                      </Typography>
-                                    ),
-                                  }}
-                                />
-                                <ToggleButtonGroup
-                                  value={step.title === 'What is Your Weight?' ? weightUnit : heightUnit}
-                                  exclusive
-                                  onChange={step.title === 'What is Your Weight?' ? handleWeightUnitChange : handleHeightUnitChange}
-                                  sx={{ mb: 4 }}
-                                >
-                                  {step.title === 'What is Your Weight?' ? (
-                                    [
-                                      <ToggleButton key="kg" value="kg">kg</ToggleButton>,
-                                      <ToggleButton key="lbs" value="lbs">lbs</ToggleButton>,
-                                    ]
-                                  ) : (
-                                    [
-                                      <ToggleButton key="cm" value="cm">cm</ToggleButton>,
-                                      <ToggleButton key="ft/in" value="ft/in">ft/in</ToggleButton>,
-                                    ]
-                                  )}
-                                </ToggleButtonGroup>
-                              </Box>
-                            ) : step.inputType === 'dial' ? (
-                              <Box sx={{ mb: 4 }}>
-                                <Slider
-                                  defaultValue={3}
-                                  step={1}
-                                  marks
-                                  min={1}
-                                  max={7}
-                                  valueLabelDisplay="auto"
-                                  value={formData[step.title] || 1} // Default to 1 day if no value exists
-                                  onChange={(e, value) => handleInputChange(step.title, value)}
-                                />
-                              </Box>
-                            ) : (
-                              <TextField
-                                type="text"
-                                fullWidth
-                                variant="outlined"
-                                value={formData[step.title] || ''}
-                                onChange={(e) => {
-                                  if (step.title === 'How Old Are You?') {
-                                    console.log('here');
-                                    // Allow only numeric input for age
-                                    const numericValue = e.target.value.replace(/[^0-9]/g, ''); // Remove any non-numeric characters
-                                    handleInputChange(step.title, numericValue);
-                                  } else {
-                                    // Handle other input normally
-                                    handleInputChange(step.title, e.target.value);
-                                  }
-                                }}
-                                onKeyDown={handleKeyPress}
-                                sx={{ mb: 4 }}
-                              />
-                            )}
-                          </>
-                        )
-                      )}
-      
-                      {/* front/back buttons */}
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          onClick={prevStep}
-                          disabled={currentStep === 0}
-                        >
-                          {t('Back')}
-                        </Button>
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          onClick={currentStep === steps.length - 1 ? handleSubmit : nextStep}
-                        >
-                          {currentStep === steps.length - 1 ? t('Finish') : t('Next')}
-                        </Button>
-                      </Box>
-                    </motion.div>
-                  ))   
-                )}
               </Box>
             </Container>
           </Box>

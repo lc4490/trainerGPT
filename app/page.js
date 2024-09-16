@@ -2,7 +2,7 @@
 
 // base imports
 import { createContext, useState, useEffect, useContext } from 'react';
-import { Box, Stack, Typography, Button, Modal, TextField, Grid, Autocomplete, Divider, AppBar, Toolbar, BottomNavigation, BottomNavigationAction, FormControl, InputLabel, NativeSelect } from '@mui/material';
+import { Box, Select, MenuItem, Typography, Button, Modal, TextField, Grid, Autocomplete, Divider, AppBar, Toolbar, BottomNavigation, BottomNavigationAction, FormControl, InputLabel, NativeSelect } from '@mui/material';
 import { firestore, auth, provider, signInWithPopup, signOut } from './firebase';
 import { collection, getDocs, query, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 // light/dark theme
@@ -22,7 +22,7 @@ import NutritionPage from './pages/NutritionPage';
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
 // clerk
-import { useUser, redirectToSignIn } from "@clerk/nextjs";
+import { useUser, isSignedIn } from "@clerk/nextjs";
 // stripe
 import getStripe from "@/utils/get-stripe"; // Ensure you use this if necessary, or remove the import
 // router
@@ -706,21 +706,113 @@ export default function Home() {
             )}
           </Box>
         ) : (
-          <StepForm
-            steps={steps}
-            currentStep={currentStep}
-            formData={formData}
-            handleInputChange={handleInputChange}
-            handleKeyPressStep={handleKeyPressStep}
-            handleWeightUnitChange={handleWeightUnitChange}
-            weightUnit={weightUnit}
-            handleHeightUnitChange={handleHeightUnitChange}
-            heightUnit={heightUnit}
-            t={t}
-            nextStep={nextStep}
-            prevStep={prevStep}
-            handleSubmit={handleSubmit}
-          />
+          <>
+          <Box
+            height="10%"
+            bgcolor="background.default"
+            display="flex"
+            justifyContent="space-between"
+            paddingX={2.5}
+            paddingY={2.5}
+            alignItems="center"
+            position="relative"
+            >
+
+            <FormControl 
+                id="language-button" 
+                sx={{ 
+                width: isMobile ? '100px' : '100px',
+                minWidth: '100px',
+                }}
+            >
+                <Select
+                value={prefLanguage}
+                onChange={handleLanguageChange}
+                disableunderline="true"
+                displayEmpty
+                renderValue={(selected) => {
+                    if (!selected) {
+                    return <span>{t('English')}</span>;
+                    }
+                    const selectedItem = {
+                    en: 'English',
+                    cn: '中文（简体）',
+                    tc: '中文（繁體）',
+                    es: 'Español',
+                    fr: 'Français',
+                    de: 'Deutsch',
+                    jp: '日本語',
+                    kr: '한국어'
+                    }[selected];
+                    return <span>{selectedItem}</span>;
+                }}
+                sx={{
+                    '& .MuiSelect-select': {
+                    paddingTop: '10px',
+                    paddingBottom: '10px',
+                    },
+                    '& .MuiSelect-icon': {
+                    color: 'text.primary',
+                    },
+                }}
+                >
+                <MenuItem value="en">English</MenuItem>
+                <MenuItem value="cn">中文（简体）</MenuItem>
+                <MenuItem value="tc">中文（繁體）</MenuItem>
+                <MenuItem value="es">Español</MenuItem>
+                <MenuItem value="fr">Français</MenuItem>
+                <MenuItem value="de">Deutsch</MenuItem>
+                <MenuItem value="jp">日本語</MenuItem>
+                <MenuItem value="kr">한국어</MenuItem>
+                </Select>
+            </FormControl>
+
+
+            <Box id={"auth-button"}>
+                {!isSignedIn ? (
+                <Button 
+                    color="inherit"
+                    href = "/sign-in"
+                    sx={{
+                    justifyContent: "end",
+                    right: "2%",
+                    backgroundColor: 'background.default',
+                    color: 'text.primary',
+                    borderColor: 'text.primary',
+                    justifyContent: 'center',
+                    '&:hover': {
+                        backgroundColor: 'text.primary',
+                        color: 'background.default',
+                        borderColor: 'text.primary',
+                    },
+                    }}
+                >
+                    {t('signIn')}
+                </Button>
+                ) : (
+                <UserButton />
+                )}
+            </Box>
+            </Box>
+            <StepForm
+              steps={steps}
+              currentStep={currentStep}
+              formData={formData}
+              handleInputChange={handleInputChange}
+              handleKeyPressStep={handleKeyPressStep}
+              handleWeightUnitChange={handleWeightUnitChange}
+              weightUnit={weightUnit}
+              handleHeightUnitChange={handleHeightUnitChange}
+              heightUnit={heightUnit}
+              t={t}
+              nextStep={nextStep}
+              prevStep={prevStep}
+              handleSubmit={handleSubmit}
+            />
+    
+    </>
+          
+          
         )}
 
       </ThemeProvider>

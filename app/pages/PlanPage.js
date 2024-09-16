@@ -369,7 +369,6 @@ const PlanPage = () => {
               const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
               await Promise.all(deletePromises);
       
-              console.log("All events deleted successfully.");
       
               // Re-upload all the events in `allEvents`
               allEvents?.forEach(async (event) => {
@@ -379,14 +378,13 @@ const PlanPage = () => {
                 await setDoc(docRef, event);
               });
       
-              console.log("All events updated in Firestore.");
             } catch (error) {
               console.error("Error updating events in Firestore:", error);
             }
           }
         };
       
-        if (allEvents.length > 0) {
+        if (allEvents.length >= 0) {
           updateEventsInFirestore();
         }
       }, [allEvents, user]);

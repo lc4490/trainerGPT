@@ -22,7 +22,7 @@ import NutritionPage from './pages/NutritionPage';
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
 // clerk
-import { useUser } from "@clerk/nextjs";
+import { useUser, UserButton } from "@clerk/nextjs";
 // stripe
 import getStripe from "@/utils/get-stripe"; // Ensure you use this if necessary, or remove the import
 // router

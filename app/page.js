@@ -126,7 +126,7 @@ export default function Home() {
   const currentTheme = darkMode ? darkTheme : lightTheme;
 
   // bottom nav helper
-  const [value, setValue] = useState(2);
+  const [value, setValue] = useState(0);
 
   // premium mode
   const [hasPremiumAccess, setHasPremiumAccess] = useState(false);

@@ -72,8 +72,6 @@ const steps = [
 const MyInfoPage = () => {
   // router
   const router = useRouter();
-  // navigate through slides/steps
-  const [currentStep, setCurrentStep] = useState(0);
   // store filledo ut data
   const [formData, setFormData] = useState({});
   // if slides are finished, display summary page
@@ -96,7 +94,7 @@ const MyInfoPage = () => {
   const theme = prefersDarkMode ? darkTheme : lightTheme;
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   // guest context
-  const { guestData, setGuestData, guestImage, setGuestImage, guestEquipment, guestMessages} = useContext(GuestContext);
+  const { guestData, setGuestData, guestImage, setGuestImage, guestEquipment, guestMessages, guestPlan, guestEvents} = useContext(GuestContext);
   const { localData, setLocalData, localImage, setLocalImage, localEquipment, localMessages} = useContext(GuestContext);
   // info modal
   const [openInfoModal, setOpenInfoModal] = useState(false);
@@ -655,6 +653,69 @@ const MyInfoPage = () => {
 
   // state to manage height and unit
   const [heightUnit, setHeightUnit] = useState('cm'); // Default to cm
+
+  // getting plan
+  const [plan, setPlan] = useState(null);
+  // Function to get the plan
+  const getPlan = async () => {
+    try {
+      if (user) {
+        const userDocRef = doc(firestore, 'users', user.id);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          return userDoc.data().plan;
+        }
+      } else {
+        // Handle guest plan retrieval if needed
+        return guestPlan;
+      }
+    } catch (error) {
+      console.error("Error getting plan:", error);
+      return null;
+    }
+  };
+
+  // UseEffect to call getPlan and set the state
+  useEffect(() => {
+    const fetchPlan = async () => {
+      const fetchedPlan = await getPlan();
+      setPlan(fetchedPlan);
+      setLoading(false); // Stop loading once the plan is fetched
+    };
+    fetchPlan();
+  }, [user, guestPlan]);
+
+  const [allEvents, setAllEvents] = useState([]);
+  // update equipment everytime the user changes or guestEquipment changes
+  const updateEvents = async () => {
+    if (user) {
+      const userId = user.id;
+      const docRef = collection(firestore, 'users', userId, 'events');
+      const docs = await getDocs(docRef);
+      const events = [];
+      docs.forEach((doc) => {
+        events.push({ name: doc.id, ...doc.data() });
+      });
+      setAllEvents(events);
+    }
+    else{
+      setAllEvents(guestEvents)
+    }
+  };
+
+  useEffect(() => {
+      updateEvents();
+  }, [user, guestEvents]);
+
+  const isToday = (dateString) => {
+    const today = new Date();
+    const date = new Date(dateString);
+    return (
+      today.getDate() === date.getDate() &&
+      today.getMonth() === date.getMonth() &&
+      today.getFullYear() === date.getFullYear()
+    );
+  };
   
 
   // loading page
@@ -878,7 +939,7 @@ const MyInfoPage = () => {
                   },
                 }}
               >
-                {isEditing ? t("Save") : t("Edit")}
+                {isEditing ? t("Save") : t("Profile")}
               </Button>
               
               {/* Title */}
@@ -928,8 +989,7 @@ const MyInfoPage = () => {
             </Box>
             {isMobile && (<Divider />)}
             {/* body */}
-            <Container maxWidth="sm">
-              <Box
+              {isEditing ? (<Box
                 sx={{
                   minHeight: '80vh',
                   display: 'flex',
@@ -944,7 +1004,7 @@ const MyInfoPage = () => {
                 {/* show summary */}
                   <Box
                     width="100%"
-                    height="100vh"
+                    height="100%"
                   >
 
                     <Box
@@ -1072,8 +1132,81 @@ const MyInfoPage = () => {
                       </Grid>
                     </Box>
                   </Box>
-              </Box>
-            </Container>
+              </Box>)
+              :
+              (<Box
+              display="flex"
+              flexDirection={"column"}
+              paddingX = {5}
+              // gap = {2.5}
+              >
+                <Typography
+                sx={{
+                  fontSize: "2.5rem",
+                  fontWeight: "700"
+                }}>
+                  Welcome, {user ? (user.fullName.split(" ")[0]) : ("Guest")}.
+                </Typography>
+                
+                {plan ? (
+                  <Box>
+                    
+                      {allEvents.length > 0 ? (
+                        <Box>
+                        <Typography
+                          sx ={{
+                            padding: 1,
+                            fontSize: "1.25rem",
+                            fontWeight: "300"
+                          }}
+                          >Upcoming workouts:
+                          </Typography>
+                          <Stack flexDirection="row" alignItems="flex-start" style={{ overflow: 'scroll' }}>
+                            {allEvents
+                            .sort((a, b) => new Date(a.start) - new Date(b.start)) // Sort events by start date
+                            .map(({title, start}, index)=> (
+                              <Button
+                              key={index} 
+                              sx={{ color: "text.primary", flexShrink: 0 }}
+                              // onClick={() => handleRecipeModal(index)}
+                              >
+                                <Box
+                                  width = "150px"
+                                  height = "150px"
+                                  display="flex"
+                                  flexDirection="column"
+                                  justifyContent="space-between"
+                                  alignItems="center"
+                                  bgcolor="darkgray"
+                                  padding={1}
+                                  sx={{
+                                    // width: '275px',
+                                    borderRadius: '10px',
+                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                    overflow: 'hidden',
+                                  }}
+                                >
+                                  <Stack width="100%">
+                                    <Typography sx={{ fontSize: "0.7rem", textAlign: "end" }}>
+                                      Scheduled for {isToday(start) ? 'Today' : new Date(start).toLocaleDateString('en-US', { weekday: 'long' })}
+                                    </Typography>
+                                  </Stack>
+                                  <Typography sx = {{fontWeight: "800", textAlign: "left"}}>{title.split(":")[1]}</Typography>
+                                  
+                                </Box>
+                              </Button>
+                            ))}
+                          </Stack>
+                          </Box>
+                      ) : (
+                        <Typography sx = {{fontWeight: "300"}}>Now that you have a workout plan, go to the myPlanner page to create your schedule.</Typography>
+                      )}
+                  </Box>
+                ):(
+                  <Typography sx = {{fontWeight: "300"}}>Get started by asking trainerGPT for a workout plan!</Typography>)
+                  }
+              </Box>)}
+
           </Box>
         {/* </Box> */}
     </ThemeProvider>

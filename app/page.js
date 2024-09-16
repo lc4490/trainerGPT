@@ -160,7 +160,7 @@ export default function Home() {
     else{
       setHasPremiumAccess(false)
     }
-  }, [isLoaded, user, searchParams]);
+  }, [isLoaded, user, searchParams, setPremiumMode]);
 
   // handle user purchase
   const handlePurchase = async () => {
@@ -457,7 +457,7 @@ export default function Home() {
     };
 
     initializeData();
-  }, [user]);
+  }, [user, isLoaded, guestData, localData, localMessages.length]);
 
   return (
     // guest mode

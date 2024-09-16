@@ -139,7 +139,20 @@ export default function Home() {
         setHasPremiumAccess(userDoc.exists() && userDoc.data().premium === true);
       };
       fetchPremiumMode();
-
+  
+      const setPremiumMode = async () => {
+        if (user) {
+          try {
+            const userDocRef = doc(firestore, 'users', user.id);
+            await setDoc(userDocRef, { premium: true }, { merge: true });
+          } catch (error) {
+            console.error('Error setting premium mode:', error);
+          }
+        } else {
+          console.warn('No user found, unable to update premium status');
+        }
+      };
+  
       const checkSession = async () => {
         const session_id = searchParams.get('session_id');
         if (session_id) {
@@ -156,11 +169,10 @@ export default function Home() {
         }
       };
       checkSession();
+    } else {
+      setHasPremiumAccess(false);
     }
-    else{
-      setHasPremiumAccess(false)
-    }
-  }, [isLoaded, user, searchParams, setPremiumMode]);
+  }, [isLoaded, user, searchParams]);  
 
   // handle user purchase
   const handlePurchase = async () => {
@@ -195,19 +207,6 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error during the payment process:', error);
-    }
-  };
-
-  // set premium mode in firebase after purchase
-  const setPremiumMode = async () => {
-    if (user) {
-      try {
-        const userDocRef = doc(firestore, 'users', user.id);
-        await setDoc(userDocRef, { premium: true }, { merge: true });
-      } catch (error) {
-      }
-    } else {
-      console.warn('No user found, unable to update premium status');
     }
   };
 

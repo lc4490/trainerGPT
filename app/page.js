@@ -460,7 +460,7 @@ export default function Home() {
   }, [user, isLoaded, guestData, localData, localMessages.length]);
 
   if (loading) {
-    return <Loading t={t} />;
+    return (<Box width="100vw" height = "100vh" display = "flex" justifyContent={"center"} alignItems={"center"}><Loading t={t} /></Box>);
   }
 
   return (

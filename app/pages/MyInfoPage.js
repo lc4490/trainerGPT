@@ -24,50 +24,10 @@ import { GuestContext } from '../page'; // Adjust the path based on your structu
 import { useRouter, useSearchParams } from 'next/navigation';
 // info button
 import InfoIcon from '@mui/icons-material/Info';
+import ReactMarkdown from 'react-markdown';
+import { customComponents } from '../customMarkdownComponents';
 
-// light/dark themes
-const lightTheme = createTheme({
-  palette: {
-    mode: 'light',
-    background: {
-      default: '#ffffff',
-      paper: '#ffffff',
-      bubbles: 'lightgray',
-      userBubble: '#95EC69',
-      link: 'darkblue',
-    },
-    text: {
-      primary: '#000000',
-    },
-  },
-});
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    background: {
-      default: '#121212',
-      paper: '#121212',
-      bubbles: '#2C2C2C',
-      userBubble: '#29B560',
-      link: 'lightblue',
-    },
-    text: {
-      primary: '#ffffff',
-    },
-  },
-});
-
-const steps = [
-  { title: 'Tell Us About Yourself', content: 'Select your gender', options: ['Male', 'Female'] },
-  { title: 'How Old Are You?', content: 'Age is important', inputType: 'string' },
-  { title: 'What is Your Weight?', content: 'Enter your weight', inputType: 'string' },
-  { title: 'What is Your Height?', content: 'Enter your height', inputType: 'string' },
-  { title: 'What is Your Goal?', content: 'Select your goal', options: ['Weight Loss', 'Muscle Gain', 'Improved Endurance', 'General Fitness'] },
-  { title: 'Physical Activity Level?', content: 'Select your activity level', options: ['Sedentary', 'Moderate', 'Active'] },
-  { title: 'Do you have any existing health issues or injuries?', content: 'Enter any existing health issues or injuries', inputType: 'string' },
-  { title: 'How many days a week can you commit to working out?', content: 'Select the number of workout days', inputType: 'dial', range: { min: 1, max: 7 } },
-];
-
+import { lightTheme, darkTheme } from '../theme';
 
 const MyInfoPage = () => {
   // router
@@ -654,6 +614,7 @@ const MyInfoPage = () => {
   // state to manage height and unit
   const [heightUnit, setHeightUnit] = useState('cm'); // Default to cm
 
+  // the kacey effect
   // getting plan
   const [plan, setPlan] = useState(null);
   // Function to get the plan
@@ -686,7 +647,6 @@ const MyInfoPage = () => {
   }, [user, guestPlan]);
 
   const [allEvents, setAllEvents] = useState([]);
-  // update equipment everytime the user changes or guestEquipment changes
   const updateEvents = async () => {
     if (user) {
       const userId = user.id;
@@ -716,6 +676,100 @@ const MyInfoPage = () => {
       today.getFullYear() === date.getFullYear()
     );
   };
+
+  // workout modal
+  const handleWorkoutModal = (index) => {
+    setSelectedWorkout(index);
+    setOpenWorkoutModal(true);
+  };
+
+  const [openWorkoutModal, setOpenWorkoutModal] = useState(false);
+  const [selectedWorkout, setSelectedWorkout] = useState({});
+
+  const [isEditingWorkout, setIsEditingWorkout] = useState(false)
+
+  const handleEditOrSaveWorkout = () => {
+    if(isEditing){
+      // handleSubmit()
+    }
+    setIsEditingWorkout(!isEditingWorkout)
+  }
+  const renderEditExercise = (index, value) => {
+    return (
+      <TextField
+      type="text"
+      value={value}
+      onChange={(e) => handleInputChangeWorkout(index, e.target.value)}
+      fullWidth
+      variant="outlined"
+      multiline
+      minRows={3} // Match the height and appearance of the multiline markdown text
+      InputProps={{
+        sx: {
+          fontSize: '1rem', // Match typography used in customComponents
+          lineHeight: 1.6,  // Match lineHeight from customComponents
+          padding: 0,       // Remove default padding for seamless integration
+          fontFamily: 'inherit', // Inherit font for a consistent look
+        },
+      }}
+      sx={{
+        mb: 2,
+        '& .MuiOutlinedInput-root': {
+          '& fieldset': {
+            border: 'none', // Remove border for cleaner appearance
+          },
+        },
+      }}
+    />
+  )
+  }
+
+  const handleInputChangeWorkout = (index, value) => {
+    if(user){
+      const updatedEvents = [...allEvents];
+      updatedEvents[index].extendedProps.details = value;
+      setAllEvents(updatedEvents);
+    }
+    else{
+      const updatedEvents = [...guestEvents];
+      updatedEvents[index].extendedProps.details = value;
+      setAllEvents(guestEvents);
+    }
+  }
+
+  useEffect(() => {
+    const updateEventsInFirestore = async () => {
+      if (user) {
+        const userId = user.id;
+        const eventsCollectionRef = collection(firestore, 'users', userId, 'events');
+  
+        try {
+          // Fetch all events in Firestore
+          const querySnapshot = await getDocs(eventsCollectionRef);
+  
+          // Delete each event
+          const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
+          await Promise.all(deletePromises);
+  
+  
+          // Re-upload all the events in `allEvents`
+          allEvents?.forEach(async (event) => {
+            const docRef = doc(firestore, 'users', userId, 'events', event?.id?.toString());
+  
+            // Upload the new event to Firestore
+            await setDoc(docRef, event);
+          });
+  
+        } catch (error) {
+          console.error("Error updating events in Firestore:", error);
+        }
+      }
+    };
+  
+    if (allEvents.length >= 0) {
+      updateEventsInFirestore();
+    }
+  }, [allEvents, user]);
   
 
   // loading page
@@ -913,6 +967,82 @@ const MyInfoPage = () => {
                 </Button>
             </Box>
           </Modal>
+
+          {/* workout modal */}
+          <Modal open={openWorkoutModal} onClose={() => setOpenWorkoutModal(false)}>
+          <Box
+            overflow="auto"
+            sx={{
+              width: '100%',
+              height: '100%',
+              bgcolor: 'background.default',
+            }}
+          >
+            <Box width = "100%" display = "flex" justifyContent={"space-between"} alignItems = "center">
+              <Box padding = {1}>
+                <Button
+                    onClick={handleEditOrSaveWorkout}
+                    sx={{
+                      height: "55px",
+                      fontSize: '1rem',
+                      backgroundColor: 'background.default',
+                      color: 'text.primary',
+                      border: 1,
+                      borderColor: 'text.primary',
+                      '&:hover': {
+                        backgroundColor: 'text.primary',
+                        color: 'background.default',
+                        borderColor: 'text.primary',
+                      },
+                    }}
+                  >
+                    {isEditingWorkout ? t("Save") : t("Edit")}
+                  </Button>
+                </Box>
+                <Button 
+                  onClick={()=>{setOpenWorkoutModal(false)}}
+                  sx={{
+                    height: "55px",
+                    fontSize: '1rem',
+                    backgroundColor: 'background.default',
+                    color: 'text.primary',
+                    borderColor: 'background.default',
+                    borderRadius: '50px',
+                    '&:hover': {
+                      backgroundColor: 'background.default',
+                      color: 'text.primary',
+                      borderColor: 'background.default',
+                    },
+                  }}
+                  ><Typography sx = {{fontSize: "1.1rem"}}>X</Typography></Button>
+              </Box>
+            <Box
+            sx = {{paddingX: 2}}
+            >
+              <Box width = "100%" height = "75px" display = "flex" justifyContent="center">
+                <Typography
+                sx={{fontWeight: 700, fontSize: "2rem"}}
+                >
+                {allEvents[selectedWorkout]?.title.split(":")[1]}
+                
+                </Typography>
+              </Box>
+              
+              {isEditingWorkout ? (
+                <Box>
+                  {renderEditExercise(selectedWorkout, allEvents[selectedWorkout]?.extendedProps?.details)}
+                </Box>
+              ) : (
+                <ReactMarkdown components={customComponents}>
+                  {allEvents[selectedWorkout]?.extendedProps?.details}
+                </ReactMarkdown>
+              )}
+
+
+              
+            </Box>
+          </Box>
+          </Modal>
           {/* Header Box */}
             <Box
               height="10%"
@@ -989,7 +1119,8 @@ const MyInfoPage = () => {
             </Box>
             {isMobile && (<Divider />)}
             {/* body */}
-              {isEditing ? (<Box
+              {isEditing ? (
+              <Box
                 sx={{
                   minHeight: '80vh',
                   display: 'flex',
@@ -1001,7 +1132,6 @@ const MyInfoPage = () => {
                   paddingBottom: '60px', // Ensure content is not cut off by the toolbar
                 }}
               >
-                {/* show summary */}
                   <Box
                     width="100%"
                     height="100%"
@@ -1134,7 +1264,8 @@ const MyInfoPage = () => {
                   </Box>
               </Box>)
               :
-              (<Box
+              (
+              <Box
               display="flex"
               flexDirection={"column"}
               paddingX = {5}
@@ -1168,11 +1299,11 @@ const MyInfoPage = () => {
                               <Button
                               key={index} 
                               sx={{ color: "text.primary", flexShrink: 0 }}
-                              // onClick={() => handleRecipeModal(index)}
+                              onClick={() => handleWorkoutModal(index)}
                               >
                                 <Box
-                                  width = "150px"
-                                  height = "150px"
+                                  width = {isMobile ? "150px" : "300px"}
+                                  height = {isMobile ? "150px" : "300px"}
                                   display="flex"
                                   flexDirection="column"
                                   justifyContent="space-between"
@@ -1187,11 +1318,11 @@ const MyInfoPage = () => {
                                   }}
                                 >
                                   <Stack width="100%">
-                                    <Typography sx={{ fontSize: "0.7rem", textAlign: "end" }}>
+                                    <Typography sx={{ fontSize: isMobile ? "0.7rem" : "1rem", textAlign: "end" }}>
                                       Scheduled for {isToday(start) ? 'Today' : new Date(start).toLocaleDateString('en-US', { weekday: 'long' })}
                                     </Typography>
                                   </Stack>
-                                  <Typography sx = {{fontWeight: "800", textAlign: "left"}}>{title.split(":")[1]}</Typography>
+                                  <Typography sx = {{fontWeight: "900", textAlign: "left", fontSize: isMobile ? "1rem" : "2rem"}}>{title.split(":")[1]}</Typography>
                                   
                                 </Box>
                               </Button>
@@ -1205,7 +1336,8 @@ const MyInfoPage = () => {
                 ):(
                   <Typography sx = {{fontWeight: "300"}}>Get started by asking trainerGPT for a workout plan!</Typography>)
                   }
-              </Box>)}
+              </Box>
+              )}
 
           </Box>
         {/* </Box> */}

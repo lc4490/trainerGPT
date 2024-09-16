@@ -31,6 +31,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import JoyRide, { STATUS } from 'react-joyride';
 
 import StepForm from './pages/TrainerGPT/StepForm';
+import Loading from './pages/TrainerGPT/Loading';
 import { steps } from './pages/TrainerGPT/steps';
 
 // light/dark themes
@@ -458,6 +459,10 @@ export default function Home() {
     initializeData();
   }, [user, isLoaded, guestData, localData, localMessages.length]);
 
+  if (loading) {
+    return <Loading t={t} />;
+  }
+
   return (
     // guest mode
     <GuestContext.Provider value={{ guestData, setGuestData, guestImage, setGuestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages, guestPlan, setGuestPlan, guestEvents, setGuestEvents, localData, setLocalData, localImage, setLocalImage, localEquipment, setLocalEquipment, localMessages, setLocalMessages, localPlan, setLocalPlan, localEvents, setLocalEvents}}>
@@ -470,7 +475,8 @@ export default function Home() {
         <JoyRide 
         continuous
         callback={() => {}}
-        run={!user}
+        // run={!user}
+        run={false}
         steps={[
           {
             title: t("Welcome to trainerGPT"),

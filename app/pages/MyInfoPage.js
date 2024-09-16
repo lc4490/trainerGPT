@@ -1269,12 +1269,14 @@ const MyInfoPage = () => {
               display="flex"
               flexDirection={"column"}
               paddingX = {5}
+              marginTop = {2.5}
               // gap = {2.5}
               >
                 <Typography
                 sx={{
                   fontSize: "2.5rem",
-                  fontWeight: "700"
+                  fontWeight: "700",
+                  lineHeight: "1.2",
                 }}>
                   Welcome, {user ? (user.fullName.split(" ")[0]) : ("Guest")}.
                 </Typography>

@@ -22,7 +22,7 @@ import NutritionPage from './pages/NutritionPage';
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
 // clerk
-import { useUser, isSignedIn } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 // stripe
 import getStripe from "@/utils/get-stripe"; // Ensure you use this if necessary, or remove the import
 // router
@@ -75,7 +75,7 @@ export default function Home() {
   // use translation
   const { t } = useTranslation();
   // user
-  const { user, isLoaded } = useUser(); // Clerk hook to get the current user
+  const { user, isLoaded, isSignedIn } = useUser(); // Clerk hook to get the current user
   // guest mode
   const [guestData, setGuestData] = useState({});
   const [guestImage, setGuestImage] = useState('');

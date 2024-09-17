@@ -63,7 +63,7 @@ const EquipmentPage = () => {
   const webcamRef = useRef(null);
   const [facingMode, setFacingMode] = useState('user'); // 'user' is the front camera, 'environment' is the back camera
   // guest context
-  const {guestData, guestImage, guestEquipment, setGuestEquipment, guestMessages} = useContext(GuestContext)
+  const {guestData, guestImage, guestEquipment, setGuestEquipment, guestMessages, guestPlan, guestEvents} = useContext(GuestContext)
   // info modal
   const [openInfoModal, setOpenInfoModal] = useState(false);
 
@@ -244,36 +244,44 @@ const EquipmentPage = () => {
     router.push('/sign-in'); // Redirect to the sign-in page
   };
   const saveGuestDataToFirebase = async () => {
-  const guestDocRef = doc(firestore, 'users', 'guest');
-  // Save guest user data and profile picture
-  await setDoc(guestDocRef, { userData: guestData }, { merge: true });
-  await setDoc(guestDocRef, { profilePic: guestImage }, { merge: true });
-
-  try {
-    // Save guest equipment data
-    const equipmentCollectionRef = collection(guestDocRef, 'equipment');
-    for (const item of guestEquipment) {
-      const equipmentDocRef = doc(equipmentCollectionRef, item.name);
-      await setDoc(equipmentDocRef, {
-        count: item.count || 0,
-        image: item.image || null,
+    const guestDocRef = doc(firestore, 'users', 'guest');
+    // Save guest user data and profile picture
+    await setDoc(guestDocRef, { userData: guestData }, { merge: true });
+    await setDoc(guestDocRef, { profilePic: guestImage }, { merge: true });
+    await setDoc(guestDocRef, {plan: guestPlan}, {merge: true})
+  
+    try {
+      // Save guest equipment data
+      const equipmentCollectionRef = collection(guestDocRef, 'equipment');
+      for (const item of guestEquipment) {
+        const equipmentDocRef = doc(equipmentCollectionRef, item.name);
+        await setDoc(equipmentDocRef, {
+          count: item.count || 0,
+          image: item.image || null,
+        });
+      }
+  
+      // Save guest chat data
+      const chatCollectionRef = collection(guestDocRef, 'chat');
+      const chatDocRef = doc(chatCollectionRef, 'en'); // Assuming 'en' is the language
+      await setDoc(chatDocRef, {
+        messages: guestMessages || [],
+        timestamp: new Date().toISOString(),
       });
+
+      // Save events data
+      const eventCollectionRef = collection(guestDocRef, 'events');
+      for (const event of guestEvents) {
+        const eventDocRef = doc(eventCollectionRef, event?.id?.toString());
+        await setDoc(eventDocRef, event)
+      }
+  
+      
+  
+      console.log('Guest data saved to Firebase.');
+    } catch (error) {
+      console.error("Error saving guest data to Firebase:", error);
     }
-
-    // Save guest chat data
-    const chatCollectionRef = collection(guestDocRef, 'chat');
-    const chatDocRef = doc(chatCollectionRef, 'en'); // Assuming 'en' is the language
-    await setDoc(chatDocRef, {
-      messages: guestMessages || [],
-      timestamp: new Date().toISOString(),
-    });
-
-    
-
-    console.log('Guest data saved to Firebase.');
-  } catch (error) {
-    console.error("Error saving guest data to Firebase:", error);
-  }
   };
 
   // open Info modal

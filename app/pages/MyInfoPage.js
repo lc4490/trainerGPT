@@ -207,8 +207,6 @@ const MyInfoPage = () => {
             setLocalImage(img)
             // setIsSummary(true);
           }
-          // Transfer guest data to the user account
-          await transferGuestDataToUser();
         } else {
           if (guestData && guestData.Age) {
             setFormData(guestData);
@@ -255,8 +253,8 @@ const MyInfoPage = () => {
     'Availability',
   ];
 
-   // Save guest data when sign-in button is clicked
-   const handleSignInClick = async () => {
+  // Save guest data when sign-in button is clicked
+  const handleSignInClick = async () => {
     await saveGuestDataToFirebase();
     router.push('/sign-in'); // Redirect to the sign-in page
   };
@@ -265,6 +263,7 @@ const MyInfoPage = () => {
     // Save guest user data and profile picture
     await setDoc(guestDocRef, { userData: guestData }, { merge: true });
     await setDoc(guestDocRef, { profilePic: guestImage }, { merge: true });
+    await setDoc(guestDocRef, {plan: guestPlan}, {merge: true})
   
     try {
       // Save guest equipment data
@@ -284,91 +283,19 @@ const MyInfoPage = () => {
         messages: guestMessages || [],
         timestamp: new Date().toISOString(),
       });
+
+      // Save events data
+      const eventCollectionRef = collection(guestDocRef, 'events');
+      for (const event of guestEvents) {
+        const eventDocRef = doc(eventCollectionRef, event?.id?.toString());
+        await setDoc(eventDocRef, event)
+      }
   
       
   
       console.log('Guest data saved to Firebase.');
     } catch (error) {
       console.error("Error saving guest data to Firebase:", error);
-    }
-  };
-  const transferGuestDataToUser = async () => {
-    const guestDocRef = doc(firestore, 'users', 'guest');
-    const userDocRef = doc(firestore, 'users', user.id);
-  
-    try {
-      // Transfer equipment data
-      const guestEquipmentCollectionRef = collection(guestDocRef, 'equipment');
-      const userEquipmentCollectionRef = collection(userDocRef, 'equipment');
-  
-      const guestEquipmentSnapshot = await getDocs(guestEquipmentCollectionRef);
-      guestEquipmentSnapshot.forEach(async (item) => {
-        const userEquipmentDocRef = doc(userEquipmentCollectionRef, item.id);
-        const userEquipmentDoc = await getDoc(userEquipmentDocRef);
-  
-        if (!userEquipmentDoc.exists()) {
-          // Only set guest equipment data if the user does not have it
-          await setDoc(userEquipmentDocRef, item.data());
-        }
-        await deleteDoc(item.ref);
-      });
-  
-      // Check if the user has any existing chat data
-      const userChatCollectionRef = collection(userDocRef, 'chat');
-      const userChatSnapshot = await getDocs(userChatCollectionRef);
-
-      if (userChatSnapshot.empty) {
-        // If the user has no chat data, transfer the guest chat data
-        const guestChatCollectionRef = collection(guestDocRef, 'chat');
-        const guestChatSnapshot = await getDocs(guestChatCollectionRef);
-
-        guestChatSnapshot.forEach(async (item) => {
-          const userChatDocRef = doc(userChatCollectionRef, item.id);
-          await setDoc(userChatDocRef, item.data());
-
-        });
-      }
-  
-      // Transfer user data and profile picture
-      const guestDoc = await getDoc(guestDocRef);
-      if (guestDoc.exists()) {
-        const guestData = guestDoc.data();
-        const userDoc = await getDoc(userDocRef);
-  
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-  
-          // Merge guest data only if user data does not exist
-          const mergedUserData = {
-            userData: userData?.userData || guestData.userData,
-            profilePic: userData?.profilePic || guestData.profilePic,
-          };
-  
-          await setDoc(userDocRef, mergedUserData, { merge: true });
-        } else {
-          // If no user document exists, set the guest data directly
-          await setDoc(userDocRef, {
-            userData: guestData.userData,
-            profilePic: guestData.profilePic,
-          }, { merge: true });
-        }
-      }
-  
-      // Refresh the data in the app
-      const data = await getUserData();
-      const img = await getImage();
-      if (data) {
-        setFormData(data); // Set form data from Firestore if available
-        setImage(img);
-        setIsSummary(true);
-      }
-  
-      // Delete guest data
-      await deleteDoc(guestDocRef);
-  
-      console.log('Guest data transferred to user and guest data deleted.');
-    } catch (error) {
-      console.error("Error transferring guest data to user:", error);
     }
   };
 

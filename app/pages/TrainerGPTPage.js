@@ -17,15 +17,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 // front end
 import Header from './TrainerGPT/Header';
-import Loading from './TrainerGPT/Loading';
+import Loading from '../Loading';
 import InfoModal from './TrainerGPT/InfoModal';
 import ChatLog from './TrainerGPT/ChatLog';
-import StepForm from './TrainerGPT/StepForm';
 
 // backend data
 import { lightTheme, darkTheme } from '../theme';
 import { exerciseData } from './TrainerGPT/exerciseData'; 
-import { steps } from './TrainerGPT/steps'; 
 import { customComponents } from '../customMarkdownComponents'; 
 
 
@@ -90,7 +88,6 @@ const TrainerGPTPage = () => {
         setData(localData)
         setFormData(localData)
         setMessages(localMessages)
-        setIsSummary(true)
         setLoading(false)
       }
       if(!user){
@@ -106,7 +103,6 @@ const TrainerGPTPage = () => {
             setLocalData(data)
             await loadChatLog(user.id, i18n.language);
             await updateEquipment();
-            // setIsSummary(true)
             
           }
           // Transfer guest data to the user account
@@ -115,9 +111,7 @@ const TrainerGPTPage = () => {
           if (guestData && guestData.Age) {
             setData(guestData)
             setFormData(guestData);
-            setIsSummary(true);
           } else {
-            setIsSummary(false);
             setFormData(guestData);
           }
           if(guestMessages.length > 0){
@@ -143,74 +137,11 @@ const TrainerGPTPage = () => {
   }, [prefersDarkMode]);
   const theme = darkMode ? darkTheme : lightTheme;
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
-  // navigate through slides/steps
-  const [currentStep, setCurrentStep] = useState(0);
   // store filledo ut data
   const [formData, setFormData] = useState({});
-  // if slides are finished, display summary page
-  const [isSummary, setIsSummary] = useState(false);
   // is loading, display loading page
   const [loading, setLoading] = useState(true); // Loading state
 
-  // move between steps
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
-  };
-  const prevStep = () => {
-    if (currentStep > 0) setCurrentStep(currentStep - 1);
-  };
-  // set filled out data
-  const handleInputChange = (key, value) => {
-    setFormData({ ...formData, [key]: value});
-  }
-
-  // Save user form data to Firestore
-  const saveUserData = async (data) => {
-    if (user) {
-      const userDocRef = doc(firestore, 'users', user.id);
-      await setDoc(userDocRef, { userData: data }, { merge: true });
-    }
-    else{
-      setGuestData(data)
-    }
-  };
-
-  // Handle form submission and save data to Firestore
-  const handleSubmit = async () => {
-    
-    await saveUserData(unpackData(formData));
-    setFormData(unpackData(formData));
-    setIsSummary(true); // Show summary page
-    
-  };
-
-  // clean up formData 
-  function unpackData(data) {
-    const ret = {
-      "Sex": data[("Tell Us About Yourself")] || t("Not available"),
-      "Age": data[('How Old Are You?')] || t("Not available"),
-      "Weight": data[('What is Your Weight?')] + weightUnit|| t("Not available"),
-      "Height": data[('What is Your Height?')] + heightUnit|| t("Not available"),
-      "Goals": data[('What is Your Goal?')] || t("Not available"),
-      "Activity": data[('Physical Activity Level?')] || t("Not available"),
-      "Health issues": data[('Do you have any existing health issues or injuries?')] || t("Not available"),
-      "Availability": data[t('How many days a week can you commit to working out?')] || "Not available",
-    };
-    return ret;
-  }
-
-  // Handle enter key
-  const handleKeyPressStep = (event) => {
-    if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault();
-      if (currentStep === steps.length - 1) {
-        handleSubmit();
-      } else {
-        nextStep();
-      }
-    }
-  };
 
   // Sending messages
   const [messages, setMessages] = useState([{ role: 'assistant', content: t('welcome', { name: t('guest') }) }]);
@@ -638,7 +569,6 @@ const TrainerGPTPage = () => {
       const data = await getUserData();
       if (data) {
         setFormData(data); // Set form data from Firestore if available
-        setIsSummary(true);
       }
   
       // Delete guest data
@@ -817,7 +747,7 @@ const TrainerGPTPage = () => {
         height = "100%"
         display="flex"
         flexDirection="column"
-        paddingBottom= '60px' // Ensure content is not cut off by the toolbar
+        // paddingBottom= '60px' // Ensure content is not cut off by the toolbar
       >
         {/* info modal */}
         <InfoModal t={t} openInfoModal={openInfoModal} setOpenInfoModal={setOpenInfoModal} />

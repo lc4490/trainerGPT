@@ -9,8 +9,6 @@ import { collection, getDocs, doc, setDoc, deleteDoc, getDoc } from 'firebase/fi
 // Translations
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n'; // Adjust the path as necessary
-// light/dark mode
-import { createTheme } from '@mui/material';
 // images
 import Image from 'next/image';
 import Webcam from 'react-webcam';
@@ -24,6 +22,8 @@ import { GuestContext } from '../page'; // Adjust the path based on your structu
 import { useRouter, useSearchParams } from 'next/navigation';
 // info button
 import InfoIcon from '@mui/icons-material/Info';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
 import ReactMarkdown from 'react-markdown';
 import { customComponents } from '../customMarkdownComponents';
 
@@ -804,7 +804,7 @@ const MyInfoPage = () => {
           display="flex"
           flexDirection="column"
           backgroundColor="background.default"
-          paddingBottom= '60px' // Ensure content is not cut off by the toolbar
+          // paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >
           {/* camera modal */}
           <Modal open={cameraOpen} onClose={() => setCameraOpen(false)}>
@@ -1148,46 +1148,48 @@ const MyInfoPage = () => {
                       alignItems="center"
                     >
                       {/* show image or placeholder */}
+                      <Box style={{ position: 'relative', display: 'inline-block' }}>
                       {image ? (
                         <Image
                           src={image}
                           alt={t("image")}
-                          width={isMobile ? 300 : 300}
-                          height={isMobile ? 300 : 300}
+                          width={isMobile ? 150 : 300}
+                          height={isMobile ? 150 : 300}
                           style={{
-                            borderRadius: "30px",
+                            borderRadius: "9999px",
                             objectFit: 'cover',
                             transform: facingMode === 'user' ? "scaleX(-1)" : "none",
                             aspectRatio: "1/1",
-                            // width: '100%', /* Ensure aspect ratio */
-                            // height: '100%'  /* Ensure aspect ratio */
                           }}
                         />
                       ) : (
                         <Image
                           src="/profile.jpg"
                           alt={t("banner")}
-                          width={isMobile ? 200 : 300}
-                          height={isMobile ? 200 : 300}
+                          width={isMobile ? 150 : 300}
+                          height={isMobile ? 150 : 300}
                           style={{
-                            borderRadius: "30px",
-                            width: 'auto',  /* Ensure aspect ratio */
-                            height: 'auto'  /* Ensure aspect ratio */
+                            borderRadius: "9999px",
+                            width: 'auto',
+                            height: 'auto',
                           }}
                         />
                       )}
-                      {/* Add photo button */}
-                      <Button
-                        variant="outlined"
+                      
+                      {/* Button positioned in the top right */}
+                      <Button 
                         onClick={() => setCameraOpen(true)}
                         sx={{
-                          width: "150px",
-                          height: "40px",
-                          fontSize: '0.75rem',
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          zIndex: 1, // Ensure the button stays above the image
                           backgroundColor: 'text.primary',
                           color: 'background.default',
                           borderColor: 'background.default',
-                          borderRadius: '10px',
+                          borderRadius: '9999px',
+                          aspectRatio: 1,
+                          fontSize: "0.5rem",
                           '&:hover': {
                             backgroundColor: 'background.default',
                             color: 'text.primary',
@@ -1195,8 +1197,11 @@ const MyInfoPage = () => {
                           },
                         }}
                       >
-                        {image ? t("Change photo") : t("Add photo")}
+                          {image ? (<EditIcon />) : (<AddIcon />)}
                       </Button>
+                    </Box>
+                      <Typography sx = {{fontSize: "2.5rem", fontWeight: "700", lineHeight: "1.2",}}>{user ? user.fullName : t("Guest")}</Typography>
+                      <Box width = "100%" justifyContent={"left"} paddingX = {isMobile ? 2.5 : 4}><Typography sx = {{fontSize: "1.25rem", fontWeight: "300"}}>Info</Typography></Box>
 
                       {/* display content summary */}
                       <Grid 
@@ -1206,7 +1211,7 @@ const MyInfoPage = () => {
                           justifyContent: 'center', // Center items horizontally
                           width: "90vw", 
                           // overflow: 'auto', // Allow scrolling if content overflows
-                          padding: 3, // Add padding around the grid container
+                          paddingX: 3, // Add padding around the grid container
                           paddingBottom: "60px", // Add space for the toolbar
                         }}
                       >
@@ -1264,11 +1269,12 @@ const MyInfoPage = () => {
                   </Box>
               </Box>)
               :
+              // home page
               (
               <Box
               display="flex"
               flexDirection={"column"}
-              paddingX = {5}
+              paddingX = {isMobile ? 2.5 : 5}
               marginTop = {2.5}
               // gap = {2.5}
               >
@@ -1310,7 +1316,7 @@ const MyInfoPage = () => {
                                   flexDirection="column"
                                   justifyContent="space-between"
                                   alignItems="center"
-                                  bgcolor="darkgray"
+                                  bgcolor="background.bubbles"
                                   padding={1}
                                   sx={{
                                     // width: '275px',
@@ -1339,10 +1345,10 @@ const MyInfoPage = () => {
                   <Typography sx = {{fontWeight: "300"}}>Get started by asking trainerGPT for a workout plan!</Typography>)
                   }
               </Box>
-              )}
+              )
+              }
 
           </Box>
-        {/* </Box> */}
     </ThemeProvider>
   );
 }

@@ -31,7 +31,7 @@ const TrainerGPTPage = () => {
   const router = useRouter();
   const { user, isSignedIn, isLoaded } = useUser(); 
   // guest mode
-  const {guestData, setGuestData, guestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages, setGuestPlan} = useContext(GuestContext)
+  const {guestData, setGuestData, guestImage, guestEquipment, setGuestEquipment, guestMessages, setGuestMessages, guestPlan, setGuestPlan, guestEvents} = useContext(GuestContext)
   const {localData, setLocalData, localImage, localEquipment, localMessages, setLocalMessages, setLocalPlan} = useContext(GuestContext)
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
@@ -106,7 +106,6 @@ const TrainerGPTPage = () => {
             
           }
           // Transfer guest data to the user account
-          await transferGuestDataToUser();
         } else {
           if (guestData && guestData.Age) {
             setData(guestData)
@@ -477,6 +476,7 @@ const TrainerGPTPage = () => {
     // Save guest user data and profile picture
     await setDoc(guestDocRef, { userData: guestData }, { merge: true });
     await setDoc(guestDocRef, { profilePic: guestImage }, { merge: true });
+    await setDoc(guestDocRef, {plan: guestPlan}, {merge: true})
   
     try {
       // Save guest equipment data
@@ -496,6 +496,13 @@ const TrainerGPTPage = () => {
         messages: guestMessages || [],
         timestamp: new Date().toISOString(),
       });
+
+      // Save events data
+      const eventCollectionRef = collection(guestDocRef, 'events');
+      for (const event of guestEvents) {
+        const eventDocRef = doc(eventCollectionRef, event?.id?.toString());
+        await setDoc(eventDocRef, event)
+      }
   
       
   
@@ -504,144 +511,12 @@ const TrainerGPTPage = () => {
       console.error("Error saving guest data to Firebase:", error);
     }
   };
-  const transferGuestDataToUser = async () => {
-    const guestDocRef = doc(firestore, 'users', 'guest');
-    const userDocRef = doc(firestore, 'users', user.id);
-  
-    try {
-      // Transfer equipment data
-      const guestEquipmentCollectionRef = collection(guestDocRef, 'equipment');
-      const userEquipmentCollectionRef = collection(userDocRef, 'equipment');
-  
-      const guestEquipmentSnapshot = await getDocs(guestEquipmentCollectionRef);
-      guestEquipmentSnapshot.forEach(async (item) => {
-        const userEquipmentDocRef = doc(userEquipmentCollectionRef, item.id);
-        const userEquipmentDoc = await getDoc(userEquipmentDocRef);
-  
-        if (!userEquipmentDoc.exists()) {
-          // Only set guest equipment data if the user does not have it
-          await setDoc(userEquipmentDocRef, item.data());
-        }
-        await deleteDoc(item.ref);
-      });
-  
-      // Check if the user has any existing chat data
-      const guestChatCollectionRef = collection(guestDocRef, 'chat');
-      const userChatCollectionRef = collection(userDocRef, 'chat');
-      
-      const guestChatSnapshot = await getDocs(guestChatCollectionRef);
-      guestChatSnapshot.forEach(async (item) => {
-        const userChatDocRef = doc(userChatCollectionRef, item.id);
-        const userChatDoc = await getDoc(userChatDocRef)
-
-        if(!userChatDoc.exists()){
-          await setDoc(userChatDocRef, item.data());
-        }
-        await deleteDoc(item.ref);
-      })
-  
-      // Transfer user data and profile picture
-      const guestDoc = await getDoc(guestDocRef);
-      if (guestDoc.exists()) {
-        const guestData = guestDoc.data();
-        const userDoc = await getDoc(userDocRef);
-  
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-  
-          // Merge guest data only if user data does not exist
-          const mergedUserData = {
-            userData: userData?.userData || guestData.userData,
-            profilePic: userData?.profilePic || guestData.profilePic,
-          };
-  
-          await setDoc(userDocRef, mergedUserData, { merge: true });
-        } else {
-          // If no user document exists, set the guest data directly
-          await setDoc(userDocRef, {
-            userData: guestData.userData,
-            profilePic: guestData.profilePic,
-          }, { merge: true });
-        }
-      }
-  
-      // Refresh the data in the app
-      const data = await getUserData();
-      if (data) {
-        setFormData(data); // Set form data from Firestore if available
-      }
-  
-      // Delete guest data
-      await deleteDoc(guestDocRef);
-  
-      console.log('Guest data transferred to user and guest data deleted.');
-    } catch (error) {
-      console.error("Error transferring guest data to user:", error);
-    }
-  };
   // info modal
   const [openInfoModal, setOpenInfoModal] = useState(false);
   // open Info modal
   const handleInfoModal = () => {
     setOpenInfoModal(true);
   }
-
-  // State to manage weight and unit
-  const [weightUnit, setWeightUnit] = useState('kg'); // Default to kg
-
-  const handleWeightUnitChange = (event, newUnit) => {
-    if (newUnit !== null) {
-      setWeightUnit(newUnit);
-
-      // Convert the weight if a value is already entered
-      if (formData['What is Your Weight?']) {
-        const currentWeight = parseFloat(formData['What is Your Weight?']);
-        const convertedWeight = newUnit === 'lbs'
-          ? (currentWeight * 2.20462).toFixed(1) // kg to lbs
-          : (currentWeight / 2.20462).toFixed(1); // lbs to kg
-        setFormData({ ...formData, 'What is Your Weight?': convertedWeight});
-      }
-    }
-  };
-
-  // state to manage height and unit
-  const [heightUnit, setHeightUnit] = useState('cm'); // Default to cm
-  const handleHeightUnitChange = (event, newUnit) => {
-    if (newUnit !== null) {
-        setHeightUnit(newUnit);
-
-        // Convert the height if a value is already entered
-        if (formData['What is Your Height?']) {
-            let convertedHeight = '';
-            if (newUnit === 'ft/in') {
-                // Convert cm to feet/inches
-                const totalInches = parseFloat(formData['What is Your Height?']) / 2.54;
-                const feet = Math.floor(totalInches / 12);
-                const inches = Math.round(totalInches % 12);
-                convertedHeight = `${feet}'${inches}"`;
-            } else {
-                // Convert feet/inches to cm
-                const heightParts = formData['What is Your Height?'].match(/(\d+)'(\d+)"/);
-                if (heightParts) {
-                    const feet = parseInt(heightParts[1], 10);
-                    const inches = parseInt(heightParts[2], 10);
-                    convertedHeight = ((feet * 12 + inches) * 2.54).toFixed(1); // Convert to cm
-                }
-            }
-            setFormData({ 
-                ...formData, 
-                'What is Your Height?': convertedHeight, 
-                'heightUnit': newUnit 
-            });
-        } else {
-            setFormData({ 
-                ...formData, 
-                'heightUnit': newUnit 
-            });
-        }
-    }
-  };
-
   // text to speech
   const [isListening, setIsListening] = useState(false); // Track whether speech recognition is in progress
   const [isSpeaking, setIsSpeaking] = useState(false); // Track whether speech synthesis is in progress

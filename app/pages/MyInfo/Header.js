@@ -2,7 +2,7 @@ import { Box, Button, Typography, Divider } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import { UserButton } from '@clerk/nextjs';
 
-const Header = ({ handleEditOrSave, isEditing, setEditModal, handleSignInClick, handleInfoModal, isSignedIn, isMobile, t }) => {
+const Header = ({ isEditing, setEditModal, handleSignInClick, handleInfoModal, isSignedIn, isMobile, t }) => {
     return (
         <>
         {/* Header Box */}

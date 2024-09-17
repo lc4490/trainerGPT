@@ -353,7 +353,7 @@ export default function Home() {
       "Goals": data[('What is Your Goal?')] || t("Not available"),
       "Activity": data[('Physical Activity Level?')] || t("Not available"),
       "Health issues": data[('Do you have any existing health issues or injuries?')] || t("Not available"),
-      "Availability": data[t('How many days a week can you commit to working out?')] || "Not available",
+      "Availability": data[t('How many days a week can you commit to working out?')] || "1",
     };
     return ret;
   }
@@ -445,6 +445,7 @@ export default function Home() {
             setIsSummary(true)
             
           }
+          await transferGuestDataToUser();
         } else {
           if (guestData && guestData.Age) {
             setIsSummary(true);
@@ -458,6 +459,107 @@ export default function Home() {
 
     initializeData();
   }, [user, isLoaded, guestData, localData, localMessages.length]);
+
+  const transferGuestDataToUser = async () => {
+    const guestDocRef = doc(firestore, 'users', 'guest');
+    const userDocRef = doc(firestore, 'users', user.id);
+
+    try {
+        // Transfer equipment data
+        const guestEquipmentCollectionRef = collection(guestDocRef, 'equipment');
+        const userEquipmentCollectionRef = collection(userDocRef, 'equipment');
+    
+        const guestEquipmentSnapshot = await getDocs(guestEquipmentCollectionRef);
+        guestEquipmentSnapshot.forEach(async (item) => {
+          const userEquipmentDocRef = doc(userEquipmentCollectionRef, item.id);
+          const userEquipmentDoc = await getDoc(userEquipmentDocRef);
+    
+          if (!userEquipmentDoc.exists()) {
+            // Only set guest equipment data if the user does not have it
+            await setDoc(userEquipmentDocRef, item.data());
+          }
+          await deleteDoc(item.ref);
+        });
+    
+        // Check if the user has any existing chat data
+        const guestChatCollectionRef = collection(guestDocRef, 'chat');
+        const userChatCollectionRef = collection(userDocRef, 'chat');
+        
+        const guestChatSnapshot = await getDocs(guestChatCollectionRef);
+        guestChatSnapshot.forEach(async (item) => {
+          const userChatDocRef = doc(userChatCollectionRef, item.id);
+          const userChatDoc = await getDoc(userChatDocRef)
+
+          if(!userChatDoc.exists()){
+            await setDoc(userChatDocRef, item.data());
+          }
+          await deleteDoc(item.ref);
+        })
+        // Transfer events data
+        const guestEventCollectionRef = collection(guestDocRef, 'events');
+        const userEventCollectionRef = collection(userDocRef, 'events');
+
+        const guestEventSnapshot = await getDocs(guestEventCollectionRef);
+        const userEventSnapshot = await getDocs(userEventCollectionRef);
+
+        if (userEventSnapshot.empty) {
+            guestEventSnapshot.forEach(async (eventDoc) => {
+                const userEventDocRef = doc(userEventCollectionRef, eventDoc.id);
+
+                // Copy event data from guest to user
+                await setDoc(userEventDocRef, eventDoc.data());
+
+                // Optionally delete the event from the guest collection
+                await deleteDoc(eventDoc.ref);
+            });
+        }
+
+        // Transfer user data and profile picture
+        const guestDoc = await getDoc(guestDocRef);
+        if (guestDoc.exists()) {
+            const guestData = guestDoc.data();
+            const userDoc = await getDoc(userDocRef);
+
+            // Ensure plan exists and is not undefined
+            const guestPlan = guestData?.plan || null;
+
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+
+                // Merge guest data only if user data does not exist
+                const mergedUserData = {
+                    userData: userData?.userData || guestData.userData,
+                    profilePic: userData?.profilePic || guestData.profilePic,
+                    plan: userData?.plan || guestPlan,  // Ensure that the plan is defined
+                };
+
+                await setDoc(userDocRef, mergedUserData, { merge: true });
+            } else {
+                // If no user document exists, set the guest data directly
+                await setDoc(userDocRef, {
+                    userData: guestData.userData,
+                    profilePic: guestData.profilePic,
+                    plan: guestPlan,  // Ensure that the plan is defined
+                }, { merge: true });
+            }
+        }
+
+        // If user data is transferred, set a summary
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists() && userDoc.data().userData) {
+            setIsSummary(true);
+        }
+
+        // Delete guest data
+        await deleteDoc(guestDocRef);
+
+        console.log('Guest data transferred to user and guest data deleted.');
+    } catch (error) {
+        console.error("Error transferring guest data to user:", error);
+    }
+};
+
+
 
   if (loading) {
     return (<Box width="100vw" height = "100vh" display = "flex" justifyContent={"center"} alignItems={"center"}><Loading t={t} /></Box>);

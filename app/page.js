@@ -30,9 +30,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 // tutorial
 import JoyRide, { STATUS } from 'react-joyride';
 
-import StepForm from './pages/TrainerGPT/StepForm';
-import Loading from './pages/TrainerGPT/Loading';
-import { steps } from './pages/TrainerGPT/steps';
+import StepForm from './StepForm';
+import Loading from './Loading';
+import { steps } from './steps';
 
 // light/dark themes
 const lightTheme = createTheme({
@@ -678,7 +678,7 @@ export default function Home() {
               </Box>
               )}
               <Box
-              width = "100%"
+              maxWidth={isMobile ? "100vw" : "calc(100vw - 90px)"} // Subtract the sidebar width from the total width
               flex="1" // This makes sure the content takes up the remaining height
               bgcolor="background.default"
               // overflow="auto" // Allows scrolling if content is taller than the available space

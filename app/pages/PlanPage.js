@@ -749,10 +749,10 @@ const PlanPage = () => {
             </Box>
           </Box>
           {isMobile && (<Divider />)}
-          <Stack flexDirection = "column" width = "100%" maxHeight = {isMobile ? "100vh" : "90vh"} paddingBottom = "60px">
+          <Stack flexDirection = "column" width = "100%" maxHeight = "100%">
             <Box
               width = "100%"
-              // maxHeight = "100%"
+              height = {isMobile ? "75%" : "auto"}
               overflow= "scroll"
               backgroundColor="background.calendar"
               >

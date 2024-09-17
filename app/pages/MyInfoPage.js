@@ -1,7 +1,6 @@
 "use client"
 // base imports
 import { useEffect, useState, useRef } from 'react';
-import { motion } from 'framer-motion';
 import { Select, MenuItem, Container, Box, Typography, Button, TextField, ToggleButtonGroup, ToggleButton, CircularProgress, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack, Grid, FormControl, InputLabel, NativeSelect, FormGroup, FormControlLabel, Checkbox, Slider } from '@mui/material';
 // Firebase imports
 import { firestore } from '../firebase'
@@ -10,23 +9,23 @@ import { collection, getDocs, doc, setDoc, deleteDoc, getDoc } from 'firebase/fi
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n'; // Adjust the path as necessary
 // images
-import Image from 'next/image';
-import Webcam from 'react-webcam';
 // clerk signin
-import { SignedIn, SignedOut, UserButton, useUser, isLoaded } from "@clerk/nextjs";
+import { useUser,  } from "@clerk/nextjs";
 
 // import guestContext
 import { useContext } from 'react';
 import { GuestContext } from '../page'; // Adjust the path based on your structure
 // router
 import { useRouter, useSearchParams } from 'next/navigation';
-// info button
-import InfoIcon from '@mui/icons-material/Info';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import ReactMarkdown from 'react-markdown';
-import { customComponents } from '../customMarkdownComponents';
 
+import InfoModal from './MyInfo/InfoModal';
+import CameraModal from './MyInfo/CameraModal';
+import WorkoutModal from './MyInfo/WorkoutModal';
+import Header from './MyInfo/Header';
+import EditPage from './MyInfo/EditPage';
+import HomePage from './MyInfo/HomePage';
+
+import { customComponents } from '../customMarkdownComponents';
 import { lightTheme, darkTheme } from '../theme';
 
 const MyInfoPage = () => {
@@ -770,7 +769,8 @@ const MyInfoPage = () => {
       updateEventsInFirestore();
     }
   }, [allEvents, user]);
-  
+
+  const [editModal, setEditModal] = useState(false)
 
   // loading page
   if (loading) {
@@ -806,549 +806,67 @@ const MyInfoPage = () => {
           backgroundColor="background.default"
           // paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >
-          {/* camera modal */}
-          <Modal open={cameraOpen} onClose={() => setCameraOpen(false)}>
-            <Box width="100%" height="100vh" backgroundColor="black">
-              <Stack display="flex" justifyContent="center" alignItems="center" flexDirection="column" sx={{ transform: 'translate(0%,25%)' }}>
-                <Box
-                  sx={{
-                    top: '50%',
-                    bgcolor: 'black',
-                    width: 350,
-                    height: 350,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    paddingY: 2,
-                    position: 'relative'
-                  }}
-                >
-                  <Box
-                    sx={{
-                      maxWidth: 350,
-                      aspectRatio: '1/1',
-                      display: 'flex',
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      position: 'relative',
-                      backgroundColor: 'black',
-                      borderRadius: '16px',
-                      overflow: 'hidden',
-                    }}
-                  >
-                    <Webcam
-                      ref={webcamRef}
-                      screenshotFormat="image/jpeg"
-                      videoConstraints={{
-                        facingMode: facingMode,
-                      }}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        transform: 'scaleX(-1)',
-                      }}
-                    />
-                  </Box>
-                </Box>
-                <Stack flexDirection="row" gap={2} position="relative">
-                  <Button
-                    variant="outlined"
-                    onClick={captureImage}
-                    sx={{
-                      color: 'black',
-                      borderColor: 'white',
-                      backgroundColor: 'white',
-                      '&:hover': {
-                        backgroundColor: 'white',
-                        color: 'black',
-                        borderColor: 'white',
-                      },
-                      marginTop: 1,
-                    }}
-                  >
-                    {t("Take Photo")}
-                  </Button>
-                  <Button
-                    onClick={switchCamera}
-                    sx={{
-                      color: 'black',
-                      borderColor: 'white',
-                      backgroundColor: 'white',
-                      '&:hover': {
-                        backgroundColor: 'white',
-                        color: 'black',
-                        borderColor: 'white',
-                      },
-                      marginTop: 1,
-                    }}
-                  >
-                    {t("Switch Camera")}
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    onClick={() => {
-                      setCameraOpen(false);
-                    }}
-                    sx={{
-                      color: 'black',
-                      borderColor: 'white',
-                      backgroundColor: 'white',
-                      '&:hover': {
-                        backgroundColor: 'white',
-                        color: 'black',
-                        borderColor: 'white',
-                      },
-                      marginTop: 1,
-                    }}
-                  >
-                    {t('Exit')}
-                  </Button>
-                </Stack>
-              </Stack>
-            </Box>
-          </Modal>
-          {/* info modal */}
-          <Modal open = {openInfoModal} onClose = {() => setOpenInfoModal(false)}>
-            <Box 
-            overflow="auto"
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: 350,
-              height: "75%",
-              bgcolor: 'background.default',
-              border: '2px solid #000',
-              boxShadow: 24,
-              p: 4,
-              display: 'flex',
-              flexDirection: 'column',
-              borderRadius: "15px",
-            }}>
-              <Typography variant="h6" component="h2" fontWeight='600'>
-                  {t("How to use:")}
-                </Typography>
-                <Typography sx={{ mt: 2 }}>
-                  {t("1. Use the top left button to select your language.")}
-                </Typography>
-                <Typography sx = {{mt: 2}}>
-                 {t("2. Answer the questions about your gender, age, weight, height, goals, activity level, health issues, and workout days.")}
-                </Typography>
-                <Typography sx = {{mt: 2}}>
-                 {t("3. After completing the steps, review your infornmation. The top left button will change to an EDIT button. You can still change your system language in the trainerGPT page.")}
-                </Typography>
-                <Typography sx = {{mt: 2}}>
-                 {t("4. After filling out your information, add an optional profile photo with the Add Photo button.")}
-                </Typography>
-                <Typography sx = {{mt: 2}}>
-                 {t("5. Sign in using the top right button to create an account or sign in.")}
-                </Typography>
-                <Box sx={{ flexGrow: 1 }} />
-                <Button 
-                  variant="outlined"
-                  onClick={() => {
-                    setOpenInfoModal(false)
-                  }}
-                  sx={{
-                    mt: 2,
-                    backgroundColor: 'text.primary',
-                    color: 'background.default',
-                    borderColor: 'text.primary',
-                    '&:hover': {
-                      backgroundColor: 'darkgray',
-                      color: 'text.primary',
-                      borderColor: 'text.primary',
-                    },
-                  }}
-                >
-                  {t('Close')}
-                </Button>
-            </Box>
-          </Modal>
+          <CameraModal 
+          cameraOpen={cameraOpen}
+          setCameraOpen={setCameraOpen}
+          captureImage={captureImage}
+          switchCamera={switchCamera}
+          facingMode={facingMode}
+          webcamRef={webcamRef}
+          t={t}
+          />
+          <InfoModal 
+          openInfoModal={openInfoModal}
+          setOpenInfoModal={setOpenInfoModal}
+          t={t}
+          />
+          <WorkoutModal 
+          openWorkoutModal={openWorkoutModal}
+          setOpenWorkoutModal={setOpenWorkoutModal}
+          handleEditOrSaveWorkout={handleEditOrSaveWorkout}
+          isEditingWorkout={isEditingWorkout}
+          renderEditExercise={renderEditExercise}
+          allEvents={allEvents}
+          selectedWorkout={selectedWorkout}
+          customComponents={customComponents}
+          t={t}
+          />
+          <EditPage 
+            editModal={editModal}
+            setEditModal={setEditModal}
+            handleEditOrSave={handleEditOrSave}
+            orderedKeys={orderedKeys}
+            renderEditField={renderEditField}
+            image={image}
+            setCameraOpen={setCameraOpen}
+            facingMode={facingMode}
+            user={user}
+            formData={formData}
+            isEditing={isEditing}
+            isMobile={isMobile}
+            t={t}
+            />
+          <Header 
+          handleEditOrSave={handleEditOrSave}
+          isEditing={isEditing}
+          setEditModal={setEditModal}
+          handleSignInClick={handleSignInClick}
+          handleInfoModal={handleInfoModal}
+          isSignedIn={isSignedIn}
+          isMobile={isMobile}
+          t={t}
+          />
+          <HomePage 
+          isMobile={isMobile}
+          user={user}
+          plan={plan}
+          allEvents={allEvents}
+          handleWorkoutModal={handleWorkoutModal}
+          isToday={isToday}
+          t={t}
+          />
 
-          {/* workout modal */}
-          <Modal open={openWorkoutModal} onClose={() => setOpenWorkoutModal(false)}>
-          <Box
-            overflow="auto"
-            sx={{
-              width: '100%',
-              height: '100%',
-              bgcolor: 'background.default',
-            }}
-          >
-            <Box width = "100%" display = "flex" justifyContent={"space-between"} alignItems = "center">
-              <Box padding = {1}>
-                <Button
-                    onClick={handleEditOrSaveWorkout}
-                    sx={{
-                      height: "55px",
-                      fontSize: '1rem',
-                      backgroundColor: 'background.default',
-                      color: 'text.primary',
-                      border: 1,
-                      borderColor: 'text.primary',
-                      '&:hover': {
-                        backgroundColor: 'text.primary',
-                        color: 'background.default',
-                        borderColor: 'text.primary',
-                      },
-                    }}
-                  >
-                    {isEditingWorkout ? t("Save") : t("Edit")}
-                  </Button>
-                </Box>
-                <Button 
-                  onClick={()=>{setOpenWorkoutModal(false)}}
-                  sx={{
-                    height: "55px",
-                    fontSize: '1rem',
-                    backgroundColor: 'background.default',
-                    color: 'text.primary',
-                    borderColor: 'background.default',
-                    borderRadius: '50px',
-                    '&:hover': {
-                      backgroundColor: 'background.default',
-                      color: 'text.primary',
-                      borderColor: 'background.default',
-                    },
-                  }}
-                  ><Typography sx = {{fontSize: "1.1rem"}}>X</Typography></Button>
-              </Box>
-            <Box
-            sx = {{paddingX: 2}}
-            >
-              <Box width = "100%" height = "75px" display = "flex" justifyContent="center">
-                <Typography
-                sx={{fontWeight: 700, fontSize: "2rem"}}
-                >
-                {allEvents[selectedWorkout]?.title.split(":")[1]}
-                
-                </Typography>
-              </Box>
-              
-              {isEditingWorkout ? (
-                <Box>
-                  {renderEditExercise(selectedWorkout, allEvents[selectedWorkout]?.extendedProps?.details)}
-                </Box>
-              ) : (
-                <ReactMarkdown components={customComponents}>
-                  {allEvents[selectedWorkout]?.extendedProps?.details}
-                </ReactMarkdown>
-              )}
-
-
-              
-            </Box>
-          </Box>
-          </Modal>
-          {/* Header Box */}
-            <Box
-              height="10%"
-              bgcolor="background.default"
-              display="flex"
-              justifyContent="space-between"
-              paddingX={2.5}
-              paddingY={2.5}
-              alignItems="center"
-              position="relative"
-            >
-              <Button
-                onClick={handleEditOrSave}
-                sx={{
-                  height: "55px",
-                  fontSize: '1rem',
-                  backgroundColor: 'background.default',
-                  color: 'text.primary',
-                  borderColor: 'background.default',
-                  '&:hover': {
-                    backgroundColor: 'text.primary',
-                    color: 'background.default',
-                    borderColor: 'text.primary',
-                  },
-                }}
-              >
-                {isEditing ? t("Save") : t("Profile")}
-              </Button>
-              
-              {/* Title */}
-              <Box display="flex" flexDirection={"row"} alignItems={"center"} gap ={1}>
-                <Typography variant="h6" color="text.primary" textAlign="center">
-                  {t('My Info')}
-                </Typography>
-                <Button 
-                onClick={handleInfoModal}
-                sx={{ 
-                    minWidth: "auto",  
-                    aspectRatio: "1 / 1", 
-                    borderRadius: "50%",
-                    width: "20px",  // or adjust as needed
-                    height: "20px"  // or adjust as needed
-                }}>
-                    <InfoIcon sx={{ color: "lightgray" }}/>
-                </Button>
-              </Box>
-              {/* SignIn/SignOut Form */}
-              <Box >
-                {!isSignedIn ? (
-                  <Button
-                    color="inherit"
-                    // href="/sign-in"
-                    onClick={handleSignInClick}
-                    sx={{
-                      justifyContent: "end",
-                      right: "2%",
-                      backgroundColor: 'background.default',
-                      justifyContent: 'center',
-                      color: 'text.primary',
-                      borderColor: 'text.primary',
-                      '&:hover': {
-                        backgroundColor: 'text.primary',
-                        color: 'background.default',
-                        borderColor: 'text.primary',
-                      },
-                    }}
-                  >
-                    {t('signIn')}
-                  </Button>
-                ) : (
-                  <UserButton />
-                )}
-              </Box>
-            </Box>
-            {isMobile && (<Divider />)}
-            {/* body */}
-              {isEditing ? (
-              <Box
-                sx={{
-                  minHeight: '80vh',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexDirection: 'column',
-                  bgcolor: 'background.default',
-                  color: 'text.primary',
-                  paddingBottom: '60px', // Ensure content is not cut off by the toolbar
-                }}
-              >
-                  <Box
-                    width="100%"
-                    height="100%"
-                  >
-
-                    <Box
-                      width="100%"
-                      height="90%"
-                      display="flex"
-                      flexDirection="column"
-                      // justifyContent={"center"}
-                      p= {2.5}
-                      gap = {2.5}
-                      alignItems="center"
-                    >
-                      {/* show image or placeholder */}
-                      <Box style={{ position: 'relative', display: 'inline-block' }}>
-                      {image ? (
-                        <Image
-                          src={image}
-                          alt={t("image")}
-                          width={isMobile ? 150 : 300}
-                          height={isMobile ? 150 : 300}
-                          style={{
-                            borderRadius: "9999px",
-                            objectFit: 'cover',
-                            transform: facingMode === 'user' ? "scaleX(-1)" : "none",
-                            aspectRatio: "1/1",
-                          }}
-                        />
-                      ) : (
-                        <Image
-                          src="/profile.jpg"
-                          alt={t("banner")}
-                          width={isMobile ? 150 : 300}
-                          height={isMobile ? 150 : 300}
-                          style={{
-                            borderRadius: "9999px",
-                            width: 'auto',
-                            height: 'auto',
-                          }}
-                        />
-                      )}
-                      
-                      {/* Button positioned in the top right */}
-                      <Button 
-                        onClick={() => setCameraOpen(true)}
-                        sx={{
-                          position: 'absolute',
-                          top: 0,
-                          right: 0,
-                          zIndex: 1, // Ensure the button stays above the image
-                          backgroundColor: 'text.primary',
-                          color: 'background.default',
-                          borderColor: 'background.default',
-                          borderRadius: '9999px',
-                          aspectRatio: 1,
-                          fontSize: "0.5rem",
-                          '&:hover': {
-                            backgroundColor: 'background.default',
-                            color: 'text.primary',
-                            borderColor: 'text.primary',
-                          },
-                        }}
-                      >
-                          {image ? (<EditIcon />) : (<AddIcon />)}
-                      </Button>
-                    </Box>
-                      <Typography sx = {{fontSize: "2.5rem", fontWeight: "700", lineHeight: "1.2",}}>{user ? user.fullName : t("Guest")}</Typography>
-                      <Box width = "100%" justifyContent={"left"} paddingX = {isMobile ? 2.5 : 4}><Typography sx = {{fontSize: "1.25rem", fontWeight: "300"}}>Info</Typography></Box>
-
-                      {/* display content summary */}
-                      <Grid 
-                        container 
-                        // spacing={4} // Increase spacing between grid items for better separation
-                        sx={{ 
-                          justifyContent: 'center', // Center items horizontally
-                          width: "90vw", 
-                          // overflow: 'auto', // Allow scrolling if content overflows
-                          paddingX: 3, // Add padding around the grid container
-                          paddingBottom: "60px", // Add space for the toolbar
-                        }}
-                      >
-                        {orderedKeys.map((key) => (
-                          <Grid 
-                            item 
-                            xs={12} 
-                            sm={6} 
-                            md={3} 
-                            key={key}
-                            sx={{ 
-                              display: 'flex', 
-                              flexDirection: 'column', 
-                              alignItems: 'center', // Center content within each grid item
-                              padding: 2, // Add padding inside each grid item for better spacing
-                              border: '1px solid', // Add a border to each item for a card-like appearance
-                              borderColor: 'divider', // Use theme divider color for border
-                              borderRadius: 2, // Round the corners for a smoother look
-                              backgroundColor: 'background.paper', // Use the paper background color
-                              boxShadow: 3, // Add a subtle shadow for depth
-                            }}
-                          >
-                            <Typography 
-                              variant="h6" 
-                              align="center" 
-                              sx={{ 
-                                marginBottom: 1, 
-                                color: 'text.primary', // Ensure the text color matches the theme
-                              }}
-                            >
-                              {t(key)}
-                            </Typography>
-                            {isEditing ? (
-                              <Box sx={{ width: '100%' }}>
-                                {renderEditField(key, formData[key])}
-                              </Box>
-                            ) : (
-                              <Typography 
-                                variant="body1" 
-                                color="textSecondary" 
-                                align="center" 
-                                sx={{ 
-                                  fontSize: '1rem', 
-                                  fontWeight: 500, 
-                                  color: 'text.secondary', // Subtle color for secondary text
-                                }}
-                              >
-                                {key === 'Availability' ? `${formData[key]} ${t("days")}` : formData[key]}
-                              </Typography>
-                            )}
-                          </Grid>
-                        ))}
-                      </Grid>
-                    </Box>
-                  </Box>
-              </Box>)
-              :
-              // home page
-              (
-              <Box
-              display="flex"
-              flexDirection={"column"}
-              paddingX = {isMobile ? 2.5 : 5}
-              marginTop = {2.5}
-              // gap = {2.5}
-              >
-                <Typography
-                sx={{
-                  fontSize: "2.5rem",
-                  fontWeight: "700",
-                  lineHeight: "1.2",
-                }}>
-                  Welcome, {user ? (user.fullName.split(" ")[0]) : ("Guest")}.
-                </Typography>
-                
-                {plan ? (
-                  <Box>
-                    
-                      {allEvents.length > 0 ? (
-                        <Box>
-                        <Typography
-                          sx ={{
-                            padding: 1,
-                            fontSize: "1.25rem",
-                            fontWeight: "300"
-                          }}
-                          >Upcoming workouts:
-                          </Typography>
-                          <Stack flexDirection="row" alignItems="flex-start" style={{ overflow: 'scroll' }}>
-                            {allEvents
-                            .sort((a, b) => new Date(a.start) - new Date(b.start)) // Sort events by start date
-                            .map(({title, start}, index)=> (
-                              <Button
-                              key={index} 
-                              sx={{ color: "text.primary", flexShrink: 0 }}
-                              onClick={() => handleWorkoutModal(index)}
-                              >
-                                <Box
-                                  width = {isMobile ? "150px" : "300px"}
-                                  height = {isMobile ? "150px" : "300px"}
-                                  display="flex"
-                                  flexDirection="column"
-                                  justifyContent="space-between"
-                                  alignItems="center"
-                                  bgcolor="background.bubbles"
-                                  padding={1}
-                                  sx={{
-                                    // width: '275px',
-                                    borderRadius: '10px',
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                                    overflow: 'hidden',
-                                  }}
-                                >
-                                  <Stack width="100%">
-                                    <Typography sx={{ fontSize: isMobile ? "0.7rem" : "1rem", textAlign: "end" }}>
-                                      Scheduled for {isToday(start) ? 'Today' : new Date(start).toLocaleDateString('en-US', { weekday: 'long' })}
-                                    </Typography>
-                                  </Stack>
-                                  <Typography sx = {{fontWeight: "900", textAlign: "left", fontSize: isMobile ? "1rem" : "2rem"}}>{title.split(":")[1]}</Typography>
-                                  
-                                </Box>
-                              </Button>
-                            ))}
-                          </Stack>
-                          </Box>
-                      ) : (
-                        <Typography sx = {{fontWeight: "300"}}>Now that you have a workout plan, go to the myPlanner page to create your schedule.</Typography>
-                      )}
-                  </Box>
-                ):(
-                  <Typography sx = {{fontWeight: "300"}}>Get started by asking trainerGPT for a workout plan!</Typography>)
-                  }
-              </Box>
-              )
-              }
-
-          </Box>
+        </Box>
     </ThemeProvider>
   );
 }

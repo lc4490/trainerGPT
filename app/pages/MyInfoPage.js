@@ -730,7 +730,6 @@ const MyInfoPage = () => {
           height = "100%"
           display="flex"
           flexDirection="column"
-          backgroundColor="background.default"
           // paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >
           <CameraModal 
@@ -752,10 +751,12 @@ const MyInfoPage = () => {
           setOpenWorkoutModal={setOpenWorkoutModal}
           handleEditOrSaveWorkout={handleEditOrSaveWorkout}
           isEditingWorkout={isEditingWorkout}
+          setIsEditingWorkout={setIsEditingWorkout}
           renderEditExercise={renderEditExercise}
           allEvents={allEvents}
           selectedWorkout={selectedWorkout}
           customComponents={customComponents}
+          isMobile={isMobile}
           t={t}
           />
           <EditPage 
@@ -770,6 +771,7 @@ const MyInfoPage = () => {
             user={user}
             formData={formData}
             isEditing={isEditing}
+            setIsEditing={setIsEditing}
             isMobile={isMobile}
             t={t}
             />

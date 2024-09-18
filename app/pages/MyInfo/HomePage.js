@@ -16,9 +16,7 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
             fontWeight: "700",
             lineHeight: "1.2",
         }}>
-            {console.log(user)}
-            {console.log(user?.fullName)}
-            {/* Welcome, {user ? (user.fullName.split(" ")[0]) : ("Guest")}. */}
+            Welcome, {user  && user.fullName ? (user.fullName.split(" ")[0]) : ("Guest")}.
         </Typography>
         
         {plan ? (

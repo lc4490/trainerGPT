@@ -6,8 +6,6 @@ export async function POST(req) {
     const json = await req.json();
     const { icsData } = json;
 
-    console.log("ICS Data received:", icsData);
-
     if (!icsData || typeof icsData !== 'string') {
       return NextResponse.json({ message: 'Invalid ICS data' }, { status: 400 });
     }

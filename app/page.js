@@ -451,6 +451,7 @@ export default function Home() {
             setIsSummary(true);
           } else {
             setIsSummary(false);
+            setValue(0);
           }
         }
         setLoading(false);

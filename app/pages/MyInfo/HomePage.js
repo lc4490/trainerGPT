@@ -34,7 +34,8 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                     </Typography>
                     <Stack flexDirection="row" alignItems="flex-start" style={{ overflow: 'scroll' }}>
                     {allEvents
-                    .sort((a, b) => new Date(a.start) - new Date(b.start)) // Sort events by start date
+                    .filter(event => new Date(event.start) >= new Date().setHours(0, 0, 0, 0) && event.backgroundColor !== "orange")
+                    .sort((a, b) => new Date(a.start) - new Date(b.start))
                     .map(({title, start}, index)=> (
                         <Button
                         key={index} 

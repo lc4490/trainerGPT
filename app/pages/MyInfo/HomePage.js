@@ -1,4 +1,6 @@
 import { Box, Typography, Button, Stack } from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday, t}) => (
     <Box
@@ -14,7 +16,9 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
             fontWeight: "700",
             lineHeight: "1.2",
         }}>
-            Welcome, {user ? (user.fullName.split(" ")[0]) : ("Guest")}.
+            {console.log(user)}
+            {console.log(user?.fullName)}
+            {/* Welcome, {user ? (user.fullName.split(" ")[0]) : ("Guest")}. */}
         </Typography>
         
         {plan ? (
@@ -72,8 +76,36 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                 )}
             </Box>
         ):(
-            <Typography sx = {{fontWeight: "300"}}>Get started by asking trainerGPT for a workout plan!</Typography>)
-            }
+            <Typography sx = {{fontWeight: "300", padding: 1}}>Get started by asking trainerGPT for a workout plan!</Typography>
+            
+            )}
+            {/* {plan ? 
+            (
+                isMobile ? 
+                (
+                    allEvents.length <= 0 && (<ArrowDownwardIcon sx = {{position: "absolute", left: "68.6%", bottom: "10%"}}/>)
+                ) 
+                : 
+                (
+                    allEvents.length <= 0 && (<ArrowBackIcon sx ={{position: "absolute", top: 270}}/>)
+                )
+            )
+             : 
+             (
+                isMobile ? 
+                (
+                    allEvents.length <= 0 && (<ArrowDownwardIcon sx = {{position: "absolute", left: "47%", bottom: "10%"}}/>)
+                ) 
+                : 
+                (
+                    allEvents.length <= 0 && (<ArrowBackIcon sx ={{position: "absolute", top: 190}}/>)
+                )
+             
+
+
+             )} */}
+            
+            {/* <ArrowBackIcon sx ={{position: "absolute", top: 350}}/> */}
         </Box>
 )
 export default HomePage;

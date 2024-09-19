@@ -61,7 +61,7 @@ const WorkoutModal = ({ openWorkoutModal, setOpenWorkoutModal, handleEditOrSaveW
           <Typography sx={{ fontSize: "1.1rem" }}>X</Typography>
         </Button>
       </Box>
-      <Box sx={{ paddingX: 2 }}>
+      <Box sx={{ paddingX: 2, overflow: "auto", paddingBottom: "60px" }}>
         <Box width="100%" height="75px" display="flex" justifyContent="center">
           <Typography sx={{ fontWeight: 700, fontSize: "2rem" }}>
             {allEvents[selectedWorkout]?.title.split(":")[1]}

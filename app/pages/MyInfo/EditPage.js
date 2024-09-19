@@ -122,7 +122,7 @@ const EditPage = ({ editModal, setEditModal, handleEditOrSave, orderedKeys, rend
                 </Box>
 
                 <Typography sx={{ fontSize: "2.5rem", fontWeight: "700", lineHeight: "1.2" }}>
-                    {user ? user.fullName : t("Guest")}
+                    {user && user.fullName ? user.fullName : t("Guest")}
                 </Typography>
 
                 {/* Display content summary */}

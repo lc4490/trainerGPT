@@ -18,7 +18,7 @@ import TrainerGPTPage from './pages/TrainerGPTPage';
 import PlanPage from './pages/PlanPage';
 import FriendsPage from './pages/FriendsPage';
 import NutritionPage from './pages/NutritionPage';
-import PaywallPage from './pages/PaywallPage'
+import PaywallPageWithStripe from './pages/PaywallPage'
 // use translation
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
@@ -252,7 +252,7 @@ export default function Home() {
     <TrainerGPTPage key="trainerGPT" />,
     // <NutritionPage key = "nutrition" />,
     <PlanPage key="plan" />,
-    hasPremiumAccess ? <NutritionPage key="nutrition" /> : <PaywallPage key="paywall" />,
+    hasPremiumAccess ? <NutritionPage key="nutrition" /> : <PaywallPageWithStripe key="paywall" />,
   ];
 
 

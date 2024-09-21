@@ -18,6 +18,7 @@ import TrainerGPTPage from './pages/TrainerGPTPage';
 import PlanPage from './pages/PlanPage';
 import FriendsPage from './pages/FriendsPage';
 import NutritionPage from './pages/NutritionPage';
+import PaywallPage from './pages/PaywallPage'
 // use translation
 import { useTranslation } from 'react-i18next';
 import i18n from './i18n';
@@ -254,25 +255,6 @@ export default function Home() {
     hasPremiumAccess ? <NutritionPage key="nutrition" /> : <PaywallPage key="paywall" />,
   ];
 
-  // paywall page (NOT DONE)
-  function PaywallPage() {
-    const { t } = useTranslation();
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <Typography variant="h5" textAlign="center">
-          {t("This feature is available to premium users only.")}
-          <br />
-          <Button 
-          variant="contained" 
-          color="primary"
-          onClick={handlePurchase}
-          > 
-            {t("Upgrade Now")}
-          </Button>
-        </Typography>
-      </Box>
-    );
-  }
 
   // tutorial
   const [mounted, setMounted] = useState(false);

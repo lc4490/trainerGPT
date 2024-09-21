@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useUser } from "@clerk/nextjs";
 import { useState, useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useStripe, useElements, CardElement, Elements } from '@stripe/react-stripe-js'; 
+import { useStripe, useElements, CardElement, Elements, PaymentRequestButtonElement } from '@stripe/react-stripe-js'; 
 import { loadStripe } from '@stripe/stripe-js'; 
 import { GuestContext } from '../page';
 import { firestore } from '../firebase'

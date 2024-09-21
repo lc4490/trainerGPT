@@ -151,7 +151,6 @@ const TrainerGPTPage = () => {
       if (!message.trim() || isLoading) return;
       setIsLoading(true);
       // if message includes equipment
-      console.log(message)
       let equipments = [];
       if (message.includes(":")) {
           let parts = message.split(":");

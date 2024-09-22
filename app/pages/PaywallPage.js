@@ -39,134 +39,73 @@ const PaywallPage = ({ clientSecret }) => {
 
     // Handle the Stripe payment flow
     const handlePurchase = async () => {
-        console.log("Purchase initiated");
-    
         if (!isSignedIn) {
-            console.log("User not signed in, saving guest data and redirecting to sign-in");
             await saveGuestDataToFirebase();
             router.push('/sign-in');
             return;
         }
-    
+
         setLoading(true);
-        console.log("Loading state set to true");
-    
+
         if (!stripe || !elements) {
             console.error('Stripe or Elements not loaded');
             setLoading(false);
             return;
         }
-    
+
+        const cardElement = elements.getElement(CardElement);
+
         try {
-            console.log("Creating Payment Intent on the backend...");
             // Create the Payment Intent on the backend
             const res = await fetch('/api/checkout_sessions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: 499 })  // Example: $4.99 (amount in cents)
             });
-    
+
             const { client_secret } = await res.json();
-            console.log('Received client_secret:', client_secret);
-    
+            console.log('Response from /api/checkout_sessions:', client_secret);  // Log full response
+
             if (!client_secret) {
                 console.error('Error fetching client secret.');
                 setLoading(false);
                 return;
             }
-    
-            // Check if ExpressCheckoutElement is available for Apple Pay / Google Pay
-            const expressCheckoutElement = elements.getElement(ExpressCheckoutElement);
-            console.log('ExpressCheckoutElement:', expressCheckoutElement);
-    
-            if (expressCheckoutElement) {
-                console.log("ExpressCheckoutElement detected, attaching confirm handler");
-    
-                // Attach a 'confirm' event handler for the ExpressCheckoutElement
-                expressCheckoutElement.on('confirm', async (event) => {
-                    console.log("Express Checkout confirm event triggered");
-    
-                    try {
-                        console.log("Confirming payment with Stripe...");
-                        const { error, paymentIntent } = await stripe.confirmPayment({
-                            clientSecret: client_secret,
-                            confirmParams: {
-                                return_url: window.location.href,  // Optional: Redirect URL after success
-                            }
-                        });
-    
-                        if (error) {
-                            console.error('Express Checkout payment failed:', error.message);
-                            event.complete('fail');  // Let Stripe know the payment failed
-                            setLoading(false);
-                            return;
-                        }
-    
-                        if (paymentIntent.status === 'succeeded') {
-                            console.log('Payment successful with Apple Pay/Google Pay!');
-                            event.complete('success');  // Let Stripe know the payment succeeded
-                            await updatePremiumStatus(user);  // Handle post-payment success
-                        }
-                    } catch (error) {
-                        console.error('Error during payment confirmation:', error);
-                        setLoading(false);
-                    }
-                });
-    
-                console.log("Triggering Express Checkout confirm method");
-                // Programmatically trigger the payment flow
-                expressCheckoutElement.confirm();
-            } else {
-                console.log("No ExpressCheckoutElement detected, using CardElement for payment");
-    
-                // Fallback to CardElement if ExpressCheckoutElement is not present
-                const cardElement = elements.getElement(CardElement);
-                console.log("CardElement:", cardElement);
-    
-                const { error, paymentIntent } = await stripe.confirmCardPayment(client_secret, {
-                    payment_method: {
-                        card: cardElement,
-                    },
-                });
-    
-                if (error) {
-                    console.error('Card payment failed:', error.message);
-                    setLoading(false);
-                    return;
-                }
-    
-                if (paymentIntent.status === 'succeeded') {
-                    console.log('Payment successful with CardElement!');
-                    await updatePremiumStatus(user);  // Handle post-payment success
-                }
+
+            // Confirm the payment with Stripe using the client secret and CardElement
+            const { error, paymentIntent } = await stripe.confirmCardPayment(client_secret, {
+                payment_method: {
+                    card: cardElement,
+                },
+            });
+
+            if (error) {
+                console.error('Payment failed:', error.message);
+                setLoading(false);
+                return;
             }
-    
+
+            if (paymentIntent.status === 'succeeded') {
+                console.log('Payment successful!');
+                if (user) {
+                    try {
+                    const userDocRef = doc(firestore, 'users', user.id);
+                    await setDoc(userDocRef, { premium: true }, { merge: true });
+                    } catch (error) {
+                    console.error('Error setting premium mode:', error);
+                    }
+                } else {
+                    console.warn('No user found, unable to update premium status');
+                }
+                window.location.reload(); // Refresh the page after payment
+            }
+
             setLoading(false);
         } catch (error) {
             console.error('Error during payment process:', error);
             setLoading(false);
         }
     };
-    
-    // Helper function to update the premium status
-    const updatePremiumStatus = async (user) => {
-        console.log("Updating premium status for user:", user);
-    
-        if (user) {
-            try {
-                const userDocRef = doc(firestore, 'users', user.id);
-                await setDoc(userDocRef, { premium: true }, { merge: true });
-                console.log("Premium status updated successfully for user:", user.id);
-                window.location.reload();  // Reload after successful payment
-            } catch (error) {
-                console.error('Error setting premium mode:', error);
-            }
-        } else {
-            console.warn('No user found, unable to update premium status');
-        }
-    };
-    
-    
 
     const saveGuestDataToFirebase = async () => {
         try {

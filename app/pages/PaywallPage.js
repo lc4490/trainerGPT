@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useUser } from "@clerk/nextjs";
 import { useState, useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useStripe, useElements, CardElement, Elements, PaymentRequestButtonElement } from '@stripe/react-stripe-js'; 
+import { useStripe, useElements, CardElement, Elements, ExpressCheckoutElement } from '@stripe/react-stripe-js'; 
 import { loadStripe } from '@stripe/stripe-js'; 
 import { GuestContext } from '../page';
 import { firestore } from '../firebase'
@@ -28,34 +28,6 @@ const PaywallPage = () => {
     const stripe = useStripe();
     const elements = useElements();
 
-    // Apple Pay (Payment Request Button) state
-    const [paymentRequest, setPaymentRequest] = useState(null);
-    const [paymentRequestAvailable, setPaymentRequestAvailable] = useState(false);
-
-    useEffect(() => {
-        if (stripe) {
-            const pr = stripe.paymentRequest({
-                country: 'US',  // Adjust based on your country
-                currency: 'usd',
-                total: {
-                    label: t('Upgrade to Premium'),
-                    amount: 499,  // Example: $4.99 (in cents)
-                },
-                requestPayerName: true,
-                requestPayerEmail: true,
-            });
-
-            pr.canMakePayment().then((result) => {
-                console.log(result)
-                if (result) {
-                    setPaymentRequest(pr);
-                    setPaymentRequestAvailable(true);
-                }
-            });
-        }
-    }, [stripe]);
-    {console.log(paymentRequestAvailable)}
-
     // Implementing theming
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
     const [darkMode, setDarkMode] = useState(prefersDarkMode);
@@ -72,17 +44,17 @@ const PaywallPage = () => {
             router.push('/sign-in');
             return;
         }
-    
+
         setLoading(true);
-    
+
         if (!stripe || !elements) {
             console.error('Stripe or Elements not loaded');
             setLoading(false);
             return;
         }
-    
+
         const cardElement = elements.getElement(CardElement);
-    
+
         try {
             // Create the Payment Intent on the backend
             const res = await fetch('/api/checkout_sessions', {
@@ -90,29 +62,29 @@ const PaywallPage = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: 499 })  // Example: $4.99 (amount in cents)
             });
-    
+
             const { client_secret } = await res.json();
             console.log('Response from /api/checkout_sessions:', client_secret);  // Log full response
-    
+
             if (!client_secret) {
                 console.error('Error fetching client secret.');
                 setLoading(false);
                 return;
             }
-    
+
             // Confirm the payment with Stripe using the client secret and CardElement
             const { error, paymentIntent } = await stripe.confirmCardPayment(client_secret, {
                 payment_method: {
                     card: cardElement,
                 },
             });
-    
+
             if (error) {
                 console.error('Payment failed:', error.message);
                 setLoading(false);
                 return;
             }
-    
+
             if (paymentIntent.status === 'succeeded') {
                 console.log('Payment successful!');
                 if (user) {
@@ -127,14 +99,14 @@ const PaywallPage = () => {
                 }
                 window.location.reload(); // Refresh the page after payment
             }
-    
+
             setLoading(false);
         } catch (error) {
             console.error('Error during payment process:', error);
             setLoading(false);
         }
     };
-    
+
     const saveGuestDataToFirebase = async () => {
         try {
             const guestDocRef = doc(firestore, 'users', 'guest');
@@ -219,31 +191,19 @@ const PaywallPage = () => {
                     </Grid>
                 </Grid>
 
-                {/* Payment Request Button (Apple Pay / Google Pay) */}
-                {paymentRequestAvailable && (
-                    <>
-                    <Box mb={4} width="100%" height = "600px" display="flex" justifyContent="center">
-                        <PaymentRequestButtonElement
-                            options={{
-                                paymentRequest,
-                                style: {
-                                    paymentRequestButton: {
-                                        type: 'buy',  // Can also try 'default' or 'donate'
-                                        theme: 'light',  // or 'dark', 'light-outline'
-                                        height: '64px',  // Explicit height
-                                        width: '100%',  // Explicit width
-                                        backgroundColor: '#f00',  // Set a red background to make sure it's visible
-                                    },
-                                },
-                            }}
-                        />
-
-                        
-                    </Box>
-                    <Box width = "100px" height = "100px" backgroundColor="red">hi</Box>
-                    </>
-                    
-                )}
+                {/* Express Checkout Element for Apple Pay / Google Pay */}
+                <Box mb={4} width="100%" display="flex" justifyContent="center">
+                    <ExpressCheckoutElement
+                        options={{
+                            wallets: ['applePay', 'googlePay'],  // Define which wallets to show
+                            amount: 499,  // $4.99 (in cents)
+                            currency: 'usd',
+                            country: 'US',
+                            requestPayerName: true,
+                            requestPayerEmail: true,
+                        }}
+                    />
+                </Box>
 
                 {/* Stripe Elements Payment Form */}
                 { user && <Box mb={4} width="100%" display="flex" justifyContent="center">
@@ -258,14 +218,14 @@ const PaywallPage = () => {
                                     style: { 
                                         base: {
                                             fontSize: '16px',
-                                            color: theme.palette.text.primary,  // Uses primary text color from custom theme
+                                            color: theme.palette.text.primary,
                                             '::placeholder': {
-                                                color: theme.palette.text.secondary || 'gray',  // Placeholder color, fallback to gray if not defined
+                                                color: theme.palette.text.secondary || 'gray',
                                             },
-                                            backgroundColor: theme.palette.background.default,  // Optional background color
+                                            backgroundColor: theme.palette.background.default,
                                         },
                                         invalid: {
-                                            color: theme.palette.error.main || 'red',  // Error color, fallback to red if not defined
+                                            color: theme.palette.error.main || 'red',
                                         },
                                     },
                                 }}
@@ -289,40 +249,6 @@ const PaywallPage = () => {
                             {user ? t("Upgrade Now"): t("Sign in to upgrade") }
                         </Button>
                     )}
-                </Box>
-
-                {/* Comparison: Free vs Premium */}
-                <Box mt={4} p={2} textAlign="center">
-                    <Typography variant="h6" color="primary">{t("Free vs Premium")}</Typography>
-                    <Grid container spacing={2} justifyContent="center">
-                        <Grid item xs={6}>
-                            <Typography variant="body1" fontWeight="bold">{t("Free Users")}</Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                {t("AI-generated custom workout plans")}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                {t("Personalized workout schedule")}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                {t("Identify gym equipment using your camera and AI")}
-                            </Typography>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Typography variant="body1" fontWeight="bold">{t("Premium Users - $5/month")}</Typography> {/* Pricing in the header */}
-                            <Typography variant="body2" color="textSecondary">
-                                {t("All free features")}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                {t("Access to personalized recipes and meal plans")}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                {t("Manage your pantry with AI-generated suggestions")}
-                            </Typography>
-                            <Typography variant="body2" color="textSecondary">
-                                {t("Tailored grocery lists based on pantry items")}
-                            </Typography>
-                        </Grid>
-                    </Grid>
                 </Box>
             </Box>
         </ThemeProvider>

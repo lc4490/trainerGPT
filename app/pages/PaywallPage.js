@@ -54,7 +54,7 @@ const PaywallPage = ({ clientSecret }) => {
                     const { error, paymentIntent } = await stripe.confirmPayment({
                         elements,
                         confirmParams: {
-                            return_url: window.location.href,  // Optional: Return URL after payment
+                            redirect: 'if_required'  // This ensures no redirect unless necessary
                         },
                         clientSecret,
                     });

@@ -39,8 +39,8 @@ const PaywallPage = ({ clientSecret }) => {
 
     // Automatically handle ExpressCheckoutElement payments
     useEffect(() => {
-        if (!stripe || !elements) return;
-        console.log("express checkout useeffect");
+        if (!stripe || !elements) return;  // Ensure Stripe.js is properly loaded
+        console.log("Express Checkout useEffect triggered");
     
         const expressCheckoutElement = elements.getElement(ExpressCheckoutElement);
         if (expressCheckoutElement) {
@@ -54,14 +54,14 @@ const PaywallPage = ({ clientSecret }) => {
                     const { error, paymentIntent } = await stripe.confirmPayment({
                         elements,
                         confirmParams: {
-                            return_url: 'if_required',  // Optional: Return URL after payment
+                            redirect: 'if_required',  // Handle conditional redirect
                         },
                         clientSecret,
                     });
     
                     if (error) {
                         console.error('Express Checkout payment failed:', error.message);
-                        event.complete('fail');  // Notify the element of failure
+                        // event.complete && event.complete('fail');  // Check if complete method exists before calling
                         setLoading(false);
                         return;
                     }
@@ -73,9 +73,9 @@ const PaywallPage = ({ clientSecret }) => {
                         await updatePremiumStatus(user)
                             .then(() => {
                                 console.log('updatePremiumStatus completed successfully.');
-                                event.complete('success');  // Notify the element of success
+                                // event.complete && event.complete('success');  // Notify the element of success
     
-                                // Only reload after the premium status has been updated
+                                // Optionally reload the page after payment and status update
                                 // window.location.reload();  // Reload the page after payment and status update
                             })
                             .catch((error) => {
@@ -85,14 +85,14 @@ const PaywallPage = ({ clientSecret }) => {
                     }
                 } catch (error) {
                     console.error('Error during payment confirmation:', error);
-                    event.complete('fail');
+                    // event.complete && event.complete('fail');
                     setLoading(false);
                 }
             });
     
             console.log("ExpressCheckoutElement is ready.");
         }
-    }, [stripe, elements, clientSecret, user]);    
+    }, [stripe, elements, clientSecret, user]);      
 
     // Handle CardElement payment flow triggered by the button click
     const handlePurchase = async () => {

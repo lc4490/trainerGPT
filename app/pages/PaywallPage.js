@@ -53,9 +53,9 @@ const PaywallPage = ({ clientSecret }) => {
                 try {
                     const { error, paymentIntent } = await stripe.confirmPayment({
                         elements,
-                        // confirmParams: {
-                        //     return_url: window.location.href,  // Optional: Return URL after payment
-                        // },
+                        confirmParams: {
+                            return_url: window.location.href,  // Optional: Return URL after payment
+                        },
                         clientSecret,
                     });
     
@@ -76,7 +76,7 @@ const PaywallPage = ({ clientSecret }) => {
                                 event.complete('success');  // Notify the element of success
     
                                 // Only reload after the premium status has been updated
-                                window.location.reload();  // Reload the page after payment and status update
+                                // window.location.reload();  // Reload the page after payment and status update
                             })
                             .catch((error) => {
                                 console.error('Error updating premium status:', error);

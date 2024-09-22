@@ -40,16 +40,16 @@ const PaywallPage = ({ clientSecret }) => {
     // Automatically handle ExpressCheckoutElement payments
     useEffect(() => {
         if (!stripe || !elements) return;
-        console.log("express checkout useeffect")
-
+        console.log("express checkout useeffect");
+    
         const expressCheckoutElement = elements.getElement(ExpressCheckoutElement);
         if (expressCheckoutElement) {
             console.log("ExpressCheckoutElement detected, registering confirm handler...");
-
+    
             // Register 'confirm' event handler
             expressCheckoutElement.on('confirm', async (event) => {
                 console.log("Express Checkout confirm event triggered.");
-
+    
                 try {
                     const { error, paymentIntent } = await stripe.confirmPayment({
                         elements,
@@ -58,19 +58,30 @@ const PaywallPage = ({ clientSecret }) => {
                         },
                         clientSecret,
                     });
-
+    
                     if (error) {
                         console.error('Express Checkout payment failed:', error.message);
                         event.complete('fail');  // Notify the element of failure
                         setLoading(false);
                         return;
                     }
-
+    
                     if (paymentIntent && paymentIntent.status === 'succeeded') {
-                        console.log('Payment successful with Apple Pay/Google Pay!');
-                        await updatePremiumStatus(user);  // Handle post-payment success
-                        event.complete('success');  // Notify the element of success
-                        // window.location.reload();  // Reload the page after payment
+                        console.log('Payment successful with Apple Pay/Google Pay! PaymentIntent ID:', paymentIntent.id);
+    
+                        // Ensure updatePremiumStatus is called and completes
+                        await updatePremiumStatus(user)
+                            .then(() => {
+                                console.log('updatePremiumStatus completed successfully.');
+                                event.complete('success');  // Notify the element of success
+    
+                                // Only reload after the premium status has been updated
+                                window.location.reload();  // Reload the page after payment and status update
+                            })
+                            .catch((error) => {
+                                console.error('Error updating premium status:', error);
+                                setLoading(false);
+                            });
                     }
                 } catch (error) {
                     console.error('Error during payment confirmation:', error);
@@ -78,10 +89,10 @@ const PaywallPage = ({ clientSecret }) => {
                     setLoading(false);
                 }
             });
-
+    
             console.log("ExpressCheckoutElement is ready.");
         }
-    }, [stripe, elements, clientSecret, user]);
+    }, [stripe, elements, clientSecret, user]);    
 
     // Handle CardElement payment flow triggered by the button click
     const handlePurchase = async () => {

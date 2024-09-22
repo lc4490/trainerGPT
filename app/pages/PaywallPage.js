@@ -54,7 +54,7 @@ const PaywallPage = ({ clientSecret }) => {
                     const { error, paymentIntent } = await stripe.confirmPayment({
                         elements,
                         confirmParams: {
-                            redirect: 'if_required',  // Handle conditional redirect
+                            return_url: "https://www.google.com"
                         },
                         clientSecret,
                     });

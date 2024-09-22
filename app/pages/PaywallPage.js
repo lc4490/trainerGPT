@@ -71,39 +71,50 @@ const PaywallPage = ({ clientSecret }) => {
             }
     
             // Using ExpressCheckoutElement for Apple Pay / Google Pay
-            const expressCheckoutElement = elements.getElement('expressCheckout');  // Grab the Express Checkout Element
+            const expressCheckoutElement = elements.getElement('expressCheckout');
+            console.log("express element", expressCheckoutElement)
     
             if (expressCheckoutElement) {
-                // Confirm payment using Apple Pay or Google Pay
-                const { error, paymentIntent } = await expressCheckoutElement.confirmPayment({
-                    clientSecret: client_secret,
-                });
+                // Attach a confirm handler for Express Checkout (Apple Pay / Google Pay)
+                expressCheckoutElement.on('confirm', async (event) => {
+                    console.log("confirmed")
+                    try {
+                        const { error, paymentIntent } = await stripe.confirmPayment({
+                            clientSecret: client_secret,
+                        });
     
-                if (error) {
-                    console.error('Express Checkout payment failed:', error.message);
-                    setLoading(false);
-                    return;
-                }
-    
-                if (paymentIntent.status === 'succeeded') {
-                    console.log('Payment successful with Apple Pay/Google Pay!');
-                    if (user) {
-                        try {
-                            const userDocRef = doc(firestore, 'users', user.id);
-                            await setDoc(userDocRef, { premium: true }, { merge: true });
-                        } catch (error) {
-                            console.error('Error setting premium mode:', error);
+                        if (error) {
+                            event.complete('fail');  // Notify the element the payment failed
+                            console.error('Express Checkout payment failed:', error.message);
+                            setLoading(false);
+                            return;
                         }
-                    } else {
-                        console.warn('No user found, unable to update premium status');
+    
+                        if (paymentIntent.status === 'succeeded') {
+                            event.complete('success');  // Notify the element the payment succeeded
+                            console.log('Payment successful with Apple Pay/Google Pay!');
+                            
+                            if (user) {
+                                try {
+                                    const userDocRef = doc(firestore, 'users', user.id);
+                                    await setDoc(userDocRef, { premium: true }, { merge: true });
+                                } catch (error) {
+                                    console.error('Error setting premium mode:', error);
+                                }
+                            } else {
+                                console.warn('No user found, unable to update premium status');
+                            }
+                            window.location.reload(); // Refresh the page after payment
+                        }
+                    } catch (error) {
+                        console.error('Error during payment confirmation:', error);
+                        setLoading(false);
                     }
-                    window.location.reload(); // Refresh the page after payment
-                }
+                });
             } else {
                 // Fallback to CardElement if ExpressCheckoutElement is not present
                 const cardElement = elements.getElement(CardElement);
     
-                // Confirm the payment with Stripe using the client secret and CardElement
                 const { error, paymentIntent } = await stripe.confirmCardPayment(client_secret, {
                     payment_method: {
                         card: cardElement,
@@ -111,13 +122,14 @@ const PaywallPage = ({ clientSecret }) => {
                 });
     
                 if (error) {
-                    console.error('Payment failed:', error.message);
+                    console.error('Card payment failed:', error.message);
                     setLoading(false);
                     return;
                 }
     
                 if (paymentIntent.status === 'succeeded') {
                     console.log('Payment successful with CardElement!');
+                    
                     if (user) {
                         try {
                             const userDocRef = doc(firestore, 'users', user.id);
@@ -137,7 +149,8 @@ const PaywallPage = ({ clientSecret }) => {
             console.error('Error during payment process:', error);
             setLoading(false);
         }
-    };    
+    };
+       
 
     const saveGuestDataToFirebase = async () => {
         try {

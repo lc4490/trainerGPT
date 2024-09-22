@@ -196,8 +196,8 @@ const PaywallPage = () => {
                     <ExpressCheckoutElement
                         options={{
                             wallets: {
-                                applePay: {},  // Define Apple Pay options here
-                                googlePay: {},  // Define Google Pay options here
+                                applePay: "auto",  // Define Apple Pay options here
+                                googlePay: "auto",  // Define Google Pay options here
                             },
                             amount: 499,  // $4.99 (in cents)
                             currency: 'usd',

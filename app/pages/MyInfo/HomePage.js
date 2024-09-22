@@ -1,6 +1,31 @@
-import { Box, Typography, Button, Stack } from "@mui/material";
+import { Box, Typography, Button, Stack, keyframes } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+
+// Define the pulse keyframe
+const bounceX = keyframes`
+ 0% {
+    transform: translateX(-10px);
+  }
+  50% {
+    transform: translateX(-50px);
+  }
+  100% {
+    transform: translateX(-10px);
+  }
+`;
+
+const bounceY = keyframes`
+  0% {
+    transform: translateY(-5px);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+  100% {
+    transform: translateY(-5px);
+  }
+`;
 
 const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday, t}) => (
     <Box
@@ -78,31 +103,21 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
             <Typography sx = {{fontWeight: "300", padding: 1}}>Get started by asking trainerGPT for a workout plan!</Typography>
             
             )}
-            {/* {plan ? 
-            (
-                isMobile ? 
-                (
-                    allEvents.length <= 0 && (<ArrowDownwardIcon sx = {{position: "absolute", left: "68.6%", bottom: "10%"}}/>)
-                ) 
-                : 
-                (
-                    allEvents.length <= 0 && (<ArrowBackIcon sx ={{position: "absolute", top: 270}}/>)
+            {plan && allEvents.length <= 0 && (
+                isMobile ? (
+                    <ArrowDownwardIcon sx = {{position: "absolute", left: "68.6%", bottom: "10%", animation: `${bounceY} 2s infinite`}} />
+                ) : (
+                    <ArrowBackIcon sx = {{position: "absolute", top: 270, animation: `${bounceX} 2s infinite`}} />
                 )
-            )
-             : 
-             (
-                isMobile ? 
-                (
-                    allEvents.length <= 0 && (<ArrowDownwardIcon sx = {{position: "absolute", left: "47%", bottom: "10%"}}/>)
-                ) 
-                : 
-                (
-                    allEvents.length <= 0 && (<ArrowBackIcon sx ={{position: "absolute", top: 190}}/>)
+            )}
+
+            {!plan && allEvents.length <= 0 && (
+                isMobile ? (
+                    <ArrowDownwardIcon sx = {{position: "absolute", left: "47%", bottom: "10%", animation: `${bounceY} 2s infinite`}} />
+                ) : (
+                    <ArrowBackIcon sx = {{position: "absolute", top: 190, animation: `${bounceX} 2s infinite`}} />
                 )
-             
-
-
-             )} */}
+            )}
             
             {/* <ArrowBackIcon sx ={{position: "absolute", top: 350}}/> */}
         </Box>

@@ -574,6 +574,7 @@ const MyInfoPage = () => {
 
   const [allEvents, setAllEvents] = useState([]);
   const updateEvents = async () => {
+    setLoading(true)
     if (user) {
       const userId = user.id;
       const docRef = collection(firestore, 'users', userId, 'events');
@@ -587,6 +588,7 @@ const MyInfoPage = () => {
     else{
       setAllEvents(guestEvents)
     }
+    setLoading(false)
   };
 
   useEffect(() => {

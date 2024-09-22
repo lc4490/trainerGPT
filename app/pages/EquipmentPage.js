@@ -302,7 +302,7 @@ const EquipmentPage = () => {
           justifyContent="center" 
           alignItems="center"
           flexDirection="column"
-          paddingBottom= '60px' // Ensure content is not cut off by the toolbar
+          // paddingBottom= '60px' // Ensure content is not cut off by the toolbar
           // gap={2}
         >
           <AddItemModal 

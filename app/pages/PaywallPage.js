@@ -54,14 +54,13 @@ const PaywallPage = ({ clientSecret }) => {
                     const { error, paymentIntent } = await stripe.confirmPayment({
                         elements,
                         confirmParams: {
-                            return_url: "https://www.google.com"
+                            redirect: 'if_required',  // Conditional redirect instead of return_url
                         },
                         clientSecret,
                     });
     
                     if (error) {
                         console.error('Express Checkout payment failed:', error.message);
-                        // event.complete && event.complete('fail');  // Check if complete method exists before calling
                         setLoading(false);
                         return;
                     }
@@ -73,10 +72,8 @@ const PaywallPage = ({ clientSecret }) => {
                         await updatePremiumStatus(user)
                             .then(() => {
                                 console.log('updatePremiumStatus completed successfully.');
-                                // event.complete && event.complete('success');  // Notify the element of success
-    
-                                // Optionally reload the page after payment and status update
-                                // window.location.reload();  // Reload the page after payment and status update
+                                // Handle redirection after premium status is updated
+                                window.location.href = "/your-home-page";  // Redirect to home or any other page
                             })
                             .catch((error) => {
                                 console.error('Error updating premium status:', error);
@@ -85,14 +82,14 @@ const PaywallPage = ({ clientSecret }) => {
                     }
                 } catch (error) {
                     console.error('Error during payment confirmation:', error);
-                    // event.complete && event.complete('fail');
                     setLoading(false);
                 }
             });
     
             console.log("ExpressCheckoutElement is ready.");
         }
-    }, [stripe, elements, clientSecret, user]);      
+    }, [stripe, elements, clientSecret, user]);
+         
 
     // Handle CardElement payment flow triggered by the button click
     const handlePurchase = async () => {

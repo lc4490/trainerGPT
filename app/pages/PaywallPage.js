@@ -222,7 +222,7 @@ const PaywallPage = () => {
                 {/* Payment Request Button (Apple Pay / Google Pay) */}
                 {paymentRequestAvailable && (
                     <>
-                    <Box mb={4} width="100%" height = "600px" display="flex" justifyContent="center">
+                    {/* <Box mb={4} width="100%" height = "600px" display="flex" justifyContent="center">
                         <PaymentRequestButtonElement
                             options={{
                                 paymentRequest,
@@ -236,8 +236,8 @@ const PaywallPage = () => {
                             }}
                         />
                         
-                    </Box>
-                    <Box width = "100px" height = "100px" backgroundColor="red"></Box>
+                    </Box> */}
+                    <Box width = "100px" height = "100px" backgroundColor="red">hi</Box>
                     </>
                     
                 )}

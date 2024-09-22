@@ -6,11 +6,13 @@ export async function POST(req) {
     try {
         const { amount } = await req.json();  // Extract amount from request body
 
-        // Create a PaymentIntent with Stripe
+        // Create a PaymentIntent with automatic payment methods enabled
         const paymentIntent = await stripe.paymentIntents.create({
             amount,  // amount in cents
             currency: 'usd',
-            payment_method_types: ['card'],
+            automatic_payment_methods: {
+                enabled: true,  // Enable automatic payment methods (Apple Pay, Google Pay, etc.)
+            },
         });
 
         // Return the client_secret to the frontend

@@ -228,13 +228,16 @@ const PaywallPage = () => {
                                 paymentRequest,
                                 style: {
                                     paymentRequestButton: {
-                                        type: 'default',  // 'default', 'buy', or 'donate'
-                                        theme: 'dark',  // 'dark', 'light', or 'light-outline'
-                                        height: '64px',
+                                        type: 'buy',  // Can also try 'default' or 'donate'
+                                        theme: 'light',  // or 'dark', 'light-outline'
+                                        height: '64px',  // Explicit height
+                                        width: '100%',  // Explicit width
+                                        backgroundColor: '#f00',  // Set a red background to make sure it's visible
                                     },
                                 },
                             }}
                         />
+
                         
                     </Box>
                     <Box width = "100px" height = "100px" backgroundColor="red">hi</Box>

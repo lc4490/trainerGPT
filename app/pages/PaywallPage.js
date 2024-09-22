@@ -17,7 +17,7 @@ import { lightTheme, darkTheme } from '../theme';
 // Load Stripe with your publishable key
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
-const PaywallPage = () => {
+const PaywallPage = ({ clientSecret }) => {
     const { t } = useTranslation();
     const { user, isLoaded, isSignedIn } = useUser();
     const { guestData, guestEquipment, guestMessages } = useContext(GuestContext);
@@ -195,15 +195,10 @@ const PaywallPage = () => {
                 <Box mb={4} width="100%" display="flex" justifyContent="center">
                     <ExpressCheckoutElement
                         options={{
-                            wallets: {
-                                applePay: "auto",  // Define Apple Pay options here
-                                googlePay: "auto",  // Define Google Pay options here
-                            },
-                            amount: 499,  // $4.99 (in cents)
-                            currency: 'usd',
-                            country: 'US',
-                            requestPayerName: true,
-                            requestPayerEmail: true,
+                            paymentMethods: {
+                                applePay: 'auto',  // Automatically show Apple Pay when available
+                                googlePay: 'auto',  // Automatically show Google Pay when available
+                            }
                         }}
                     />
                 </Box>
@@ -253,16 +248,74 @@ const PaywallPage = () => {
                         </Button>
                     )}
                 </Box>
+
+                {/* Comparison: Free vs Premium */}
+                <Box mt={4} p={2} textAlign="center">
+                    <Typography variant="h6" color="primary">{t("Free vs Premium")}</Typography>
+                    <Grid container spacing={2} justifyContent="center">
+                        <Grid item xs={6}>
+                            <Typography variant="body1" fontWeight="bold">{t("Free Users")}</Typography>
+                            <Typography variant="body2" color="textSecondary">
+                                {t("AI-generated custom workout plans")}
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                                {t("Personalized workout schedule")}
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                                {t("Identify gym equipment using your camera and AI")}
+                            </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <Typography variant="body1" fontWeight="bold">{t("Premium Users - $5/month")}</Typography> {/* Pricing in the header */}
+                            <Typography variant="body2" color="textSecondary">
+                                {t("All free features")}
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                                {t("Access to personalized recipes and meal plans")}
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                                {t("Manage your pantry with AI-generated suggestions")}
+                            </Typography>
+                            <Typography variant="body2" color="textSecondary">
+                                {t("Tailored grocery lists based on pantry items")}
+                            </Typography>
+                        </Grid>
+                    </Grid>
+                </Box>
             </Box>
         </ThemeProvider>
     );
 };
 
 // Wrap PaywallPage with Elements provider
-const PaywallPageWithStripe = () => (
-    <Elements stripe={stripePromise}>
-        <PaywallPage />
-    </Elements>
-);
+const PaywallPageWithStripe = () => {
+    const [clientSecret, setClientSecret] = useState('');
+
+    // Fetch the clientSecret from the backend
+    useEffect(() => {
+        const createPaymentIntent = async () => {
+            const res = await fetch('/api/checkout_sessions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: 499 })  // Example: $4.99 (in cents)
+            });
+
+            const { client_secret } = await res.json();
+            setClientSecret(client_secret);  // Store the clientSecret
+        };
+
+        createPaymentIntent();
+    }, []);
+
+    if (!clientSecret) {
+        return <CircularProgress />;  // Show a loading spinner while clientSecret is being fetched
+    }
+
+    return (
+        <Elements stripe={stripePromise} options={{ clientSecret }}>
+            <PaywallPage clientSecret={clientSecret} />
+        </Elements>
+    );
+};
 
 export default PaywallPageWithStripe;

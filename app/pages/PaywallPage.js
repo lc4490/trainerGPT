@@ -68,9 +68,9 @@ const PaywallPage = ({ clientSecret }) => {
 
                     if (paymentIntent && paymentIntent.status === 'succeeded') {
                         console.log('Payment successful with Apple Pay/Google Pay!');
-                        event.complete('success');  // Notify the element of success
                         await updatePremiumStatus(user);  // Handle post-payment success
-                        window.location.reload();  // Reload the page after payment
+                        event.complete('success');  // Notify the element of success
+                        // window.location.reload();  // Reload the page after payment
                     }
                 } catch (error) {
                     console.error('Error during payment confirmation:', error);

@@ -44,17 +44,15 @@ const PaywallPage = ({ clientSecret }) => {
             router.push('/sign-in');
             return;
         }
-
+    
         setLoading(true);
-
+    
         if (!stripe || !elements) {
             console.error('Stripe or Elements not loaded');
             setLoading(false);
             return;
         }
-
-        const cardElement = elements.getElement(CardElement);
-
+    
         try {
             // Create the Payment Intent on the backend
             const res = await fetch('/api/checkout_sessions', {
@@ -62,50 +60,84 @@ const PaywallPage = ({ clientSecret }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ amount: 499 })  // Example: $4.99 (amount in cents)
             });
-
+    
             const { client_secret } = await res.json();
-            console.log('Response from /api/checkout_sessions:', client_secret);  // Log full response
-
+            console.log('Response from /api/checkout_sessions:', client_secret);
+    
             if (!client_secret) {
                 console.error('Error fetching client secret.');
                 setLoading(false);
                 return;
             }
-
-            // Confirm the payment with Stripe using the client secret and CardElement
-            const { error, paymentIntent } = await stripe.confirmCardPayment(client_secret, {
-                payment_method: {
-                    card: cardElement,
-                },
-            });
-
-            if (error) {
-                console.error('Payment failed:', error.message);
-                setLoading(false);
-                return;
-            }
-
-            if (paymentIntent.status === 'succeeded') {
-                console.log('Payment successful!');
-                if (user) {
-                    try {
-                    const userDocRef = doc(firestore, 'users', user.id);
-                    await setDoc(userDocRef, { premium: true }, { merge: true });
-                    } catch (error) {
-                    console.error('Error setting premium mode:', error);
-                    }
-                } else {
-                    console.warn('No user found, unable to update premium status');
+    
+            // Using ExpressCheckoutElement for Apple Pay / Google Pay
+            const expressCheckoutElement = elements.getElement('expressCheckout');  // Grab the Express Checkout Element
+    
+            if (expressCheckoutElement) {
+                // Confirm payment using Apple Pay or Google Pay
+                const { error, paymentIntent } = await expressCheckoutElement.confirmPayment({
+                    clientSecret: client_secret,
+                });
+    
+                if (error) {
+                    console.error('Express Checkout payment failed:', error.message);
+                    setLoading(false);
+                    return;
                 }
-                window.location.reload(); // Refresh the page after payment
+    
+                if (paymentIntent.status === 'succeeded') {
+                    console.log('Payment successful with Apple Pay/Google Pay!');
+                    if (user) {
+                        try {
+                            const userDocRef = doc(firestore, 'users', user.id);
+                            await setDoc(userDocRef, { premium: true }, { merge: true });
+                        } catch (error) {
+                            console.error('Error setting premium mode:', error);
+                        }
+                    } else {
+                        console.warn('No user found, unable to update premium status');
+                    }
+                    window.location.reload(); // Refresh the page after payment
+                }
+            } else {
+                // Fallback to CardElement if ExpressCheckoutElement is not present
+                const cardElement = elements.getElement(CardElement);
+    
+                // Confirm the payment with Stripe using the client secret and CardElement
+                const { error, paymentIntent } = await stripe.confirmCardPayment(client_secret, {
+                    payment_method: {
+                        card: cardElement,
+                    },
+                });
+    
+                if (error) {
+                    console.error('Payment failed:', error.message);
+                    setLoading(false);
+                    return;
+                }
+    
+                if (paymentIntent.status === 'succeeded') {
+                    console.log('Payment successful with CardElement!');
+                    if (user) {
+                        try {
+                            const userDocRef = doc(firestore, 'users', user.id);
+                            await setDoc(userDocRef, { premium: true }, { merge: true });
+                        } catch (error) {
+                            console.error('Error setting premium mode:', error);
+                        }
+                    } else {
+                        console.warn('No user found, unable to update premium status');
+                    }
+                    window.location.reload(); // Refresh the page after payment
+                }
             }
-
+    
             setLoading(false);
         } catch (error) {
             console.error('Error during payment process:', error);
             setLoading(false);
         }
-    };
+    };    
 
     const saveGuestDataToFirebase = async () => {
         try {

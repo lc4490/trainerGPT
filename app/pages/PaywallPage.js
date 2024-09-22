@@ -70,47 +70,29 @@ const PaywallPage = ({ clientSecret }) => {
                 return;
             }
     
-            // Using ExpressCheckoutElement for Apple Pay / Google Pay
-            const expressCheckoutElement = elements.getElement('expressCheckout');
-            console.log("express element", expressCheckoutElement)
+            // Check if the Express Checkout element is available for Apple Pay / Google Pay
+            const expressCheckoutElement = elements.getElement(ExpressCheckoutElement);
     
             if (expressCheckoutElement) {
-                // Attach a confirm handler for Express Checkout (Apple Pay / Google Pay)
-                expressCheckoutElement.on('confirm', async (event) => {
-                    console.log("confirmed")
-                    try {
-                        const { error, paymentIntent } = await stripe.confirmPayment({
-                            clientSecret: client_secret,
-                        });
-    
-                        if (error) {
-                            event.complete('fail');  // Notify the element the payment failed
-                            console.error('Express Checkout payment failed:', error.message);
-                            setLoading(false);
-                            return;
-                        }
-    
-                        if (paymentIntent.status === 'succeeded') {
-                            event.complete('success');  // Notify the element the payment succeeded
-                            console.log('Payment successful with Apple Pay/Google Pay!');
-                            
-                            if (user) {
-                                try {
-                                    const userDocRef = doc(firestore, 'users', user.id);
-                                    await setDoc(userDocRef, { premium: true }, { merge: true });
-                                } catch (error) {
-                                    console.error('Error setting premium mode:', error);
-                                }
-                            } else {
-                                console.warn('No user found, unable to update premium status');
-                            }
-                            window.location.reload(); // Refresh the page after payment
-                        }
-                    } catch (error) {
-                        console.error('Error during payment confirmation:', error);
-                        setLoading(false);
-                    }
+                // Use express checkout to confirm payment via Apple Pay / Google Pay
+                const { error, paymentIntent } = await stripe.confirmPayment({
+                    elements,
+                    confirmParams: {
+                        return_url: window.location.href,  // Optional: you can set a return URL for after the payment
+                    },
+                    clientSecret: client_secret,
                 });
+    
+                if (error) {
+                    console.error('Express Checkout payment failed:', error.message);
+                    setLoading(false);
+                    return;
+                }
+    
+                if (paymentIntent.status === 'succeeded') {
+                    console.log('Payment successful with Apple Pay/Google Pay!');
+                    await updatePremiumStatus(user);  // Handle post-payment success logic
+                }
             } else {
                 // Fallback to CardElement if ExpressCheckoutElement is not present
                 const cardElement = elements.getElement(CardElement);
@@ -129,18 +111,7 @@ const PaywallPage = ({ clientSecret }) => {
     
                 if (paymentIntent.status === 'succeeded') {
                     console.log('Payment successful with CardElement!');
-                    
-                    if (user) {
-                        try {
-                            const userDocRef = doc(firestore, 'users', user.id);
-                            await setDoc(userDocRef, { premium: true }, { merge: true });
-                        } catch (error) {
-                            console.error('Error setting premium mode:', error);
-                        }
-                    } else {
-                        console.warn('No user found, unable to update premium status');
-                    }
-                    window.location.reload(); // Refresh the page after payment
+                    await updatePremiumStatus(user);  // Handle post-payment success logic
                 }
             }
     
@@ -150,7 +121,22 @@ const PaywallPage = ({ clientSecret }) => {
             setLoading(false);
         }
     };
-       
+    
+    // Helper function to update the premium status
+    const updatePremiumStatus = async (user) => {
+        if (user) {
+            try {
+                const userDocRef = doc(firestore, 'users', user.id);
+                await setDoc(userDocRef, { premium: true }, { merge: true });
+                window.location.reload();  // Reload after successful payment
+            } catch (error) {
+                console.error('Error setting premium mode:', error);
+            }
+        } else {
+            console.warn('No user found, unable to update premium status');
+        }
+    };
+    
 
     const saveGuestDataToFirebase = async () => {
         try {

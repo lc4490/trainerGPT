@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useUser } from "@clerk/nextjs";
 import { useState, useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useStripe, useElements, CardElement, Elements } from '@stripe/react-stripe-js'; 
+import { useStripe, useElements, CardElement, Elements, PaymentRequestButtonElement } from '@stripe/react-stripe-js'; 
 import { loadStripe } from '@stripe/stripe-js'; 
 import { GuestContext } from '../page';
 import { firestore } from '../firebase'
@@ -27,6 +27,34 @@ const PaywallPage = () => {
     // Stripe hooks
     const stripe = useStripe();
     const elements = useElements();
+
+    // Apple Pay (Payment Request Button) state
+    const [paymentRequest, setPaymentRequest] = useState(null);
+    const [paymentRequestAvailable, setPaymentRequestAvailable] = useState(false);
+
+    useEffect(() => {
+        if (stripe) {
+            const pr = stripe.paymentRequest({
+                country: 'US',  // Adjust based on your country
+                currency: 'usd',
+                total: {
+                    label: t('Upgrade to Premium'),
+                    amount: 499,  // Example: $4.99 (in cents)
+                },
+                requestPayerName: true,
+                requestPayerEmail: true,
+            });
+
+            pr.canMakePayment().then((result) => {
+                console.log(result)
+                if (result) {
+                    setPaymentRequest(pr);
+                    setPaymentRequestAvailable(true);
+                }
+            });
+        }
+    }, [stripe]);
+    {console.log(paymentRequestAvailable)}
 
     // Implementing theming
     const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -190,6 +218,24 @@ const PaywallPage = () => {
                         </Card>
                     </Grid>
                 </Grid>
+
+                {/* Payment Request Button (Apple Pay / Google Pay) */}
+                {paymentRequestAvailable && (
+                    <Box mb={4} width="100%" display="flex" justifyContent="center">
+                        <PaymentRequestButtonElement
+                            options={{
+                                paymentRequest,
+                                style: {
+                                    paymentRequestButton: {
+                                        type: 'default',  // 'default', 'buy', or 'donate'
+                                        theme: 'dark',  // 'dark', 'light', or 'light-outline'
+                                        height: '64px',
+                                    },
+                                },
+                            }}
+                        />
+                    </Box>
+                )}
 
                 {/* Stripe Elements Payment Form */}
                 { user && <Box mb={4} width="100%" display="flex" justifyContent="center">

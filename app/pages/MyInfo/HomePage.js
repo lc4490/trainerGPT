@@ -144,7 +144,7 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
             <Typography sx = {{fontWeight: "300", padding: 1}}>Get started by asking trainerGPT for a workout plan!</Typography>
             
             )}
-            {plan && allEvents.length <= 0 && (
+            {/* {plan && allEvents.length <= 0 && (
                 isMobile ? (
                     <ArrowDownwardIcon sx = {{position: "absolute", left: "68.6%", bottom: "10%", animation: `${bounceY} 2s infinite`}} />
                 ) : (
@@ -158,7 +158,7 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                 ) : (
                     <ArrowBackIcon sx = {{position: "absolute", top: 190, animation: `${bounceX} 2s infinite`}} />
                 )
-            )}
+            )} */}
             
             {/* <ArrowBackIcon sx ={{position: "absolute", top: 350}}/> */}
             {hasPremiumAccess && <Box display = "flex"justifyContent={"end"}>

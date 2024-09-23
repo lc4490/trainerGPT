@@ -59,7 +59,7 @@ const PaywallPage = ({ clientSecret }) => {
 
                     if (error) {
                         console.error('Express Checkout payment failed:', error.message);
-                        // event.complete('fail');  // Notify the element of failure
+                        event.complete('fail');  // Notify the element of failure
                         setLoading(false);
                         return;
                     }
@@ -67,12 +67,12 @@ const PaywallPage = ({ clientSecret }) => {
                     if (paymentIntent && paymentIntent.status === 'succeeded') {
                         console.log('Payment successful with Apple Pay/Google Pay!');
                         await updatePremiumStatus(user);  // Handle post-payment success
-                        // event.complete('success');  // Notify the element of success
-                        // window.location.reload();  // Reload the page after payment
+                        event.complete('success');  // Notify the element of success
+                        window.location.reload();  // Reload the page after payment
                     }
                 } catch (error) {
                     console.error('Error during payment confirmation:', error);
-                    // event.complete('fail');
+                    event.complete('fail');
                     setLoading(false);
                 }
             });

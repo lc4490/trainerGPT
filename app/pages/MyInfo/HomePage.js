@@ -27,6 +27,8 @@ const bounceY = keyframes`
   }
 `;
 
+const menubar = ["Upcoming workouts:"]
+
 const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday, handleCancelSubscription, hasPremiumAccess, t}) => (
     <Box
         display="flex"
@@ -49,52 +51,91 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
             
                 {allEvents.length > 0 ? (
                 <Box>
-                <Typography
-                    sx ={{
-                    padding: 1,
-                    fontSize: "1.25rem",
-                    fontWeight: "300"
-                    }}
-                    >Upcoming workouts:
-                    </Typography>
-                    <Stack flexDirection="row" alignItems="flex-start" style={{ overflow: 'scroll' }}>
-                    {allEvents
-                    .filter(event => new Date(event.start) >= new Date().setHours(0, 0, 0, 0) && event.backgroundColor !== "orange")
-                    .sort((a, b) => new Date(a.start) - new Date(b.start))
-                    .map(({title, start}, index)=> (
-                        <Button
-                        key={index} 
-                        sx={{ color: "text.primary", flexShrink: 0 }}
-                        onClick={() => handleWorkoutModal(index)}
-                        >
-                        <Box
-                            width = {isMobile ? "150px" : "300px"}
-                            height = {isMobile ? "150px" : "300px"}
-                            display="flex"
-                            flexDirection="column"
-                            justifyContent="space-between"
-                            alignItems="center"
-                            bgcolor="background.bubbles"
-                            padding={1}
+                    <Stack padding={2.5} gap = {2.5} flexDirection={"row"} sx ={{overflow: "scroll"}}>
+                        {console.log(menubar)}
+                        {menubar.map((item, index) => (
+                            <Button
+                            key={index} // Always provide a unique key for each element in the map function
                             sx={{
-                            // width: '275px',
-                            borderRadius: '10px',
-                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                            overflow: 'hidden',
+                                paddingX: 2.5,
+                                backgroundColor: "lightgray",
+                                color: "#2C2C2C",
+                                borderRadius: "99999px",
+                                '&:hover': {
+                                    backgroundColor: '#224061',
+                                    color: 'white',
+                                    // borderColor: 'text.primary',
+                                },
                             }}
-                        >
-                            <Stack width="100%">
-                            <Typography sx={{ fontSize: isMobile ? "0.7rem" : "1rem", textAlign: "end" }}>
-                                Scheduled for {isToday(start) ? 'Today' : new Date(start).toLocaleDateString('en-US', { weekday: 'long' })}
+                            >
+                            <Typography
+                                sx={{
+                                padding: 1,
+                                fontSize: "0.8rem",
+                                fontWeight: "400",
+                                }}
+                            >
+                                {item}
                             </Typography>
-                            </Stack>
-                            <Typography sx = {{fontWeight: "900", textAlign: "left", fontSize: isMobile ? "1rem" : "2rem"}}>{title.split(":")[1]}</Typography>
-                            
-                        </Box>
-                        </Button>
-                    ))}
+                            </Button>
+                        ))}
                     </Stack>
-                    </Box>
+
+                    <Stack flexDirection="row" alignItems="flex-start" style={{ overflow: 'scroll' }}>
+                        {allEvents
+                        .filter(event => new Date(event.start) >= new Date().setHours(0, 0, 0, 0) && event.backgroundColor !== "orange")
+                        .sort((a, b) => new Date(a.start) - new Date(b.start))
+                        .map(({ title, start }, index) => {
+                            // Define an array of gradient backgrounds
+                            const gradientBackgrounds = [
+                                'linear-gradient(90deg, #224061 50%, #433B5F 100%)', // Transition from dark blue to pinkish-red
+                                'linear-gradient(90deg, #433B5F 50%, #6A385C 100%)', // Transition from dark blue to pinkish-red
+                                'linear-gradient(90deg, #6A385C 50%, #923258 100%)', // Transition from dark blue to pinkish-red
+                                'linear-gradient(90deg, #923258 25%, #BB2D55 100%)', // Transition from dark blue to pinkish-red
+                                'linear-gradient(270deg, #923258 25%, #BB2D55 100%)', // Transition from dark blue to pinkish-red
+                                'linear-gradient(270deg, #6A385C 50%, #923258 100%)', // Transition from dark blue to pinkish-red
+                                'linear-gradient(270deg, #433B5F 50%, #6A385C 100%)', // Transition from dark blue to pinkish-red
+                                'linear-gradient(270deg, #224061 50%, #433B5F 100%)', // Transition from dark blue to pinkish-red
+                            ];
+                            
+                            const eventBackground = gradientBackgrounds[index % gradientBackgrounds.length]; // Cycle through the gradients
+                
+                            return (
+                                <Button
+                                    key={index}
+                                    sx={{ color: "text.primary", flexShrink: 0 }}
+                                    onClick={() => handleWorkoutModal(index)}
+                                >
+                                    <Box
+                                        width={isMobile ? "150px" : "300px"}
+                                        height={isMobile ? "150px" : "300px"}
+                                        display="flex"
+                                        flexDirection="column"
+                                        justifyContent="space-between"
+                                        alignItems="center"
+                                        padding={1}
+                                        sx={{
+                                            background: eventBackground, // Apply gradient background here
+                                            borderRadius: '10px',
+                                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                            overflow: 'hidden',
+                                        }}
+                                    >
+                                        <Stack width="100%">
+                                            <Typography sx={{ fontSize: isMobile ? "0.7rem" : "1rem", textAlign: "end" }}>
+                                                Scheduled for {isToday(start) ? 'Today' : new Date(start).toLocaleDateString('en-US', { weekday: 'long' })}
+                                            </Typography>
+                                        </Stack>
+                                        <Typography sx={{ fontWeight: "900", textAlign: "left", fontSize: isMobile ? "1rem" : "2rem" }}>
+                                            {title.split(":")[1]}
+                                        </Typography>
+                                    </Box>
+                                </Button>
+                            );
+                        })}
+                    </Stack>
+                </Box>
+            
                 ) : (
                 <Typography sx = {{fontWeight: "300"}}>Now that you have a workout plan, go to the myPlanner page to create your schedule.</Typography>
                 )}

@@ -55,7 +55,7 @@ export default function SignUpPage() {
         alignItems="center"
         sx={{ padding: 2 }}
       >
-        <Box
+        {/* <Box
           display="flex"
           flexDirection="column"
           justifyContent="center"
@@ -64,13 +64,13 @@ export default function SignUpPage() {
         >
           <Typography variant="h4" gutterBottom>
             Sign In
-          </Typography>
+          </Typography> */}
           <SignIn
             appearance={{
                 baseTheme: prefersDarkMode ? dark: light,
             }}
             />
-        </Box>
+        {/* </Box> */}
       </Box>
     </ThemeProvider>
   );

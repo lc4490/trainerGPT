@@ -492,8 +492,8 @@ export default function Home() {
         <JoyRide 
         continuous
         callback={() => {}}
-        // run={!user}
-        run={false}
+        run={isSummary}
+        // run={false}
         steps={[
           {
             title: t("Welcome to trainerGPT"),
@@ -537,20 +537,20 @@ export default function Home() {
             placement: "center",
             target: "body"
           },
-          {
-            title: t("Language Selection"),
-            content: <Typography variant="h6">{t("Select your language with the top left button.")}</Typography>,
-            placement: "auto",
-            target: "#language-button", // Only shows when on the page with language button
-            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
-          },
-          {
-            title: t("Sign In / Sign Up"),
-            content: <Typography variant="h6">{t("Sign in or sign up with the top right button.")}</Typography>,
-            placement: "auto",
-            target: "#auth-button", // Only shows when on the page with auth button
-            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
-          },
+          // {
+          //   title: t("Language Selection"),
+          //   content: <Typography variant="h6">{t("Select your language with the top left button.")}</Typography>,
+          //   placement: "auto",
+          //   target: "#language-button", // Only shows when on the page with language button
+          //   locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
+          // },
+          // {
+          //   title: t("Sign In / Sign Up"),
+          //   content: <Typography variant="h6">{t("Sign in or sign up with the top right button.")}</Typography>,
+          //   placement: "auto",
+          //   target: "#auth-button", // Only shows when on the page with auth button
+          //   locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
+          // },
           {
             title: t("Personal Information"),
             content: <Typography variant="h6">{t("Edit your information on this page.")}</Typography>,
@@ -741,7 +741,6 @@ export default function Home() {
             >
 
             <FormControl 
-                id="language-button" 
                 sx={{ 
                 width: isMobile ? '100px' : '100px',
                 minWidth: '100px',
@@ -790,7 +789,7 @@ export default function Home() {
             </FormControl>
 
 
-            <Box id={"auth-button"}>
+            <Box>
                 {!isSignedIn ? (
                 <Button 
                     color="inherit"

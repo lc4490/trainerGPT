@@ -41,16 +41,11 @@ const PaywallPage = ({ clientSecret }) => {
     useEffect(() => {
         if (!stripe || !elements) return;
     
-        console.log("express checkout useEffect");
-    
         const expressCheckoutElement = elements.getElement(ExpressCheckoutElement);
         if (expressCheckoutElement) {
-            console.log("ExpressCheckoutElement detected, registering confirm handler...");
     
             // Register 'confirm' event handler
             expressCheckoutElement.on('confirm', async (event) => {
-                console.log("Express Checkout confirm event triggered.");
-                console.log("EVent", event)
     
                 try {
                     const { error, paymentIntent } = await stripe.confirmPayment({
@@ -84,11 +79,8 @@ const PaywallPage = ({ clientSecret }) => {
                     setLoading(false);
                 }
             });
-    
-            console.log("ExpressCheckoutElement is ready.");
         }
     }, [stripe, elements, clientSecret, user]);
-    
 
     // Handle CardElement payment flow triggered by the button click
     const handlePurchase = async () => {

@@ -4,23 +4,29 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(req) {
     try {
-        const { email, paymentMethodId } = await req.json();  // Extract email and payment method ID from the request
+        const { email } = await req.json();  // Extract email from the request
 
-        // Create or retrieve the customer from Stripe
-        const customer = await stripe.customers.create({
-            email,
-            payment_method: paymentMethodId,  // Set the default payment method
-            invoice_settings: {
-                default_payment_method: paymentMethodId,
-            },
+        // Check if a customer with this email already exists
+        let customer = await stripe.customers.list({
+            email: email,
+            limit: 1,
         });
 
-        // Create a subscription for the customer using a price ID
+        if (customer.data.length === 0) {
+            // Create a new customer if one doesn't exist
+            customer = await stripe.customers.create({
+                email,
+            });
+        } else {
+            customer = customer.data[0];
+        }
+
+        // Create a subscription for the customer using the price ID from Stripe
         const subscription = await stripe.subscriptions.create({
             customer: customer.id,
             items: [
                 {
-                    price: process.env.STRIPE_PRICE_ID,  // Your subscription price ID from Stripe dashboard
+                    price: process.env.STRIPE_PRICE_ID,  // Your subscription price ID from the Stripe dashboard
                 },
             ],
             payment_behavior: 'default_incomplete',  // Starts subscription in incomplete status until payment is confirmed

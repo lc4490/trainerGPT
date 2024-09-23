@@ -58,7 +58,7 @@ const PaywallPage = ({ clientSecret }) => {
                         }),
                     });
     
-                    const { client_secret } = await res.json();
+                    const { client_secret, subscriptionId } = await res.json();
     
                     if (!client_secret) {
                         console.error('Error fetching client secret.');
@@ -84,7 +84,7 @@ const PaywallPage = ({ clientSecret }) => {
     
                     if (paymentIntent && paymentIntent.status === 'succeeded') {
                         console.log('Subscription payment successful with Apple Pay/Google Pay!');
-                        await updatePremiumStatus(user);  // Handle post-payment success
+                        await updatePremiumStatus(user, subscriptionId);  // Handle post-payment success
                         if (event.complete) {
                             event.complete('success');  // Notify the element of success only if complete exists
                         }
@@ -129,7 +129,7 @@ const PaywallPage = ({ clientSecret }) => {
                 }),
             });
     
-            const { client_secret } = await res.json();
+            const { client_secret, subscriptionId } = await res.json();
             console.log('Received client_secret from /api/checkout_sessions:', client_secret);
     
             if (!client_secret) {
@@ -154,7 +154,7 @@ const PaywallPage = ({ clientSecret }) => {
     
             if (paymentIntent.status === 'succeeded') {
                 console.log('Subscription payment successful with CardElement!');
-                await updatePremiumStatus(user);  // Handle post-payment success
+                await updatePremiumStatus(user, subscriptionId);  // Handle post-payment success
                 window.location.reload();  // Refresh the page after payment
             }
     
@@ -168,12 +168,14 @@ const PaywallPage = ({ clientSecret }) => {
     console.log(user?.primaryEmailAddress?.emailAddress)
 
     // Helper function to update premium status
-    const updatePremiumStatus = async (user) => {
+    const updatePremiumStatus = async (user, subscriptionId) => {
         if (user) {
             try {
                 const userDocRef = doc(firestore, 'users', user.id);
                 await setDoc(userDocRef, { premium: true }, { merge: true });
                 console.log("Premium status updated successfully for user:", user.id);
+                await setDoc(userDocRef, { subscriptionId: subscriptionId }, { merge: true });
+                console.log("Subscription ID added successfully for user:", user.id);
             } catch (error) {
                 console.error('Error setting premium mode:', error);
             }

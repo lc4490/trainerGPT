@@ -57,7 +57,16 @@ const PaywallPage = ({ clientSecret }) => {
                             return_url: window.location.href,  // Optional: Return URL after payment
                         },
                         clientSecret,
-                    });
+                    }).then(async function(result) {
+                        if (result.error) {
+                          // Inform the customer that there was an error.
+                          console.log("Payment failed:", result.error.message);
+                        } else {
+                          // Payment is being processed successfully (before redirect).
+                          console.log("Payment processing, redirecting to:", result.paymentIntent.status);
+                          await updatePremiumStatus(user)
+                        }
+                      });
 
                     if (error) {
                         console.error('Express Checkout payment failed:', error.message);

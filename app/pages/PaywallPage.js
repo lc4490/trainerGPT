@@ -269,6 +269,7 @@ const PaywallPage = ({ clientSecret }) => {
                 </Grid>
 
                 {/* Express Checkout Element for Apple Pay / Google Pay */}
+                { user && 
                 <Box mb={4} width="100%" display="flex" justifyContent="center">
                     <ExpressCheckoutElement
                         options={{
@@ -279,9 +280,11 @@ const PaywallPage = ({ clientSecret }) => {
                         }}
                     />
                 </Box>
+                }
 
                 {/* Stripe Elements Payment Form */}
-                { user && <Box mb={4} width="100%" display="flex" justifyContent="center">
+                { user && 
+                <Box mb={4} width="100%" display="flex" justifyContent="center">
                     <Card variant="outlined">
                         <CardContent>
                             <Typography variant="body1" textAlign="center" mb={2}>
@@ -307,7 +310,8 @@ const PaywallPage = ({ clientSecret }) => {
                             />
                         </CardContent>
                     </Card>
-                </Box>}
+                </Box>
+                }
 
                 {/* Upgrade Button */}
                 <Box textAlign="center">

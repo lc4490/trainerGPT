@@ -44,14 +44,33 @@ const PaywallPage = ({ clientSecret }) => {
         const expressCheckoutElement = elements.getElement(ExpressCheckoutElement);
         if (expressCheckoutElement) {
     
-            // Register 'confirm' event handler
+            // Register 'confirm' event handler for Express Checkout
             expressCheckoutElement.on('confirm', async (event) => {
     
                 try {
+                    // Make a request to create a subscription on the backend
+                    const res = await fetch('/api/checkout_sessions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            email: user?.primaryEmailAddress?.emailAddress,  // Assuming you have access to user's email
+                            paymentMethodId: event.paymentMethod.id  // Apple Pay/Google Pay payment method ID
+                        }),
+                    });
+    
+                    const { client_secret } = await res.json();
+    
+                    if (!client_secret) {
+                        console.error('Error fetching client secret.');
+                        setLoading(false);
+                        return;
+                    }
+    
+                    // Confirm subscription payment with ExpressCheckoutElement
                     const { error, paymentIntent } = await stripe.confirmPayment({
                         elements,
+                        clientSecret: client_secret,
                         redirect: "if_required",
-                        clientSecret,
                     });
     
                     if (error) {
@@ -64,7 +83,7 @@ const PaywallPage = ({ clientSecret }) => {
                     }
     
                     if (paymentIntent && paymentIntent.status === 'succeeded') {
-                        console.log('Payment successful with Apple Pay/Google Pay!');
+                        console.log('Subscription payment successful with Apple Pay/Google Pay!');
                         await updatePremiumStatus(user);  // Handle post-payment success
                         if (event.complete) {
                             event.complete('success');  // Notify the element of success only if complete exists
@@ -81,6 +100,7 @@ const PaywallPage = ({ clientSecret }) => {
             });
         }
     }, [stripe, elements, clientSecret, user]);
+    
 
     // Handle CardElement payment flow triggered by the button click
     const handlePurchase = async () => {
@@ -89,58 +109,63 @@ const PaywallPage = ({ clientSecret }) => {
             router.push('/sign-in');
             return;
         }
-
+    
         setLoading(true);
-
+    
         if (!stripe || !elements) {
             console.error('Stripe or Elements not loaded');
             setLoading(false);
             return;
         }
-
+    
         try {
-            // Create the Payment Intent on the backend
+            // Create a subscription on the backend
             const res = await fetch('/api/checkout_sessions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: 499 })  // Example: $4.99 (amount in cents)
+                body: JSON.stringify({ 
+                    email: user?.primaryEmailAddress?.emailAddress,  // Assuming you have access to user's email
+                    paymentMethodId: elements.getElement(CardElement).id  // Get card payment method ID
+                }),
             });
-
+    
             const { client_secret } = await res.json();
             console.log('Received client_secret from /api/checkout_sessions:', client_secret);
-
+    
             if (!client_secret) {
                 console.error('Error fetching client secret.');
                 setLoading(false);
                 return;
             }
-
-            // Confirm payment with CardElement when button is clicked
+    
+            // Confirm the subscription payment with CardElement
             const cardElement = elements.getElement(CardElement);
             const { error, paymentIntent } = await stripe.confirmCardPayment(client_secret, {
                 payment_method: {
                     card: cardElement,
                 },
             });
-
+    
             if (error) {
                 console.error('Card payment failed:', error.message);
                 setLoading(false);
                 return;
             }
-
+    
             if (paymentIntent.status === 'succeeded') {
-                console.log('Payment successful with CardElement!');
+                console.log('Subscription payment successful with CardElement!');
                 await updatePremiumStatus(user);  // Handle post-payment success
                 window.location.reload();  // Refresh the page after payment
             }
-
+    
             setLoading(false);
         } catch (error) {
-            console.error('Error during payment process:', error);
+            console.error('Error during subscription process:', error);
             setLoading(false);
         }
     };
+    
+    console.log(user?.primaryEmailAddress?.emailAddress)
 
     // Helper function to update premium status
     const updatePremiumStatus = async (user) => {

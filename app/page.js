@@ -474,7 +474,39 @@ export default function Home() {
     }
 };
 
+  // Track whether the tutorial has been completed
+  const [isTutorialComplete, setIsTutorialComplete] = useState(false);
 
+  // Check if the user has completed the tutorial before
+  useEffect(() => {
+    const checkTutorialStatus = async () => {
+      if (user) {
+        // If user is logged in, fetch from Firestore
+        const userDocRef = doc(firestore, 'users', user.id);
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists() && userDoc.data().tutorialComplete) {
+          setIsTutorialComplete(true); // Set to true if tutorialComplete is true in Firestore
+        }
+      }
+    };
+
+    checkTutorialStatus();
+  }, [user]);
+
+  // When tutorial completes, mark it as complete
+  const handleJoyrideCallback = (data) => {
+    const { status } = data;
+    const finishedStatuses = [STATUS.FINISHED, STATUS.SKIPPED];
+    if (finishedStatuses.includes(status)) {
+      setIsTutorialComplete(true);
+
+      if (user) {
+        // If user is logged in, save to Firestore
+        const userDocRef = doc(firestore, 'users', user.id);
+        setDoc(userDocRef, { tutorialComplete: true }, { merge: true });
+      } 
+    }
+  };
 
   if (loading) {
     return (<Box width="100vw" height = "100vh" display = "flex" justifyContent={"center"} alignItems={"center"}><Loading t={t} /></Box>);
@@ -487,13 +519,11 @@ export default function Home() {
       <ThemeProvider theme={currentTheme}>
         <CssBaseline />
         {/* tutorial */}
-        {mounted && (
-        // <></>
+        {mounted && !isTutorialComplete && isSummary && (
         <JoyRide 
         continuous
-        callback={() => {}}
-        run={isSummary}
-        // run={false}
+        callback={handleJoyrideCallback}
+        run={true}
         steps={[
           {
             title: t("Welcome to trainerGPT"),
@@ -586,13 +616,13 @@ export default function Home() {
             target: "#pantry-step",
             locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
           },
-          {
-            title: t("Further Clarification"),
-            content: <Typography variant="h6">{t("For further clarification on what each page does, click the (i) icon at the top of the page.")}</Typography>,
-            placement: "auto",
-            target: "#info-icon", // Assuming there's an element with this ID
-            locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back"), last: t("Last")  },
-          },
+          // {
+          //   title: t("Further Clarification"),
+          //   content: <Typography variant="h6">{t("For further clarification on what each page does, click the (i) icon at the top of the page.")}</Typography>,
+          //   placement: "auto",
+          //   target: "#info-icon", // Assuming there's an element with this ID
+          //   locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back"), last: t("Last")  },
+          // },
         ]}
         hideCloseButton
         scrollToFirstStep

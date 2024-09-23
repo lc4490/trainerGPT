@@ -1,7 +1,7 @@
 // steps.js
 export const steps = [
-    { title: 'Tell Us About Yourself', content: 'Select your gender', options: ['Male', 'Female'] },
-    { title: 'How Old Are You?', content: 'Age is important', inputType: 'string' },
+    { title: 'Tell Us About Yourself', content: 'Select your biological sex.', options: ['Male', 'Female'] },
+    { title: 'How Old Are You?', content: 'Age plays a significant role in your physical health. Knowing your age will help us cater your workout plans to best fit your needs.', inputType: 'string' },
     { title: 'What is Your Weight?', content: 'Enter your weight', inputType: 'string' },
     { title: 'What is Your Height?', content: 'Enter your height', inputType: 'string' },
     { title: 'What is Your Goal?', content: 'Select your goal', options: ['Weight Loss', 'Muscle Gain', 'Improved Endurance', 'General Fitness'] },

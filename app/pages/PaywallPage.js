@@ -2,7 +2,7 @@ import { Box, Typography, Button, CircularProgress, Grid, Avatar, Card, CardCont
 import { useTranslation } from 'react-i18next';
 import { useUser } from "@clerk/nextjs";
 import { useState, useContext, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { useStripe, useElements, CardElement, Elements, ExpressCheckoutElement } from '@stripe/react-stripe-js'; 
 import { loadStripe } from '@stripe/stripe-js'; 
 import { GuestContext } from '../page';
@@ -53,9 +53,7 @@ const PaywallPage = ({ clientSecret }) => {
                 try {
                     const { error, paymentIntent } = await stripe.confirmPayment({
                         elements,
-                        confirmParams: {
-                            return_url: window.location.href,  // Optional: Return URL after payment
-                        },
+                        redirect: 'if_required',
                         clientSecret,
                     }).then(function(result) {
                         if (result.error) {

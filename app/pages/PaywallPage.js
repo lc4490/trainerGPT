@@ -42,27 +42,19 @@ const PaywallPage = ({ clientSecret }) => {
         if (!stripe || !elements) return;
     
         const expressCheckoutElement = elements.getElement(ExpressCheckoutElement);
-        
         if (expressCheckoutElement) {
-            // Register 'confirm' event handler
-            expressCheckoutElement.on('confirm', async (event) => {
-                try {
-                    // Ensure the event has a paymentMethod
-                    console.log(event)
-                    const paymentMethodId = event?.paymentMethod?.id;
-                    if (!paymentMethodId) {
-                        console.error('Payment method ID is missing in the event');
-                        if (event.complete) event.complete('fail');
-                        return;
-                    }
     
-                    // Call your backend to create a subscription
+            // Register 'confirm' event handler for Express Checkout
+            expressCheckoutElement.on('confirm', async (event) => {
+    
+                try {
+                    // Make a request to create a subscription on the backend
                     const res = await fetch('/api/checkout_sessions', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            email: user.email,  // Assuming you have access to the user’s email
-                            paymentMethodId  // Pass the retrieved payment method ID
+                        body: JSON.stringify({ 
+                            email: user?.primaryEmailAddress?.emailAddress,  // Assuming you have access to user's email
+                            expressPaymentType: event.expressPaymentType  // Apple Pay/Google Pay payment method ID
                         }),
                     });
     
@@ -70,11 +62,11 @@ const PaywallPage = ({ clientSecret }) => {
     
                     if (!client_secret) {
                         console.error('Error fetching client secret.');
-                        if (event.complete) event.complete('fail');
+                        setLoading(false);
                         return;
                     }
     
-                    // Confirm the subscription payment with Stripe
+                    // Confirm subscription payment with ExpressCheckoutElement
                     const { error, paymentIntent } = await stripe.confirmPayment({
                         elements,
                         clientSecret: client_secret,
@@ -83,19 +75,27 @@ const PaywallPage = ({ clientSecret }) => {
     
                     if (error) {
                         console.error('Express Checkout payment failed:', error.message);
-                        if (event.complete) event.complete('fail');
+                        if (event.complete) {
+                            event.complete('fail');  // Notify the element of failure only if complete exists
+                        }
+                        setLoading(false);
                         return;
                     }
     
                     if (paymentIntent && paymentIntent.status === 'succeeded') {
                         console.log('Subscription payment successful with Apple Pay/Google Pay!');
-                        await updatePremiumStatus(user);  // Update the user’s premium status
-                        if (event.complete) event.complete('success');
+                        await updatePremiumStatus(user);  // Handle post-payment success
+                        if (event.complete) {
+                            event.complete('success');  // Notify the element of success only if complete exists
+                        }
                         window.location.reload();  // Reload the page after payment
                     }
                 } catch (error) {
                     console.error('Error during payment confirmation:', error);
-                    if (event.complete) event.complete('fail');
+                    if (event.complete) {
+                        event.complete('fail');  // Notify the element of failure only if complete exists
+                    }
+                    setLoading(false);
                 }
             });
         }

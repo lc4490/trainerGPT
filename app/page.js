@@ -143,6 +143,7 @@ export default function Home() {
       fetchPremiumMode();
   
       const setPremiumMode = async () => {
+        console.log('setpremium mode page.js')
         if (user) {
           try {
             const userDocRef = doc(firestore, 'users', user.id);
@@ -175,75 +176,6 @@ export default function Home() {
       setHasPremiumAccess(false);
     }
   }, [isLoaded, user, searchParams]);  
-
-  // handle user purchase
-  const handlePurchase = async () => {
-    if (!user) {
-      await saveGuestDataToFirebase();
-      router.push('/sign-in');
-      return;
-    }
-    try {
-      const checkoutSession = await fetch('/api/checkout_sessions', {
-        method: 'POST',
-        headers: {
-          origin: 'http://localhost:3000'
-        },
-      });
-  
-      const checkoutSessionJson = await checkoutSession.json();
-  
-      if (checkoutSessionJson.statusCode === 500) {
-        console.error(checkoutSessionJson.message);
-        return;
-      }
-  
-      const stripe = await getStripe();
-      const { error } = await stripe.redirectToCheckout({
-        sessionId: checkoutSessionJson.id,
-      });
-  
-      if (error) {
-        console.warn(error.message);
-        return;
-      }
-    } catch (error) {
-      console.error('Error during the payment process:', error);
-    }
-  };
-
-  const saveGuestDataToFirebase = async () => {
-    const guestDocRef = doc(firestore, 'users', 'guest');
-    // Save guest user data and profile picture
-    await setDoc(guestDocRef, { userData: guestData }, { merge: true });
-    await setDoc(guestDocRef, { profilePic: guestImage }, { merge: true });
-  
-    try {
-      // Save guest equipment data
-      const equipmentCollectionRef = collection(guestDocRef, 'equipment');
-      for (const item of guestEquipment) {
-        const equipmentDocRef = doc(equipmentCollectionRef, item.name);
-        await setDoc(equipmentDocRef, {
-          count: item.count || 0,
-          image: item.image || null,
-        });
-      }
-  
-      // Save guest chat data
-      const chatCollectionRef = collection(guestDocRef, 'chat');
-      const chatDocRef = doc(chatCollectionRef, 'en'); // Assuming 'en' is the language
-      await setDoc(chatDocRef, {
-        messages: guestMessages || [],
-        timestamp: new Date().toISOString(),
-      });
-  
-      
-  
-      console.log('Guest data saved to Firebase.');
-    } catch (error) {
-      console.error("Error saving guest data to Firebase:", error);
-    }
-  };
   
   // pages
   const pages = [

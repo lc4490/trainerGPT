@@ -27,7 +27,7 @@ const bounceY = keyframes`
   }
 `;
 
-const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday, t}) => (
+const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday, handleCancelSubscription, hasPremiumAccess, t}) => (
     <Box
         display="flex"
         flexDirection={"column"}
@@ -120,6 +120,25 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
             )}
             
             {/* <ArrowBackIcon sx ={{position: "absolute", top: 350}}/> */}
-        </Box>
+            {hasPremiumAccess && <Box display = "flex"justifyContent={"end"}>
+                <Button
+                onClick={handleCancelSubscription}
+                sx={{
+                    justifyContent: "end",
+                    right: "2%",
+                    backgroundColor: 'red',
+                    color: 'white',
+                    borderColor: 'text.primary',
+                    justifyContent: 'center',
+                    '&:hover': {
+                        backgroundColor: 'text.primary',
+                        color: 'background.default',
+                        borderColor: 'text.primary',
+                    },
+                }}
+                >Cancel Subscription
+                </Button>
+            </Box>}
+    </Box>
 )
 export default HomePage;

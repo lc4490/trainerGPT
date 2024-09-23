@@ -605,6 +605,59 @@ const MyInfoPage = () => {
     );
   };
 
+  // premium mode
+  const [hasPremiumAccess, setHasPremiumAccess] = useState(false);
+
+  // handle payment, check if user has premium
+  useEffect(() => {
+    if (isLoaded && user) {
+      const fetchPremiumMode = async () => {
+        const userDocRef = doc(firestore, 'users', user.id);
+        const userDoc = await getDoc(userDocRef);
+        setHasPremiumAccess(userDoc.exists() && userDoc.data().premium === true);
+      };
+      fetchPremiumMode();
+    } else {
+      setHasPremiumAccess(false);
+    }
+  }, [isLoaded, user]);  
+
+  const handleCancelSubscription = async () => {
+    try {
+      const userDocRef = doc(firestore, 'users', user.id);
+      const userDoc = await getDoc(userDocRef);
+      let subscriptionId = ""
+      if(userDoc.exists() && userDoc.data()){
+        subscriptionId = userDoc.data().subscriptionId
+      }
+      console.log(subscriptionId)
+        const res = await fetch('/api/cancel_subscription', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                subscriptionId,  // Pass the subscription ID to the backend
+                cancelAtPeriodEnd: true,  // Set to true if you want to cancel at the end of the billing period
+            }),
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            alert('Your subscription has been successfully canceled.');
+            await setDoc(userDocRef, { premium: false }, { merge: true });
+            await setDoc(userDocRef, { subscriptionId: null }, { merge: true });
+            window.location.reload();  // Reload the page after payment
+        } else {
+            console.error('Error cancelling subscription:', data.error);
+        }
+    } catch (error) {
+        console.error('Error cancelling subscription:', error);
+    }
+
+};
+
+
   // workout modal
   const handleWorkoutModal = (index) => {
     setSelectedWorkout(index);
@@ -794,6 +847,8 @@ const MyInfoPage = () => {
           allEvents={allEvents}
           handleWorkoutModal={handleWorkoutModal}
           isToday={isToday}
+          handleCancelSubscription={handleCancelSubscription}
+          hasPremiumAccess={hasPremiumAccess}
           t={t}
           />
 

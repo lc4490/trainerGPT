@@ -33,10 +33,13 @@ export async function POST(req) {
             expand: ['latest_invoice.payment_intent'],  // Expands to get payment intent details
         });
 
-        // Return the client_secret to confirm payment on the frontend
+        // Return the client_secret and subscription ID to the frontend
         const paymentIntent = subscription.latest_invoice.payment_intent;
 
-        return NextResponse.json({ client_secret: paymentIntent.client_secret });
+        return NextResponse.json({
+            client_secret: paymentIntent.client_secret,
+            subscriptionId: subscription.id,  // Return the subscriptionId
+        });
     } catch (error) {
         console.error('Error creating Stripe subscription:', error.message);
         return NextResponse.json({ error: error.message }, { status: 500 });

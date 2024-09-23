@@ -40,46 +40,55 @@ const PaywallPage = ({ clientSecret }) => {
     // Automatically handle ExpressCheckoutElement payments
     useEffect(() => {
         if (!stripe || !elements) return;
-        console.log("express checkout useeffect")
-
+    
+        console.log("express checkout useEffect");
+    
         const expressCheckoutElement = elements.getElement(ExpressCheckoutElement);
         if (expressCheckoutElement) {
             console.log("ExpressCheckoutElement detected, registering confirm handler...");
-
+    
             // Register 'confirm' event handler
             expressCheckoutElement.on('confirm', async (event) => {
                 console.log("Express Checkout confirm event triggered.");
-
+                console.log("EVent", event)
+    
                 try {
                     const { error, paymentIntent } = await stripe.confirmPayment({
                         elements,
                         redirect: "if_required",
                         clientSecret,
-                    })
-
+                    });
+    
                     if (error) {
                         console.error('Express Checkout payment failed:', error.message);
-                        event.complete('fail');  // Notify the element of failure
+                        if (event.complete) {
+                            event.complete('fail');  // Notify the element of failure only if complete exists
+                        }
                         setLoading(false);
                         return;
                     }
-
+    
                     if (paymentIntent && paymentIntent.status === 'succeeded') {
                         console.log('Payment successful with Apple Pay/Google Pay!');
                         await updatePremiumStatus(user);  // Handle post-payment success
-                        event.complete('success');  // Notify the element of success
+                        if (event.complete) {
+                            event.complete('success');  // Notify the element of success only if complete exists
+                        }
                         window.location.reload();  // Reload the page after payment
                     }
                 } catch (error) {
                     console.error('Error during payment confirmation:', error);
-                    event.complete('fail');
+                    if (event.complete) {
+                        event.complete('fail');  // Notify the element of failure only if complete exists
+                    }
                     setLoading(false);
                 }
             });
-
+    
             console.log("ExpressCheckoutElement is ready.");
         }
     }, [stripe, elements, clientSecret, user]);
+    
 
     // Handle CardElement payment flow triggered by the button click
     const handlePurchase = async () => {

@@ -21,6 +21,8 @@ const ChatLog = ({
   handleMicrophoneClick,
   isSpeaking,
   isListening,
+  incompleteResponse,
+  handleContinue,
   t,
   isMobile
 }) => {
@@ -88,6 +90,38 @@ const ChatLog = ({
         <div ref={messagesEndRef} />
         
       </Stack>
+      {/* Show Continue button if response is incomplete */}
+      {incompleteResponse && (
+        <Box display = "flex" justifyContent={"end"}>
+          <Button 
+          onClick={handleContinue} 
+          variant="contained"
+          sx={{
+            textTransform: 'none',
+            backgroundColor: 'background.default',
+            color: 'text.primary',
+            borderRadius: '9999px',
+            paddingX: 3,
+            paddingY: 1.5,
+            minWidth: 180,
+            height: 'auto',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            whiteSpace: 'normal',
+            boxShadow: 1,
+            border: '0.1px solid', // Add this line for the border
+            borderColor: 'primary.main', // You can change the color as needed
+            '&:hover': {
+              backgroundColor: 'primary.light',
+              boxShadow: 2,
+            },
+          }}
+          >
+            {t("Continue")}
+          </Button>
+        </Box>
+        )}
 
       {showSuggestions && (
         <Stack
@@ -213,6 +247,7 @@ const ChatLog = ({
           onClick={() => {
             if (window.confirm(t('Are you sure you want to delete the chat?'))) {
               clearChatLog(); // Only clear the chat log if the user confirms
+              setShowSuggestions(true)
             }
           }}
           variant="outlined"

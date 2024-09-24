@@ -2,7 +2,7 @@
 
 // base imports
 import { useEffect, useState, } from 'react';
-import { Box, Typography, Button, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack, Menu, MenuItem} from '@mui/material';
+import { Box, Typography, Button, useMediaQuery, ThemeProvider, CssBaseline, Divider, Modal, Stack, Menu, MenuItem, TextField} from '@mui/material';
 // Firebase imports
 import { firestore } from '../firebase'
 import { collection, getDocs, doc, setDoc, deleteDoc, getDoc, onSnapshot } from 'firebase/firestore';
@@ -27,6 +27,7 @@ import dayGridPlugin from "@fullcalendar/daygrid"
 import interactionPlugin, {Draggable, DropArg} from "@fullcalendar/interaction"
 import tiemGridPlugin from "@fullcalendar/timegrid"
 import WarningIcon from '@mui/icons-material/Warning';
+import CheckIcon from '@mui/icons-material/Check';
 import allLocales from '@fullcalendar/core/locales-all';
 
 import { lightTheme, darkTheme } from '../theme';
@@ -255,6 +256,7 @@ const PlanPage = () => {
       const [events, setEvents] = useState([])
       const [allEvents, setAllEvents] = useState([]);
       const [showDeleteModal, setShowDeleteModal] = useState(false)
+      const [showAddModal, setShowAddModal] = useState(false)
       const [idToDelete, setIdToDelete] = useState(0)
       const [newEvent, setNewEvent] = useState({title: "", start: "", id: 0, allDay: false})
       const [selectedEvent, setSelectedEvent] = useState(null);
@@ -353,6 +355,39 @@ const PlanPage = () => {
         }
         handleCloseModal()
         setIdToDelete(null)
+      }
+
+      const handleAddEvent = (data) => {
+        setShowAddModal(true)
+        setNewEvent({
+          ...newEvent,
+          start: data.date.toISOString(),
+          allDay: data.allDay,
+          id: new Date().getTime(),
+          backgroundColor: "orange",
+          borderColor: "orange",
+          extendedProps: {
+            details: "",
+          },
+        })
+      }
+
+      const handleChange = (value) => {
+        setNewEvent({
+          ...newEvent,
+          title: value
+        })
+      }
+
+      const handleSubmit = () => {
+        if(user){
+          setAllEvents([...allEvents, newEvent])
+        }
+        else{
+          setGuestEvents([...guestEvents, newEvent]);
+        }
+        setShowAddModal(false)
+        setNewEvent({title: "", start: "", id: 0, allDay: false})
       }
 
       useEffect(() => {
@@ -521,7 +556,7 @@ const PlanPage = () => {
               }}
             >
               <Stack overflow={"scroll"}>
-                <Typography id="event-modal-title" variant="h6" component="h2">
+                <Typography id="event-modal-title" variant="h2" component="h2">
                   <ReactMarkdown components={customComponents}>{selectedEvent?.title}</ReactMarkdown>
                 </Typography>
                 
@@ -692,6 +727,94 @@ const PlanPage = () => {
               </Stack>
             </Box>
           </Modal>
+          {/* add modal */}
+          <Modal open={showAddModal} onClose={() => setShowAddModal(false)}>
+            <Box
+              overflow="auto"
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 400,
+                height: 250,
+                bgcolor: 'background.default',
+                borderRadius: 1,
+                // border: '2px solid #000',
+                boxShadow: 24,
+                p: 4,
+                gap: 2,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <Stack flexDirection= 'column' gap= {2} display={"flex"} alignItems={"center"}>
+                {/* green check */}
+                <Box
+                  sx={{
+                    backgroundColor: '#90EE90', // Light red background
+                    borderRadius: '50%', // Circular shape
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 30, // Adjust size as needed
+                    height: 30,
+                  }}
+                >
+                  <CheckIcon sx={{ fontSize: "1rem"}} />
+                </Box>
+                <Stack flexDirection = 'column' gap = {0.5} display = {"flex"} alignItems={"center"}>
+                  <Typography sx={{fontWeight: 550}}>Add Event</Typography>
+                  <TextField
+                          type="text"
+                          fullWidth
+                          variant="outlined"
+                          value={newEvent.title || ''}
+                          onChange={(e) => handleChange(e.target.value)}
+                          // sx={{ mb: 4 }}
+                          placeholder={t("Title")}
+                        />
+                </Stack>
+              </Stack>
+              <Stack flexDirection = "row" display="flex" justifyContent={"space-between"} gap = {1}>
+                <Button
+                onClick={()=>setShowAddModal(false)}
+                sx={{
+                  width: "50%",
+                  justifyContent: "end",
+                  right: "2%",
+                  backgroundColor: 'background.default',
+                  color: 'text.primary',
+                  borderColor: 'text.primary',
+                  border: "1px",
+                  justifyContent: 'center',
+                  '&:hover': {
+                      backgroundColor: 'text.primary',
+                      color: 'background.default',
+                      borderColor: 'text.primary',
+                  },
+                  }}>
+                    Cancel</Button>
+                <Button
+                onClick={(handleSubmit)}
+                sx={{
+                  width: "50%",
+                  justifyContent: "end",
+                  right: "2%",
+                  backgroundColor: '#90EE90',
+                  color: 'black',
+                  borderColor: 'text.primary',
+                  justifyContent: 'center',
+                  '&:hover': {
+                      backgroundColor: 'text.primary',
+                      color: 'background.default',
+                      borderColor: 'text.primary',
+                  },
+                  }}>Submit</Button>
+                
+              </Stack>
+            </Box>
+          </Modal>
           {/* header box */}
           <Box
             height="10%"
@@ -822,9 +945,9 @@ const PlanPage = () => {
                   drop = {(data) => addEvent(data) }
                   eventDrop={(data) => handleEventDrop(data)} 
                   eventClick={(data) => handleEventClick(data)}
+                  dateClick = {(data) => handleAddEvent(data)}
                   aspectRatio={isMobile ? 1 : 2.5}
                   locales= {allLocales}
-                  
                   locale = {calendarLocale}
                 />
                 

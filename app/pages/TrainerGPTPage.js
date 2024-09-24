@@ -606,6 +606,14 @@ const TrainerGPTPage = () => {
 
   const microphoneLocale = getMicrophoneLocale(i18n.language); // Get the correct locale for FullCalendar
 
+  const [incompleteResponse, setIncompleteResponse] = useState(false);
+
+  // Function to handle the continue button click
+  const handleContinue = () => {
+    setIncompleteResponse(false); // Reset the flag
+    sendMessage(); // Resend the message to continue the response
+  };
+
   // loading page
   if (loading) {
     return <Loading t={t} />;
@@ -650,6 +658,8 @@ const TrainerGPTPage = () => {
           handleMicrophoneClick={handleMicrophoneClick}
           isSpeaking={isSpeaking}
           isListening={isListening}
+          incompleteResponse={incompleteResponse}
+          handleContinue={handleContinue}
           t={t}
           isMobile={isMobile}
         />

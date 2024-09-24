@@ -796,6 +796,61 @@ const MyInfoPage = ({setValue}) => {
 
   const [completedWorkouts, setCompletedWorkouts] = useState([])
 
+  useEffect(() => {
+    const updateCompletedInFirestore = async () => {
+      if (user) {
+        const userId = user.id;
+        const eventsCollectionRef = collection(firestore, 'users', userId, 'completed');
+  
+        try {
+          // Fetch all events in Firestore
+          const querySnapshot = await getDocs(eventsCollectionRef);
+  
+          // Delete each event
+          const deletePromises = querySnapshot.docs.map(doc => deleteDoc(doc.ref));
+          await Promise.all(deletePromises);
+  
+  
+          // Re-upload all the events in `allEvents`
+          completedWorkouts?.forEach(async (event) => {
+            const docRef = doc(firestore, 'users', userId, 'completed', event?.id?.toString());
+  
+            // Upload the new event to Firestore
+            await setDoc(docRef, event);
+          });
+  
+        } catch (error) {
+          console.error("Error updating events in Firestore:", error);
+        }
+      }
+    };
+  
+    if (completedWorkouts.length >= 0) {
+      updateCompletedInFirestore();
+    }
+  }, [completedWorkouts, user]);
+
+  // update equipment everytime the user changes or guestEquipment changes
+  const updateCompleted = async () => {
+    if (user) {
+      const userId = user.id;
+      const docRef = collection(firestore, 'users', userId, 'completed');
+      const docs = await getDocs(docRef);
+      const events = [];
+      docs.forEach((doc) => {
+        events.push({ name: doc.id, ...doc.data() });
+      });
+      setCompletedWorkouts(events);
+    }
+    // else{
+    //   setAllEvents(guestEvents)
+    // }
+  };
+
+  useEffect(() => {
+      updateCompleted();
+  }, [user, guestEvents]);
+
   const [upcomingWorkouts, setUpcomingWorkouts] = useState([]);
 
   useEffect(() => {

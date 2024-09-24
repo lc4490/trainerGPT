@@ -537,7 +537,8 @@ export default function Home() {
       {/* light/dark mode */}
       <ThemeProvider theme={currentTheme}>
         <CssBaseline />
-        {/* tutorial */}
+        {user ? (
+          <>
         {mounted && !isTutorialComplete && isSummary && (
         <JoyRide 
         continuous
@@ -884,11 +885,34 @@ export default function Home() {
               handleSubmit={handleSubmit}
             />
     
-    </>
-          
-          
+          </>
         )}
-
+        </>
+        ) : (
+          <Box width = "100%" height = "100vh" display = "flex" justifyContent={"center"} alignItems="center" flexDirection={"column"}>
+            <Box><Typography variant="h1">Welcome to trAIner</Typography></Box>
+            <Button 
+                    color="inherit"
+                    href = "/sign-in"
+                    sx={{
+                    // justifyContent: "end",
+                    // right: "2%",
+                    backgroundColor: 'background.default',
+                    color: 'text.primary',
+                    borderColor: 'text.primary',
+                    justifyContent: 'center',
+                    '&:hover': {
+                        backgroundColor: 'text.primary',
+                        color: 'background.default',
+                        borderColor: 'text.primary',
+                    },
+                    }}
+                >
+                    {t('signIn')}
+                </Button>
+          </Box>
+        )
+        }
       </ThemeProvider>
     </GuestContext.Provider>
   );

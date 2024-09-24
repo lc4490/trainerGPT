@@ -28,7 +28,7 @@ import HomePage from './MyInfo/HomePage';
 import { customComponents } from '../customMarkdownComponents';
 import { lightTheme, darkTheme } from '../theme';
 
-const MyInfoPage = () => {
+const MyInfoPage = ({setValue}) => {
   // router
   const router = useRouter();
   // store filledo ut data
@@ -448,7 +448,7 @@ const MyInfoPage = () => {
         };
 
         const handleInchesChange = (e) => {
-            let newInches = Math.min(parseInt(e.target.value, 10) || 0, 12); // Ensure inches are capped at 12
+            let newInches = Math.min(parseInt(e.target.value, 10) || 0, 11); // Ensure inches are capped at 12
             const updatedHeightValue = `${feet || 0}'${newInches}"`;
             handleInputChange(key, updatedHeightValue);
         };
@@ -603,22 +603,30 @@ const MyInfoPage = () => {
 
   const [allEvents, setAllEvents] = useState([]);
   const updateEvents = async () => {
-    setLoading(true)
+    setLoading(true);
+  
     if (user) {
       const userId = user.id;
       const docRef = collection(firestore, 'users', userId, 'events');
       const docs = await getDocs(docRef);
-      const events = [];
+      let events = [];
       docs.forEach((doc) => {
         events.push({ name: doc.id, ...doc.data() });
       });
+  
+      // Sort events by the start date
+      events.sort((a, b) => new Date(a.start) - new Date(b.start));
+  
       setAllEvents(events);
+    } else {
+      // Sort guest events by the start date
+      const sortedGuestEvents = guestEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+      setAllEvents(sortedGuestEvents);
     }
-    else{
-      setAllEvents(guestEvents)
-    }
-    setLoading(false)
+  
+    setLoading(false);
   };
+  
 
   useEffect(() => {
       updateEvents();
@@ -689,6 +697,7 @@ const MyInfoPage = () => {
 
   // workout modal
   const handleWorkoutModal = (index) => {
+    console.log(index)
     setSelectedWorkout(index);
     setOpenWorkoutModal(true);
   };
@@ -783,6 +792,23 @@ const MyInfoPage = () => {
 
   const [editModal, setEditModal] = useState(false)
 
+  const [selectedSkill, setSelectedSkill] = useState(0);
+
+  const [completedWorkouts, setCompletedWorkouts] = useState([])
+
+  const [upcomingWorkouts, setUpcomingWorkouts] = useState([]);
+
+  useEffect(() => {
+    // Filter and update the upcomingWorkouts whenever allEvents or completedWorkouts change
+    const filteredWorkouts = allEvents.filter(event => 
+      new Date(event.start) >= new Date().setHours(0, 0, 0, 0) && // Ensure the event is in the future or today
+      event.backgroundColor !== "orange" && // Exclude events with background color orange
+      !completedWorkouts.some(completed => completed.title === event.title) // Exclude events in completedWorkouts
+    );
+
+    setUpcomingWorkouts(filteredWorkouts); // Update the state with filtered events
+  }, [allEvents, completedWorkouts]); // Only run the effect when allEvents or completedWorkouts change
+
   // loading page
   if (loading) {
     return (
@@ -840,6 +866,11 @@ const MyInfoPage = () => {
           allEvents={allEvents}
           selectedWorkout={selectedWorkout}
           customComponents={customComponents}
+          setValue={setValue}
+          upcomingWorkouts={upcomingWorkouts}
+          completedWorkouts={completedWorkouts}
+          setCompletedWorkouts={setCompletedWorkouts}
+          selectedSkill={selectedSkill}
           isMobile={isMobile}
           t={t}
           />
@@ -878,6 +909,10 @@ const MyInfoPage = () => {
           isToday={isToday}
           handleCancelSubscription={handleCancelSubscription}
           hasPremiumAccess={hasPremiumAccess}
+          selectedSkill={selectedSkill}
+          setSelectedSkill={setSelectedSkill}
+          completedWorkouts={completedWorkouts}
+          upcomingWorkouts={upcomingWorkouts}
           t={t}
           />
 

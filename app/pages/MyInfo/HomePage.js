@@ -27,7 +27,7 @@ const bounceY = keyframes`
   }
 `;
 
-const menubar = ["Upcoming workouts:"]
+const menubar = ["Upcoming workouts:", "My Goals", "Feed" ]
 
 const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday, handleCancelSubscription, hasPremiumAccess, t}) => (
     <Box

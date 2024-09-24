@@ -2,7 +2,7 @@ import { Container, Box, Button, FormGroup, FormControlLabel, Checkbox, TextFiel
 import { motion } from 'framer-motion';
 
 const StepForm = ({
-  steps, currentStep, formData, handleInputChange, handleKeyPressStep, handleWeightUnitChange, weightUnit, handleHeightUnitChange, heightUnit, t, nextStep, prevStep, handleSubmit
+  steps, currentStep, formData, handleInputChange, handleKeyPressStep, handleWeightUnitChange, weightUnit, handleHeightUnitChange, heightUnit, handleFeetChange, feet, handleInchesChange, inches, t, nextStep, prevStep, handleSubmit
 }) => {
   return (
     <Container maxWidth="sm">
@@ -46,52 +46,105 @@ const StepForm = ({
             ) : (
               step.inputType && (
                 <>
-                  {(step.title === 'What is Your Weight?' || step.title === 'What is Your Height?') ? (
+                  {step.title === 'What is Your Weight?' ? (
+                    // Weight input with unit switching
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                       <TextField
-                        type="text"
+                        type="number"
                         fullWidth
                         variant="outlined"
                         value={formData[step.title] || ''}
-                        onChange={(e) => {
-                          if (step.title === 'What is Your Height?' && heightUnit === 'ft/in') {
-                            handleInputChange(step.title, e.target.value);
-                          } else {
-                            handleInputChange(step.title, parseFloat(e.target.value));
-                          }
-                        }}
+                        onChange={(e) => handleInputChange(step.title, parseFloat(e.target.value))}
                         onKeyDown={handleKeyPressStep}
                         sx={{ mb: 4 }}
-                        placeholder={
-                          step.title === 'What is Your Height?' && heightUnit === 'ft/in' 
-                            ? t("e.g., 5'8\"") 
-                            : (step.title === 'What is Your Height?' ? t("Enter height in cm") : "")
-                        }
+                        placeholder={t("Enter weight")}
                         InputProps={{
                           endAdornment: (
                             <Typography variant="body1">
-                              {step.title === 'What is Your Weight?' ? weightUnit : heightUnit}
+                              {weightUnit}
                             </Typography>
                           ),
                         }}
                       />
                       <ToggleButtonGroup
-                        value={step.title === 'What is Your Weight?' ? weightUnit : heightUnit}
+                        value={weightUnit}
                         exclusive
-                        onChange={step.title === 'What is Your Weight?' ? handleWeightUnitChange : handleHeightUnitChange}
+                        onChange={handleWeightUnitChange}
                         sx={{ mb: 4 }}
                       >
-                        {step.title === 'What is Your Weight?' ? (
-                          [
-                            <ToggleButton key="kg" value="kg">kg</ToggleButton>,
-                            <ToggleButton key="lbs" value="lbs">lbs</ToggleButton>,
-                          ]
-                        ) : (
-                          [
-                            <ToggleButton key="cm" value="cm">cm</ToggleButton>,
-                            <ToggleButton key="ft/in" value="ft/in">ft/in</ToggleButton>,
-                          ]
-                        )}
+                        <ToggleButton value="kg">kg</ToggleButton>
+                        <ToggleButton value="lbs">lbs</ToggleButton>
+                      </ToggleButtonGroup>
+                    </Box>
+                  ) : step.title === 'What is Your Height?' ? (
+                    // Height input with separate fields for feet and inches when in ft/in mode
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                      {console.log(feet)}
+                      {console.log(inches)}
+                      {heightUnit === 'ft/in' ? (
+                      <>
+                        <TextField
+                          type="number"
+                          fullWidth
+                          variant="outlined"
+                          value={parseInt(feet) || ''}
+                          onChange={(e) => handleFeetChange(e.target.value)}
+                          onKeyDown={handleKeyPressStep}
+                          sx={{ mb: 4 }}
+                          placeholder={t("Feet")}
+                          InputProps={{
+                            endAdornment: (
+                              <Typography variant="body1">
+                                {t('ft')}
+                              </Typography>
+                            ),
+                          }}
+                        />
+                        <TextField
+                          type="number"
+                          fullWidth
+                          variant="outlined"
+                          value={parseInt(inches.replace('"', '')) || ''}
+                          onChange={(e) => handleInchesChange(e.target.value)}
+                          onKeyDown={handleKeyPressStep}
+                          sx={{ mb: 4 }}
+                          placeholder={t("Inches")}
+                          InputProps={{
+                            endAdornment: (
+                              <Typography variant="body1">
+                                {t('in')}
+                              </Typography>
+                            ),
+                          }}
+                        />
+                      </>
+                      ) : (
+                        <TextField
+                          type="number"
+                          fullWidth
+                          variant="outlined"
+                          value={formData[step.title] || ''}
+                          onChange={(e) => handleInputChange(step.title, parseFloat(e.target.value))}
+                          onKeyDown={handleKeyPressStep}
+                          sx={{ mb: 4 }}
+                          placeholder={t("Enter height in cm")}
+                          InputProps={{
+                            endAdornment: (
+                              <Typography variant="body1">
+                                {heightUnit}
+                              </Typography>
+                            ),
+                          }}
+                        />
+                      )}
+                      <ToggleButtonGroup
+                        value={heightUnit}
+                        exclusive
+                        onChange={handleHeightUnitChange}
+                        sx={{ mb: 4 }}
+                      >
+                        <ToggleButton value="cm">cm</ToggleButton>
+                        <ToggleButton value="ft/in">ft/in</ToggleButton>
                       </ToggleButtonGroup>
                     </Box>
                   ) : step.inputType === 'dial' ? (
@@ -105,6 +158,7 @@ const StepForm = ({
                         valueLabelDisplay="auto"
                         value={formData[step.title] || 1} // Default to 1 day if no value exists
                         onChange={(e, value) => handleInputChange(step.title, value)}
+                        onKeyDown={handleKeyPressStep}
                       />
                     </Box>
                   ) : (
@@ -128,6 +182,7 @@ const StepForm = ({
                 </>
               )
             )}
+
 
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4 }}>
               <Button

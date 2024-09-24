@@ -340,6 +340,25 @@ export default function Home() {
     }
   };
 
+  const handleFeetChange = (value) => {
+    const [feet, inches] = formData['What is Your Height?']?.split("'") || ['', ''];
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      ['What is Your Height?']: `${value || 0}'${inches.replace('"', '') || 0}"`, // Update only feet
+    }));
+  };
+  
+  const handleInchesChange = (value) => {
+    const limitedInches = Math.min(parseInt(value, 10), 11); // Ensure inches are capped at 12
+    const [feet, inches] = formData['What is Your Height?']?.split("'") || ['', ''];
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      ['What is Your Height?']: `${feet || 0}'${limitedInches || 0}"`, // Update only inches
+    }));
+  };
+  
+  const [feet, inches] = (formData['What is Your Height?'] && typeof formData['What is Your Height?'] === 'string' && formData['What is Your Height?'].includes("'")) ? formData['What is Your Height?']?.split("'") || ['', ''] : ['', ''];
+
   // upon user change, get prefLanguage and also data
   useEffect(() => {
 
@@ -855,6 +874,10 @@ export default function Home() {
               weightUnit={weightUnit}
               handleHeightUnitChange={handleHeightUnitChange}
               heightUnit={heightUnit}
+              handleFeetChange={handleFeetChange}
+              feet={feet}
+              handleInchesChange={handleInchesChange}
+              inches={inches}
               t={t}
               nextStep={nextStep}
               prevStep={prevStep}

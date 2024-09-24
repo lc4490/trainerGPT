@@ -421,10 +421,12 @@ const MyInfoPage = () => {
     
       case 'Height':
         // Extract numeric value and unit from the string
-        const heightMatch = value.match(/(\d+\.?\d*)\s*(cm|ft\/in)|(\d+)'(\d+)"/);
+        const heightMatch = value.match(/(\d+\.?\d*)\s*(cm)|(\d+)'(\d+)"/);
 
         let heightValue = '';
         let heightUnit = 'cm';
+        let feet = '';
+        let inches = '';
 
         if (heightMatch) {
             if (heightMatch[2] === 'cm') {
@@ -433,59 +435,86 @@ const MyInfoPage = () => {
                 heightUnit = 'cm';
             } else if (heightMatch[3] && heightMatch[4]) {
                 // If the match is for ft/in
-                const feet = parseInt(heightMatch[3], 10);
-                const inches = parseInt(heightMatch[4], 10);
-                heightValue = `${feet}'${inches}"`;
+                feet = parseInt(heightMatch[3], 10);
+                inches = parseInt(heightMatch[4], 10);
                 heightUnit = 'ft/in';
             }
         }
-    
+
+        const handleFeetChange = (e) => {
+            const newFeet = parseInt(e.target.value, 10) || 0;
+            const updatedHeightValue = `${newFeet}'${inches || 0}"`;
+            handleInputChange(key, updatedHeightValue);
+        };
+
+        const handleInchesChange = (e) => {
+            let newInches = Math.min(parseInt(e.target.value, 10) || 0, 12); // Ensure inches are capped at 12
+            const updatedHeightValue = `${feet || 0}'${newInches}"`;
+            handleInputChange(key, updatedHeightValue);
+        };
+
         const handleUnitChangeH = (e, newUnit) => {
             if (newUnit && newUnit !== heightUnit) {
                 if (newUnit === 'ft/in') {
                     // Convert cm to feet and inches
-                    const totalInches = (heightValue / 2.54).toFixed(1); // cm to inches
-                    const feet = Math.floor(totalInches / 12);
-                    const inches = Math.round(totalInches % 12);
-                    heightValue = `${feet}'${inches}"`;
+                    const totalInches = (parseFloat(heightValue) / 2.54); // cm to inches
+                    feet = Math.floor(totalInches / 12);
+                    inches = Math.round(totalInches % 12);
+                    handleInputChange(key, `${feet}'${inches}"`);
                 } else {
                     // Convert feet and inches to cm
-                    const heightParts = heightValue.match(/(\d+)'(\d+)"/);
-                    if (heightParts) {
-                        const feet = parseInt(heightParts[1], 10);
-                        const inches = parseInt(heightParts[2], 10);
-                        heightValue = ((feet * 12 + inches) * 2.54).toFixed(1); // Convert to cm
-                    }
+                    const heightInCm = ((feet * 12 + inches) * 2.54).toFixed(1); // Convert to cm
+                    handleInputChange(key, `${heightInCm}cm`);
                 }
                 heightUnit = newUnit;
-                handleInputChange(key, `${heightValue}${heightUnit}`);
             }
         };
-    
+
         return (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <TextField
-                    // type="text" // Use text to allow entry of feet and inches
-                    fullWidth
-                    variant="outlined"
-                    value={heightValue}
-                    onChange={(e) => {
-                      if (heightUnit === 'ft/in') {
-                        // Pass the value as-is for ft/in format, without converting to float
-                        const newHeightValue = e.target.value;
-                        handleInputChange(key, `${newHeightValue}${heightUnit}`);
-                      } else {
-                        // Convert the value to a float for all other cases
-                        const newHeightValue = parseFloat(e.target.value);
-                        handleInputChange(key, `${newHeightValue}${heightUnit}`);
-                      }
-                    }}
-                    sx={{ mb: 4 }}
-                    placeholder={heightUnit === 'ft/in' ? "e.g., 5'8\"" : "Enter height in cm"}
-                    InputProps={{
-                        endAdornment: <Typography variant="body1">{heightUnit}</Typography>,
-                    }}
-                />
+                {heightUnit === 'cm' ? (
+                    // Single input field for cm
+                    <TextField
+                        fullWidth
+                        variant="outlined"
+                        type="number"
+                        value={heightValue || ''}
+                        onChange={(e) => handleInputChange(key, `${parseFloat(e.target.value)}cm`)}
+                        sx={{ mb: 4 }}
+                        placeholder="Enter height in cm"
+                        InputProps={{
+                            endAdornment: <Typography variant="body1">cm</Typography>,
+                        }}
+                    />
+                ) : (
+                    // Two input fields for feet and inches
+                    <>
+                        <TextField
+                            type="number"
+                            fullWidth
+                            variant="outlined"
+                            value={feet || ''}
+                            onChange={handleFeetChange}
+                            sx={{ mb: 4 }}
+                            placeholder="Feet"
+                            InputProps={{
+                                endAdornment: <Typography variant="body1">ft</Typography>,
+                            }}
+                        />
+                        <TextField
+                            type="number"
+                            fullWidth
+                            variant="outlined"
+                            value={inches || ''}
+                            onChange={handleInchesChange}
+                            sx={{ mb: 4 }}
+                            placeholder="Inches"
+                            InputProps={{
+                                endAdornment: <Typography variant="body1">in</Typography>,
+                            }}
+                        />
+                    </>
+                )}
                 <ToggleButtonGroup
                     value={heightUnit}
                     exclusive
@@ -497,7 +526,7 @@ const MyInfoPage = () => {
                 </ToggleButtonGroup>
             </Box>
         );
-      
+    
       case 'Availability':
         // Adding the slider (dial) for workout days
         return (

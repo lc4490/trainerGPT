@@ -179,7 +179,7 @@ export default function Home() {
   
   // pages
   const pages = [
-    <MyInfoPage key="myInfo" />,
+    <MyInfoPage key="myInfo" setValue={setValue} />,
     <EquipmentPage key="equipment" />,
     <TrainerGPTPage key="trainerGPT" />,
     // <NutritionPage key = "nutrition" />,

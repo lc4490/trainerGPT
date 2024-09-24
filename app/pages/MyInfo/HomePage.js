@@ -1,4 +1,5 @@
 import { Box, Typography, Button, Stack, keyframes } from "@mui/material";
+import { useState } from "react";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
@@ -27,9 +28,14 @@ const bounceY = keyframes`
   }
 `;
 
-const menubar = ["Upcoming workouts:", "My Goals", "Feed" ]
+const menubar = [
+    "Upcoming workouts:", 
+    "Completed workouts:"
+    // "My Goals", 
+    // "Feed" 
+]
 
-const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday, handleCancelSubscription, hasPremiumAccess, t}) => (
+const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday, handleCancelSubscription, hasPremiumAccess, selectedSkill, setSelectedSkill, upcomingWorkouts, completedWorkouts, t}) => (
     <Box
         display="flex"
         flexDirection={"column"}
@@ -52,14 +58,14 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                 {allEvents.length > 0 ? (
                 <Box>
                     <Stack padding={2.5} gap = {2.5} flexDirection={"row"} sx ={{overflow: "scroll"}}>
-                        {console.log(menubar)}
                         {menubar.map((item, index) => (
                             <Button
                             key={index} // Always provide a unique key for each element in the map function
+                            onClick={() => (setSelectedSkill(index))}
                             sx={{
                                 paddingX: 2.5,
-                                backgroundColor: "lightgray",
-                                color: "#2C2C2C",
+                                backgroundColor: selectedSkill === index ? "#224061" : "lightgray",
+                                color: selectedSkill === index  ? "white" : "#2C2C2C",
                                 borderRadius: "99999px",
                                 '&:hover': {
                                     backgroundColor: '#224061',
@@ -71,7 +77,7 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                             <Typography
                                 sx={{
                                 padding: 1,
-                                fontSize: "0.8rem",
+                                fontSize: isMobile ? "0.6rem" : "0.8rem",
                                 fontWeight: "400",
                                 }}
                             >
@@ -81,30 +87,35 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                         ))}
                     </Stack>
 
+                    {/* upcoming events */}
+                    {selectedSkill === 0 && 
                     <Stack flexDirection="row" alignItems="flex-start" style={{ overflow: 'scroll' }}>
-                        {allEvents
-                        .filter(event => new Date(event.start) >= new Date().setHours(0, 0, 0, 0) && event.backgroundColor !== "orange")
-                        .sort((a, b) => new Date(a.start) - new Date(b.start))
+                        {upcomingWorkouts
+                        .filter(event => 
+                            new Date(event.start) >= new Date().setHours(0, 0, 0, 0) && // Ensure the event is in the future or today
+                            event.backgroundColor !== "orange" // Exclude events with background color orange
+                        )
+                        .sort((a, b) => new Date(a.start) - new Date(b.start)) // Sort events by start date
                         .map(({ title, start }, index) => {
                             // Define an array of gradient backgrounds
                             const gradientBackgrounds = [
-                                'linear-gradient(90deg, #224061 50%, #433B5F 100%)', // Transition from dark blue to pinkish-red
-                                'linear-gradient(90deg, #433B5F 50%, #6A385C 100%)', // Transition from dark blue to pinkish-red
-                                'linear-gradient(90deg, #6A385C 50%, #923258 100%)', // Transition from dark blue to pinkish-red
-                                'linear-gradient(90deg, #923258 25%, #BB2D55 100%)', // Transition from dark blue to pinkish-red
-                                'linear-gradient(270deg, #923258 25%, #BB2D55 100%)', // Transition from dark blue to pinkish-red
-                                'linear-gradient(270deg, #6A385C 50%, #923258 100%)', // Transition from dark blue to pinkish-red
-                                'linear-gradient(270deg, #433B5F 50%, #6A385C 100%)', // Transition from dark blue to pinkish-red
-                                'linear-gradient(270deg, #224061 50%, #433B5F 100%)', // Transition from dark blue to pinkish-red
+                                'linear-gradient(90deg, #224061 50%, #433B5F 100%)', 
+                                'linear-gradient(90deg, #433B5F 50%, #6A385C 100%)', 
+                                'linear-gradient(90deg, #6A385C 50%, #923258 100%)', 
+                                'linear-gradient(90deg, #923258 25%, #BB2D55 100%)', 
+                                'linear-gradient(270deg, #923258 25%, #BB2D55 100%)', 
+                                'linear-gradient(270deg, #6A385C 50%, #923258 100%)', 
+                                'linear-gradient(270deg, #433B5F 50%, #6A385C 100%)', 
+                                'linear-gradient(270deg, #224061 50%, #433B5F 100%)',
                             ];
                             
                             const eventBackground = gradientBackgrounds[index % gradientBackgrounds.length]; // Cycle through the gradients
-                
+
                             return (
                                 <Button
                                     key={index}
-                                    sx={{ color: "text.primary", flexShrink: 0 }}
-                                    onClick={() => handleWorkoutModal(index)}
+                                    sx={{ color: "white", flexShrink: 0 }}
+                                    onClick={() => handleWorkoutModal(index)} // Ensure correct index is passed here
                                 >
                                     <Box
                                         width={isMobile ? "150px" : "300px"}
@@ -134,6 +145,71 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                             );
                         })}
                     </Stack>
+                    }
+
+                    {/* completed events */}
+                    {selectedSkill === 1 && 
+                    <Stack flexDirection="row" alignItems="flex-start" style={{ overflow: 'scroll' }}>
+                        {completedWorkouts
+                        // Removed date filter as these are completed events
+                        .sort((a, b) => new Date(a.start) - new Date(b.start)) // Sort events by start date
+                        .map(({ title, start }, index) => {
+                            // Define an array of gradient backgrounds
+                            const gradientBackgrounds = [
+                                'linear-gradient(90deg, #224061 50%, #433B5F 100%)', 
+                                'linear-gradient(90deg, #433B5F 50%, #6A385C 100%)', 
+                                'linear-gradient(90deg, #6A385C 50%, #923258 100%)', 
+                                'linear-gradient(90deg, #923258 25%, #BB2D55 100%)', 
+                                'linear-gradient(270deg, #923258 25%, #BB2D55 100%)', 
+                                'linear-gradient(270deg, #6A385C 50%, #923258 100%)', 
+                                'linear-gradient(270deg, #433B5F 50%, #6A385C 100%)', 
+                                'linear-gradient(270deg, #224061 50%, #433B5F 100%)',
+                            ];
+                            
+                            const eventBackground = gradientBackgrounds[index % gradientBackgrounds.length]; // Cycle through the gradients
+
+                            return (
+                                <Button
+                                    key={index}
+                                    sx={{ color: "white", flexShrink: 0 }}
+                                    onClick={() => handleWorkoutModal(index)} // Ensure correct index is passed here
+                                >
+                                    <Box
+                                        width={isMobile ? "150px" : "300px"}
+                                        height={isMobile ? "150px" : "300px"}
+                                        display="flex"
+                                        flexDirection="column"
+                                        justifyContent="space-between"
+                                        alignItems="center"
+                                        padding={1}
+                                        sx={{
+                                            background: eventBackground, // Apply gradient background here
+                                            borderRadius: '10px',
+                                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+                                            overflow: 'hidden',
+                                        }}
+                                    >
+                                        <Stack width="100%">
+                                            <Typography sx={{ fontSize: isMobile ? "0.7rem" : "1rem", textAlign: "end" }}>
+                                                Completed {/* Mark as completed */}
+                                            </Typography>
+                                        </Stack>
+                                        <Typography sx={{ fontWeight: "900", textAlign: "left", fontSize: isMobile ? "1rem" : "2rem" }}>
+                                            {title.split(":")[1]}
+                                        </Typography>
+                                    </Box>
+                                </Button>
+                            );
+                        })}
+                    </Stack>
+                    }
+
+                    {selectedSkill === 2 && 
+                    <Box>Goals Page</Box>
+                    }
+                    {selectedSkill === 3 && 
+                    <Box>Feed Page</Box>
+                    }
                 </Box>
             
                 ) : (

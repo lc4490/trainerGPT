@@ -987,6 +987,7 @@ const PlanPage = () => {
                   padding = {1}
                   borderRadius = {1}
                   whiteSpace={isMobile ? "nowrap": ""}
+                  sx={{ fontFamily: 'Gilroy, sans-serif' }}  // Ensure font is applied here too
                   >
                     {event.title}
                   </Box>

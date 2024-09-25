@@ -3,6 +3,11 @@
   padding: 0;
   margin: 0;
 }
+
+.fc {
+  font-family: "Gilroy" !important;
+}
+
 @media (max-width: 768px) {
 /* Increase specificity with the following */
 .fc .fc-toolbar-title {

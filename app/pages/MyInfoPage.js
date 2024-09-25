@@ -858,11 +858,13 @@ const MyInfoPage = ({setValue}) => {
     const filteredWorkouts = allEvents.filter(event => 
       new Date(event.start) >= new Date().setHours(0, 0, 0, 0) && // Ensure the event is in the future or today
       event.backgroundColor !== "orange" && // Exclude events with background color orange
-      !completedWorkouts.some(completed => completed.title === event.title) // Exclude events in completedWorkouts
+      !completedWorkouts.some(completed => completed.id === event.id) // Exclude events in completedWorkouts
     );
 
     setUpcomingWorkouts(filteredWorkouts); // Update the state with filtered events
   }, [allEvents, completedWorkouts]); // Only run the effect when allEvents or completedWorkouts change
+
+  const [congratsModal, setCongratsModal] = useState(false)
 
   // loading page
   if (loading) {
@@ -926,9 +928,79 @@ const MyInfoPage = ({setValue}) => {
           completedWorkouts={completedWorkouts}
           setCompletedWorkouts={setCompletedWorkouts}
           selectedSkill={selectedSkill}
+          setCongratsModal={setCongratsModal}
           isMobile={isMobile}
           t={t}
           />
+          <Modal open={congratsModal} onClose={() => {setCongratsModal(false)}}>
+            <Box
+                overflow="auto"
+                sx={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  width: "60%",
+                  height: "60%",
+                  background: 'linear-gradient(180deg, #BB2D55 25%, #224061 100%)', 
+                  border: '2px solid #000',
+                  boxShadow: 24,
+                  p: 4,
+                  gap: 2,
+                  borderRadius: "10px",
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                }}
+              >
+              <Box width = "100%" display="flex" justifyContent={"center"}>
+                <Box
+                  sx={{
+                    backgroundColor: 'white', // Light red background
+                    borderRadius: '50%', // Circular shape
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 75, // Adjust size as needed
+                    height: 75,
+                  }}
+                >
+                  <Typography sx={{ fontSize: "3rem", textAlign: "center" }}>
+                    👏
+                  </Typography>
+                </Box>
+              </Box>
+              
+              <Typography sx ={{fontSize: "1.25rem", fontWeight: "800", textAlign: "center", color: "white"}}>
+                Congratulations!
+              </Typography>
+              <Typography sx = {{fontSize: "1rem", fontWeight: "200", textAlign: "center", color: "white"}}>
+                You showed up for yourself today and that is something to be proud of. You're unstoppable.
+              </Typography>
+              <Button
+              onClick={()=> (setCongratsModal(false))}
+              sx={{
+                  height: "55px",
+                  fontSize: isMobile ? '0.9rem' : '1rem',
+                  backgroundColor: 'white',
+                  color: "black",
+                  border: 1,
+                  // borderColor: 'text.primary',
+                  borderRadius: 2.5,
+                  '&:hover': {
+                  backgroundColor: 'text.primary',
+                  color: 'background.default',
+                  borderColor: 'text.primary',
+                  },
+              }}
+              >
+                <Typography sx = {{fontSize: "0.85rem", fontWeight: "800"}}>
+                  Go to homepage
+                </Typography>
+              </Button>
+              
+            </Box>
+          </Modal>
           <EditPage 
             editModal={editModal}
             setEditModal={setEditModal}

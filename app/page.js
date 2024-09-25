@@ -736,11 +736,11 @@ export default function Home() {
                   alignItems: 'center',
                 }}
               >
-                <BottomNavigationAction id={'myinfo-step'} label={t("My Info")} icon={<HomeIcon />} showLabel/>
-                <BottomNavigationAction id={'equipment-step'} label={t("myEquipment")} icon={<FitnessCenter />} showLabel/>
-                <BottomNavigationAction id={'trainer-step'} label={t("trainerGPT")} icon={<Person />} showLabel/>
-                <BottomNavigationAction id={'plan-step'} label={t("myPlanner")} icon={<CalendarToday />} showLabel/>
-                <BottomNavigationAction id={'pantry-step'} label={t("myPantry")} icon={<LocalDiningIcon />} showLabel/>
+                <BottomNavigationAction id={'myinfo-step'} label={t("My Info")} icon={<HomeIcon />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+                <BottomNavigationAction id={'equipment-step'} label={t("myEquipment")} icon={<FitnessCenter />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+                <BottomNavigationAction id={'trainer-step'} label={t("trainerGPT")} icon={<Person />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+                <BottomNavigationAction id={'plan-step'} label={t("myPlanner")} icon={<CalendarToday />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+                <BottomNavigationAction id={'pantry-step'} label={t("myPantry")} icon={<LocalDiningIcon />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
               </BottomNavigation>
               </Box>
               )}
@@ -771,11 +771,11 @@ export default function Home() {
               }}
               sx={{ width: '100%', position: 'fixed', bottom: 0 }}
             >
-              <BottomNavigationAction id={'myinfo-step'} label={t("My Info")} icon={<HomeIcon />} />
-              <BottomNavigationAction id={'equipment-step'} label={t("myEquipment")} icon={<FitnessCenter />} />
-              <BottomNavigationAction id={'trainer-step'} label={t("trainerGPT")} icon={<Person />} />
-              <BottomNavigationAction id={'plan-step'} label={t("myPlanner")} icon={<CalendarToday />} />
-              <BottomNavigationAction id={'pantry-step'} label={t("myPantry")} icon={<LocalDiningIcon />} />
+              <BottomNavigationAction id={'myinfo-step'} label={t("My Info")} icon={<HomeIcon />} sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+              <BottomNavigationAction id={'equipment-step'} label={t("myEquipment")} icon={<FitnessCenter />} sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+              <BottomNavigationAction id={'trainer-step'} label={t("trainerGPT")} icon={<Person />} sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+              <BottomNavigationAction id={'plan-step'} label={t("myPlanner")} icon={<CalendarToday />} sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+              <BottomNavigationAction id={'pantry-step'} label={t("myPantry")} icon={<LocalDiningIcon />} sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
             </BottomNavigation>
             )}
           </Box>

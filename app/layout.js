@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "TrainerGPT",
-  description: "All your workout essentials, but powered by AI.",
+  description: "All your workout essentials, powered by AI.",
 };
 
 export default function RootLayout({ children }) {

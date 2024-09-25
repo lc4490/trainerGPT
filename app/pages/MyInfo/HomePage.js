@@ -28,25 +28,21 @@ const bounceY = keyframes`
   }
 `;
 
-const menubar = [
-    "Upcoming workouts:", 
-    "Completed workouts:"
-    // "My Goals", 
-    // "Feed" 
-]
-
-const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday, handleCancelSubscription, hasPremiumAccess, selectedSkill, setSelectedSkill, upcomingWorkouts, completedWorkouts, t}) => (
+const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday, handleCancelSubscription, hasPremiumAccess, upcomingWorkouts, completedWorkouts, selectedSkill, setSelectedSkill, t}) => (
     <Box
+        height="100%"
+        overflow="scroll"
         display="flex"
         flexDirection={"column"}
         paddingX = {isMobile ? 2.5 : 5}
         marginTop = {2.5}
+        paddingBottom={"100px"}
         // gap = {2.5}
         >
         <Typography
         sx={{
             fontSize: "2.5rem",
-            fontWeight: "700",
+            fontWeight: "800",
             lineHeight: "1.2",
         }}>
             Welcome, {user  && user.fullName ? (user.fullName.split(" ")[0]) : ("Guest")}.
@@ -57,38 +53,11 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
             
                 {allEvents.length > 0 ? (
                 <Box>
-                    <Stack padding={2.5} gap = {2.5} flexDirection={"row"} sx ={{overflow: "scroll"}}>
-                        {menubar.map((item, index) => (
-                            <Button
-                            key={index} // Always provide a unique key for each element in the map function
-                            onClick={() => (setSelectedSkill(index))}
-                            sx={{
-                                paddingX: 2.5,
-                                backgroundColor: selectedSkill === index ? "#224061" : "lightgray",
-                                color: selectedSkill === index  ? "white" : "#2C2C2C",
-                                borderRadius: "99999px",
-                                '&:hover': {
-                                    backgroundColor: '#224061',
-                                    color: 'white',
-                                    // borderColor: 'text.primary',
-                                },
-                            }}
-                            >
-                            <Typography
-                                sx={{
-                                padding: 1,
-                                fontSize: isMobile ? "0.6rem" : "0.8rem",
-                                fontWeight: "400",
-                                }}
-                            >
-                                {item}
-                            </Typography>
-                            </Button>
-                        ))}
-                    </Stack>
 
                     {/* upcoming events */}
-                    {selectedSkill === 0 && 
+                    <Box padding={1}>
+                        <Typography sx={{fontSize: "2rem", fontWeight: "300"}}>Upcoming</Typography>
+                    </Box>
                     <Stack flexDirection="row" alignItems="flex-start" style={{ overflow: 'scroll' }}>
                         {upcomingWorkouts
                         .filter(event => 
@@ -115,7 +84,10 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                                 <Button
                                     key={index}
                                     sx={{ color: "white", flexShrink: 0 }}
-                                    onClick={() => handleWorkoutModal(index)} // Ensure correct index is passed here
+                                    onClick={() => (
+                                        handleWorkoutModal(index),
+                                        setSelectedSkill(0)
+                                        )} // Ensure correct index is passed here
                                 >
                                     <Box
                                         width={isMobile ? "150px" : "300px"}
@@ -145,10 +117,14 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                             );
                         })}
                     </Stack>
-                    }
+
+                    <Box height={25}></Box>
+                    
 
                     {/* completed events */}
-                    {selectedSkill === 1 && 
+                    <Box padding={1}>
+                        <Typography sx={{fontSize: "2rem", fontWeight: "300"}}>Completed</Typography>
+                    </Box>
                     <Stack flexDirection="row" alignItems="flex-start" style={{ overflow: 'scroll' }}>
                         {completedWorkouts
                         // Removed date filter as these are completed events
@@ -172,7 +148,10 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                                 <Button
                                     key={index}
                                     sx={{ color: "white", flexShrink: 0 }}
-                                    onClick={() => handleWorkoutModal(index)} // Ensure correct index is passed here
+                                    onClick={() => (
+                                        handleWorkoutModal(index),
+                                        setSelectedSkill(1)
+                                    )} // Ensure correct index is passed here
                                 >
                                     <Box
                                         width={isMobile ? "150px" : "300px"}
@@ -183,7 +162,7 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                                         alignItems="center"
                                         padding={1}
                                         sx={{
-                                            background: eventBackground, // Apply gradient background here
+                                            background: "darkgray",
                                             borderRadius: '10px',
                                             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
                                             overflow: 'hidden',
@@ -202,14 +181,6 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                             );
                         })}
                     </Stack>
-                    }
-
-                    {selectedSkill === 2 && 
-                    <Box>Goals Page</Box>
-                    }
-                    {selectedSkill === 3 && 
-                    <Box>Feed Page</Box>
-                    }
                 </Box>
             
                 ) : (

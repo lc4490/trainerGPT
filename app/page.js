@@ -537,7 +537,7 @@ export default function Home() {
       {/* light/dark mode */}
       <ThemeProvider theme={currentTheme}>
         <CssBaseline />
-        {user ? (
+        {true ? (
           <>
         {mounted && !isTutorialComplete && isSummary && (
         <JoyRide 
@@ -701,7 +701,7 @@ export default function Home() {
           {isSummary ? (
             <Box
             width="100vw"
-            height="100vh"
+            // height="100vh"
             display="flex"
             justifyContent="center"
             alignItems="center"
@@ -746,6 +746,8 @@ export default function Home() {
               )}
               <Box
               maxWidth={isMobile ? "100vw" : "calc(100vw - 90px)"} // Subtract the sidebar width from the total width
+              maxHeight={isMobile ? "calc(100vh - 60px)" : "100vh"}
+              height={isMobile ? "calc(100vh - 60px)" : "100vh"}
               flex="1" // This makes sure the content takes up the remaining height
               bgcolor="background.default"
               // overflow="auto" // Allows scrolling if content is taller than the available space
@@ -890,7 +892,7 @@ export default function Home() {
         </>
         ) : (
           <Box width = "100%" height = "100vh" display = "flex" justifyContent={"center"} alignItems="center" flexDirection={"column"}>
-            <Box><Typography variant="h1">Welcome to trAIner</Typography></Box>
+            <Box><Typography variant="h4">Welcome to trAIner</Typography></Box>
             <Button 
                     color="inherit"
                     href = "/sign-in"

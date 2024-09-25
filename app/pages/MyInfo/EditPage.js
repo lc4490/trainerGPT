@@ -30,12 +30,15 @@ const EditPage = ({ editModal, setEditModal, handleEditOrSave, orderedKeys, rend
                 <Button
                     onClick={handleEditOrSave}
                     sx={{
-                        height: "55px",
+                        // height: "55px",
+                        width: "75px",
                         fontSize: '1rem',
+                        borderRadius: 2.5,
                         backgroundColor: 'background.default',
                         color: 'text.primary',
                         border: 1,
                         borderColor: 'text.primary',
+                        textTransform: 'none',
                         '&:hover': {
                             backgroundColor: 'text.primary',
                             color: 'background.default',
@@ -125,13 +128,14 @@ const EditPage = ({ editModal, setEditModal, handleEditOrSave, orderedKeys, rend
                     {user && user.fullName ? user.fullName : t("Guest")}
                 </Typography>
 
-                <Box width="100%" justifyContent="left" paddingY={2.5}>
+                <Box width="100%" justifyContent="left" maringTop={2.5}>
                     <Typography sx={{ fontSize: "1.25rem", fontWeight: "800" }}>Info</Typography>
                 </Box>
 
                 {/* Display content summary */}
                 <Grid 
                 container 
+                spacing={1}
                 sx={{ justifyContent: 'center', width: "90vw", paddingBottom: "60px"}}>
                     
                     {orderedKeys.map((key) => (
@@ -141,30 +145,33 @@ const EditPage = ({ editModal, setEditModal, handleEditOrSave, orderedKeys, rend
                             sm={6} 
                             md={3} 
                             key={key}
+                        > 
+                            <Box
                             sx={{ 
                                 display: 'flex', 
                                 flexDirection: 'column', 
-                                alignItems: 'center',
+                                // alignItems: 'center',
                                 padding: 2,
                                 border: '1px solid',
                                 borderColor: 'divider',
                                 borderRadius: 2,
                                 backgroundColor: 'background.paper',
-                                boxShadow: 3,
+                                // boxShadow: 3,
                             }}
-                        >
-                            <Typography variant="h6" align="center" sx={{ marginBottom: 1, color: 'text.primary' }}>
-                                {t(key)}
-                            </Typography>
-                            {isEditing ? (
-                                <Box sx={{ width: '100%' }}>
-                                    {renderEditField(key, formData[key])}
-                                </Box>
-                            ) : (
-                                <Typography variant="body1" color="textSecondary" align="center" sx={{ fontSize: '1rem', fontWeight: 500, color: 'text.secondary' }}>
-                                    {key === 'Availability' ? `${formData[key]} ${t("days")}` : formData[key]}
+                            >
+                                <Typography variant="h6" sx={{ marginBottom: 1, color: 'text.primary' }}>
+                                    {t(key)}:
                                 </Typography>
-                            )}
+                                {isEditing ? (
+                                    <Box sx={{ width: '100%' }}>
+                                        {renderEditField(key, formData[key])}
+                                    </Box>
+                                ) : (
+                                    <Typography variant="body1" color="textSecondary" sx={{ fontSize: '1rem', fontWeight: 500, color: 'text.secondary' }}>
+                                        {key === 'Availability' ? `${formData[key]} ${t("days")}` : formData[key]}
+                                    </Typography>
+                                )}
+                            </Box>
                         </Grid>
                     ))}
                 </Grid>

@@ -975,7 +975,7 @@ const MyInfoPage = ({setValue}) => {
                 Congratulations!
               </Typography>
               <Typography sx = {{fontSize: "1rem", fontWeight: "200", textAlign: "center", color: "white"}}>
-                You showed up for yourself today and that is something to be proud of. You're unstoppable.
+                You showed up for yourself today and that is something to be proud of. You are unstoppable.
               </Typography>
               <Button
               onClick={()=> (setCongratsModal(false))}

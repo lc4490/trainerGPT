@@ -125,11 +125,15 @@ const EditPage = ({ editModal, setEditModal, handleEditOrSave, orderedKeys, rend
                     {user && user.fullName ? user.fullName : t("Guest")}
                 </Typography>
 
+                <Box width="100%" justifyContent="left" paddingY={2.5}>
+                    <Typography sx={{ fontSize: "1.25rem", fontWeight: "800" }}>Info</Typography>
+                </Box>
+
                 {/* Display content summary */}
-                <Grid container sx={{ justifyContent: 'center', width: "90vw", paddingX: 3, paddingBottom: "60px" }}>
-                    <Box width="100%" justifyContent="left" paddingY={2.5}>
-                        <Typography sx={{ fontSize: "1.25rem", fontWeight: "300" }}>Info</Typography>
-                    </Box>
+                <Grid 
+                container 
+                sx={{ justifyContent: 'center', width: "90vw", paddingBottom: "60px"}}>
+                    
                     {orderedKeys.map((key) => (
                         <Grid 
                             item 

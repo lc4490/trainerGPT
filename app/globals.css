@@ -18,3 +18,22 @@
   padding: 10px !important;     /* Adjusts toolbar padding */
 }
 }
+/* styles/globals.css */
+
+@font-face {
+  font-family: 'Gilroy';
+  src: url('/fonts/Gilroy-Light.otf') format('opentype');
+  font-weight: 500; /* Light */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Gilroy';
+  src: url('/fonts/Gilroy-ExtraBold.otf') format('opentype');
+  font-weight: 800; /* ExtraBold */
+  font-style: normal;
+}
+
+body {
+  font-family: 'Gilroy', sans-serif;
+}

@@ -82,18 +82,20 @@ const WorkoutModal = ({ openWorkoutModal, setOpenWorkoutModal, handleEditOrSaveW
       {/* top buttons */}
       {selectedSkill === 0 && 
       <Box width="100%" display="flex" justifyContent={"space-between"} alignItems="center" paddingY={1}>
-          <Stack flexDirection={"row"} gap = {1} paddingX = {isMobile ? 0 : 2} justifyContent={"space-between"} width="100%">
+          <Stack flexDirection={"row"} gap = {2} paddingX = {isMobile ? 2 : 4} paddingY = {2} justifyContent={"space-between"} width="100%">
           {console.log(upcomingWorkouts)}
             <Button
                 onClick={()=>(setValue(2))}
                 sx={{
                     height: "55px",
-                    fontSize: isMobile ? '0.75rem' : '1rem',
+                    fontSize: '1rem',
                     backgroundColor: 'background.default',
                     color: 'text.primary',
                     border: 1,
                     borderColor: 'text.primary',
                     borderRadius: 2.5,
+                    textTransform: 'none',
+                    paddingX: 2,
                     '&:hover': {
                     backgroundColor: 'text.primary',
                     color: 'background.default',
@@ -111,12 +113,14 @@ const WorkoutModal = ({ openWorkoutModal, setOpenWorkoutModal, handleEditOrSaveW
                 )}
                 sx={{
                     height: "55px",
-                    fontSize: isMobile ? '0.75rem' : '1rem',
+                    fontSize: '1rem',
                     backgroundColor: 'background.default',
                     color: 'text.primary',
                     border: 1,
                     borderColor: 'text.primary',
                     borderRadius: 2.5,
+                    textTransform: 'none',
+                    paddingX: 2,
                     '&:hover': {
                     backgroundColor: 'text.primary',
                     color: 'background.default',
@@ -129,13 +133,16 @@ const WorkoutModal = ({ openWorkoutModal, setOpenWorkoutModal, handleEditOrSaveW
             <Button
             onClick={handleEditOrSaveWorkout}
             sx={{
+                width: "75px",
                 height: "55px",
-                fontSize: isMobile ? '0.9rem' : '1rem',
+                fontSize: '1rem',
                 backgroundColor: 'background.default',
                 color: 'text.primary',
                 border: 1,
                 borderColor: 'text.primary',
                 borderRadius: 2.5,
+                textTransform: 'none',
+                paddingX: 2,
                 '&:hover': {
                 backgroundColor: 'text.primary',
                 color: 'background.default',
@@ -151,7 +158,7 @@ const WorkoutModal = ({ openWorkoutModal, setOpenWorkoutModal, handleEditOrSaveW
 
       {/* workout content */}
       {selectedSkill === 0 &&
-        <Box padding={isMobile ? 2.5 : 5} sx = {{overflowY: 'auto'}}>
+        <Box paddingX={isMobile ? 2.5 : 5} sx = {{overflowY: 'auto'}}>
         
         {isEditingWorkout ? (
           <Box>

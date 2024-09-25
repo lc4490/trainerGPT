@@ -16,6 +16,11 @@ export const lightTheme = createTheme({
       primary: '#000000',
     },
   },
+  typography: {
+    fontFamily: '"Gilroy", "Arial", sans-serif',
+    fontWeightLight: 300, // Light weight
+    fontWeightBold: 800,  // ExtraBold weight
+  },
 });
 
 export const darkTheme = createTheme({
@@ -32,5 +37,10 @@ export const darkTheme = createTheme({
     text: {
       primary: '#ffffff',
     },
+  },
+  typography: {
+    fontFamily: '"Gilroy", "Arial", sans-serif',
+    fontWeightLight: 300, // Light weight
+    fontWeightBold: 800,  // ExtraBold weight
   },
 });

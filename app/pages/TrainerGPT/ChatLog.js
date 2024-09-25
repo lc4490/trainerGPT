@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Box, Button, Stack, TextField, CircularProgress } from '@mui/material';
+import Image from 'next/image';
 import AssistantIcon from '@mui/icons-material/Assistant';
 import PersonIcon from '@mui/icons-material/Person';
 import SendIcon from '@mui/icons-material/Send';
@@ -23,6 +24,7 @@ const ChatLog = ({
   isListening,
   incompleteResponse,
   handleContinue,
+  image,
   t,
   isMobile
 }) => {
@@ -75,7 +77,7 @@ const ChatLog = ({
             )}
             <Box
               bgcolor={message.role === 'assistant' ? 'background.bubbles' : 'background.userBubble'}
-              color={message.role === 'assistant' ? "text.primary" : 'black'}
+              color={message.role === 'assistant' ? "text.primary" : 'white'}
               borderRadius={3.5}
               padding={2.5}
               sx={{ maxWidth: '75%', wordBreak: 'break-word', overflowWrap: 'break-word' }}
@@ -83,7 +85,19 @@ const ChatLog = ({
               <ReactMarkdown components={customComponents}>{message.content}</ReactMarkdown>
             </Box>
             {message.role === 'user' && (
-              <PersonIcon sx={{ ml: 1, color: 'text.primary', fontSize: '2.5rem' }} />
+              <Image
+              src={image}
+              alt={t("image")}
+              width={45}
+              height={45}
+              style={{
+                  marginLeft: 10,
+                  borderRadius: "9999px",
+                  objectFit: 'cover',
+                  transform:  "scaleX(-1)",
+              }}
+              />
+              // <PersonIcon sx={{ ml: 1, color: 'text.primary', fontSize: '2.5rem' }} />
             )}
           </Box>
         ))}

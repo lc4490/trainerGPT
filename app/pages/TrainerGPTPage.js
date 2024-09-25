@@ -26,7 +26,6 @@ import { lightTheme, darkTheme } from '../theme';
 import { exerciseData } from './TrainerGPT/exerciseData'; 
 import { customComponents } from '../customMarkdownComponents'; 
 
-
 const TrainerGPTPage = () => {
   const router = useRouter();
   const { user, isSignedIn, isLoaded } = useUser(); 
@@ -614,6 +613,24 @@ const TrainerGPTPage = () => {
     sendMessage(); // Resend the message to continue the response
   };
 
+  const [image, setImage] = useState("")
+
+  useEffect(()=> {
+    const getImage = async () => {
+      if (user) {
+        const userDocRef = doc(firestore, 'users', user.id);
+        const userDoc = await getDoc(userDocRef);
+        if(userDoc.exists()){
+          setImage(userDoc.data().profilePic)
+        }
+      }
+      else{
+        setImage(guestImage)
+      }
+    };
+    getImage()
+  }, [user])
+
   // loading page
   if (loading) {
     return <Loading t={t} />;
@@ -660,6 +677,7 @@ const TrainerGPTPage = () => {
           isListening={isListening}
           incompleteResponse={incompleteResponse}
           handleContinue={handleContinue}
+          image={image}
           t={t}
           isMobile={isMobile}
         />

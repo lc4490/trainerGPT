@@ -7,8 +7,8 @@ export const lightTheme = createTheme({
     background: {
       default: '#ffffff',
       paper: '#ffffff',
-      bubbles: 'lightgray',
-      userBubble: '#95EC69',
+      bubbles: '#D9D9D9',
+      userBubble: '#2F2F2F',
       link: 'darkblue',
       calendar: "#FAF8F6",
     },
@@ -29,8 +29,8 @@ export const darkTheme = createTheme({
     background: {
       default: '#121212',
       paper: '#121212',
-      bubbles: '#2C2C2C',
-      userBubble: '#29B560',
+      bubbles: '#383838',
+      userBubble: '#232323',
       link: 'lightblue',
       calendar: "#232323",
     },

@@ -299,6 +299,7 @@ const PlanPage = () => {
           title: event.title,
           start: event.start.toISOString(),
           end: event.end ? event.end.toISOString() : null,
+          backgroundColor: event.backgroundColor,
           allDay: event.allDay,
           extendedProps: {
             details: event.extendedProps.details, // Keep the event details unchanged
@@ -531,7 +532,7 @@ const PlanPage = () => {
           display="flex"
           flexDirection="column"
           overflow={"scroll"}
-          paddingBottom= '60px' // Ensure content is not cut off by the toolbar
+          paddingBottom= {isMobile ? '60px' : '0px' }
         >
           {/* event modal */}
           <Modal
@@ -921,7 +922,7 @@ const PlanPage = () => {
             </Box>
           </Box>
           {isMobile && (<Divider />)}
-          <Stack flexDirection = "column" width = "100%" maxHeight = "100%" padding = {2.5}>
+          <Stack flexDirection = "column" width = "100%" height = "100%" paddingX = {2.5}>
             <Stack
                 width = "100%"
                 id = "draggable-el"
@@ -1019,9 +1020,12 @@ const PlanPage = () => {
                   eventDrop={(data) => handleEventDrop(data)} 
                   eventClick={(data) => handleEventClick(data)}
                   dateClick = {(data) => handleAddEvent(data)}
-                  aspectRatio={isMobile ? 1 : 2.5}
+                  aspectRatio={isMobile ? 1.1 : 2.5}
                   locales= {allLocales}
                   locale = {calendarLocale}
+                  eventBackgroundColor='#224061'
+                  eventBackground='linear-gradient(90deg, #224061 50%, #433B5F 100%)' // Default background color for all events
+                  eventTextColor="white" // Default text color for all events
                 />
                 
             </Box>

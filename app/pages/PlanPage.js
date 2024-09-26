@@ -531,7 +531,7 @@ const PlanPage = () => {
           display="flex"
           flexDirection="column"
           overflow={"scroll"}
-          // paddingBottom= '60px' // Ensure content is not cut off by the toolbar
+          paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >
           {/* event modal */}
           <Modal

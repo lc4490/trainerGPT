@@ -6,12 +6,37 @@
 
 .fc {
   font-family: "Gilroy" !important;
+  /* background-color: darkgray */
 }
+
+.fc .fc-toolbar {
+  background-color: inherit
+}
+
+.fc .fc-toolbar-title {
+  font-size: 2.5rem;
+  font-weight: 300;
+}
+
+.fc .fc-button {
+  font-size: 0.8rem !important; /* Increases button text size */
+  padding: 5px !important;     /* Increases button padding */
+  border-radius: 999999px;
+  background-color: #4B4B4B
+}
+
+/* 
+.fc .fc-view-harness, 
+.fc .fc-daygrid {
+  background-color: darkgray; Calendar background
+  border-radius: 10px; 
+} 
+*/
 
 @media (max-width: 768px) {
 /* Increase specificity with the following */
 .fc .fc-toolbar-title {
-  font-size: 1rem !important; /* Increases title size */
+  font-size: 2.25rem !important; /* Increases title size */
 }
 
 .fc .fc-button {

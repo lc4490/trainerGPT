@@ -216,7 +216,7 @@ const PlanPage = () => {
         const [dayTitle, ...detailsArray] = day.trim().split('\n');
         const detailsText = detailsArray.join('\\n').trim().replace(/\\n/g, '  \n').replace(/\*/g,"")
         let event = {
-          title: `Day ${index}: ${dayTitle.replace(/\*/g,"").trim()}`, // Re-add "Day" prefix
+          title: `${dayTitle.replace(/\*/g,"").trim()}`, // Re-add "Day" prefix
           details: `${detailsText}` 
         };
         index = index + 1
@@ -321,7 +321,7 @@ const PlanPage = () => {
       const addEvent = (data) => {
         // Find the event from the `events` array based on the title of the dragged element
         const eventTitle = data.draggedEl.innerText;
-        const selectedEvent = events.find((event) => event.title === eventTitle);
+        const selectedEvent = events.find((event) => event.title.trim() === eventTitle.trim());
       
         // If the event exists in the array, use its details
         const eventDetails = selectedEvent ? selectedEvent.details : "No details available";
@@ -518,6 +518,8 @@ const PlanPage = () => {
         }
       };
 
+      let index = 0;
+
     return(
         // light/dark theming
         <ThemeProvider theme={theme}>
@@ -528,6 +530,7 @@ const PlanPage = () => {
           height = "100%"
           display="flex"
           flexDirection="column"
+          overflow={"scroll"}
           // paddingBottom= '60px' // Ensure content is not cut off by the toolbar
         >
           {/* event modal */}
@@ -918,12 +921,80 @@ const PlanPage = () => {
             </Box>
           </Box>
           {isMobile && (<Divider />)}
-          <Stack flexDirection = "column" width = "100%" maxHeight = "100%">
+          <Stack flexDirection = "column" width = "100%" maxHeight = "100%" padding = {2.5}>
+            <Stack
+                width = "100%"
+                id = "draggable-el"
+                // height ="100%"
+                // backgroundColor = "background.bubbles"
+                flexDirection="column"
+                display = "flex"
+                // alignItems={"center"}
+                spacing={2}
+                // padding = {2}
+                // overflow = "scroll"
+                // height = "150px"
+                // paddingTop={5}
+                paddingBottom={2}
+                >
+                  <Box sx={{ width: isMobile ? "100%" : "auto"}}> {/* Full width for the container */}
+                    <Box 
+                      sx={{
+                        width: isMobile ? "250px": "auto", // Set width explicitly within the container
+                        lineHeight: "1",
+                      }}>
+                      <Typography>{t("Drag and drop workouts into your schedule:")}</Typography>
+                    </Box>
+                  </Box>
+                  <Box display={"flex"} flexDirection={"row"} overflow={"scroll"} gap = {isMobile ? 1 : 2.5}>
+                    {
+                      events.map(event => {
+                      
+
+                      const gradientBackgrounds = [
+                        'linear-gradient(90deg, #224061 50%, #433B5F 100%)', 
+                        'linear-gradient(90deg, #433B5F 50%, #6A385C 100%)', 
+                        'linear-gradient(90deg, #6A385C 50%, #923258 100%)', 
+                        'linear-gradient(90deg, #923258 25%, #BB2D55 100%)', 
+                        'linear-gradient(270deg, #923258 25%, #BB2D55 100%)', 
+                        'linear-gradient(270deg, #6A385C 50%, #923258 100%)', 
+                        'linear-gradient(270deg, #433B5F 50%, #6A385C 100%)', 
+                        'linear-gradient(270deg, #224061 50%, #433B5F 100%)',
+                      ];
+
+                      const eventBackground = gradientBackgrounds[index % gradientBackgrounds.length]; // Cycle through the gradients
+                      index = index + 1
+                      
+                      return (
+                        <Box
+                        className = "fc-event"
+                        title={event.title}
+                        key={event.id}
+                        // width = "200px"
+                        // height =  "60px"
+                        padding = {1}
+                        borderRadius = {3}
+                        whiteSpace={isMobile ? "nowrap": ""}
+                        sx={{ 
+                          fontFamily: 'Gilroy, sans-serif', 
+                          background: eventBackground,
+                          color: "white",
+                        }}  // Ensure font is applied here too
+                        >
+                          <Typography sx ={{fontWeight: "700"}}>
+                            {event.title}
+                          </Typography>
+                        </Box>
+                      
+                    )})}
+                  </Box>
+
+            </Stack>
             <Box
               width = "100%"
-              height = {isMobile ? "75%" : "auto"}
+              height = "100%"
               overflow= "scroll"
-              backgroundColor="background.calendar"
+              backgroundColor="background.default"
               >
                 <FullCalendar
                   plugins = {[
@@ -932,9 +1003,11 @@ const PlanPage = () => {
                     tiemGridPlugin
                   ]}
                   headerToolbar = {{
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'dayGridMonth timeGridWeek'
+                    // left: 'prev,next today',
+                    // center: 'title',
+                    // right: 'dayGridMonth timeGridWeek'
+                    left: 'title',
+                    right: 'prev next'
                   }}          
                   events = {allEvents}
                   nowIndicator={true}
@@ -952,49 +1025,6 @@ const PlanPage = () => {
                 />
                 
             </Box>
-            <Stack
-              width = "100%"
-              id = "draggable-el"
-              // height ="100%"
-              backgroundColor = "background.bubbles"
-              flexDirection="row"
-              display = "flex"
-              alignItems={"center"}
-              spacing={1}
-              padding = {2}
-              gap = {isMobile ? 1 : 2.5}
-              overflow = "scroll"
-              height = {isMobile ? "100px" : "100px"}
-              // paddingTop={5}
-              >
-                <Box sx={{ width: isMobile ? "100%" : "auto"}}> {/* Full width for the container */}
-                  <Box 
-                    sx={{
-                      width: "110px" // Set width explicitly within the container
-                    }}>
-                    <Typography>{t("Drag workouts into Calendar:")}</Typography>
-                  </Box>
-                </Box>
-
-                {events.map(event => (
-                  <Box
-                  className = "fc-event"
-                  title={event.title}
-                  key={event.id}
-                  // width = "200px"
-                  height =  "60px"
-                  backgroundColor="background.default"
-                  padding = {1}
-                  borderRadius = {1}
-                  whiteSpace={isMobile ? "nowrap": ""}
-                  sx={{ fontFamily: 'Gilroy, sans-serif' }}  // Ensure font is applied here too
-                  >
-                    {event.title}
-                  </Box>
-                
-                ))}
-
-            </Stack>
           </Stack>
 
             </Box>

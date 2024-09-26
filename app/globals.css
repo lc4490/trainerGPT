@@ -25,13 +25,13 @@
   background-color: #4B4B4B
 }
 
-/* 
-.fc .fc-view-harness, 
+
+/* .fc .fc-view-harness, 
 .fc .fc-daygrid {
-  background-color: darkgray; Calendar background
+  background-color: darkgray; 
   border-radius: 10px; 
-} 
-*/
+}  */
+
 
 @media (max-width: 768px) {
 /* Increase specificity with the following */

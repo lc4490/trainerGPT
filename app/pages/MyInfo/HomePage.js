@@ -110,7 +110,7 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                                             </Typography>
                                         </Stack>
                                         <Typography sx={{ fontWeight: "900", textAlign: "left", fontSize: isMobile ? "1rem" : "2rem" }}>
-                                            {title.split(":")[1]}
+                                            {title}
                                         </Typography>
                                     </Box>
                                 </Button>

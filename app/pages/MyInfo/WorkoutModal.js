@@ -23,7 +23,7 @@ const WorkoutModal = ({ openWorkoutModal, setOpenWorkoutModal, handleEditOrSaveW
       flexDirection: 'column',
       // alignItems: 'center',
       // padding: 2,
-      paddingBottom: isMobile ? "100px" : "0px"
+      // paddingBottom: isMobile ? "100px" : "0px"
     }}
     >
       {/* top banner */}
@@ -54,12 +54,12 @@ const WorkoutModal = ({ openWorkoutModal, setOpenWorkoutModal, handleEditOrSaveW
                 // height: "55px",
                 fontSize: '1rem',
                 // backgroundColor: 'background.default',
-                color: 'text.primary',
+                color: 'white',
                 borderColor: 'background.default',
                 // borderRadius: '50px',
                 '&:hover': {
                   // backgroundColor: 'background.default',
-                  color: 'text.primary',
+                  color: 'white',
                   borderColor: 'background.default',
                 },
               }}
@@ -69,12 +69,12 @@ const WorkoutModal = ({ openWorkoutModal, setOpenWorkoutModal, handleEditOrSaveW
           </Box>
           {selectedSkill === 0 &&
           <Typography sx={{ fontWeight: 700, fontSize: isMobile ? "2rem" : "3rem", textAlign: "center", color: "white" }}>
-            {upcomingWorkouts[selectedWorkout]?.title.split(":")[1]}
+            {upcomingWorkouts[selectedWorkout]?.title}
           </Typography>
           }
           {selectedSkill === 1 &&
           <Typography sx={{ fontWeight: 700, fontSize: isMobile ? "2rem" : "3rem", textAlign: "center", color: "white" }}>
-            {completedWorkouts[selectedWorkout]?.title.split(":")[1]}
+            {completedWorkouts[selectedWorkout]?.title}
           </Typography>
           }
       </Box>

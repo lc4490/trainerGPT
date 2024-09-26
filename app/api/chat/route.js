@@ -61,6 +61,7 @@ export async function POST(req) {
     messages: [{ role: 'system', content: systemPrompt }, ...data], 
     model: 'gpt-4o-mini',
     stream: true, 
+    max_tokens: 4096, 
   });
 
   const stream = new ReadableStream({

@@ -521,6 +521,21 @@ const PlanPage = () => {
 
       let index = 0;
 
+      // Create a large gradient to span the entire calendar height
+      const largeGradient = 'linear-gradient(to bottom, #224061, #433B5F, #6A385C, #923258, #BB2D55)';
+
+      // Function to calculate the event's vertical position in the calendar (week number)
+      const getEventVerticalPosition = (startDateStr) => {
+        const eventDate = new Date(startDateStr);
+
+        // Calculate which week of the month the event falls in
+        const dayOfMonth = eventDate.getDate();
+        const weekOfMonth = Math.ceil(dayOfMonth / 7); // Week number (1-5)
+
+        // Total number of weeks in the view (for scaling the gradient)
+        return weekOfMonth;
+      };
+
     return(
         // light/dark theming
         <ThemeProvider theme={theme}>
@@ -1023,9 +1038,33 @@ const PlanPage = () => {
                   aspectRatio={isMobile ? 1.1 : 2.5}
                   locales= {allLocales}
                   locale = {calendarLocale}
-                  eventBackgroundColor='#224061'
-                  eventBackground='linear-gradient(90deg, #224061 50%, #433B5F 100%)' // Default background color for all events
-                  eventTextColor="white" // Default text color for all events
+                  // eventBackgroundColor='#224061'
+                  // eventBackground='linear-gradient(90deg, #224061 50%, #433B5F 100%)' // Default background color for all events
+                  // eventTextColor="white" // Default text color for all events
+                  /* Use eventDidMount to apply the gradient based on vertical position */
+                   /* Use eventDidMount to apply the gradient based on vertical position */
+                  eventDidMount={(info) => {
+                    const eventElement = info.el;
+                    const startDate = info.event.startStr; // ISO string of the event's start date
+
+                    // Check if the event has a predefined backgroundColor (orange for clicked/imported events)
+                    if (!info.event.backgroundColor) {
+                      // Get the vertical position (week number) of the event
+                      const weekOfMonth = getEventVerticalPosition(startDate);
+
+                      // Calculate the portion of the gradient to show based on the week number
+                      const gradientPosition = `${(weekOfMonth - 1) * 20}% ${(weekOfMonth) * 20}%`;
+
+                      // Apply the gradient to the event with a clipped portion
+                      eventElement.style.background = `${largeGradient}`;
+                      eventElement.style.backgroundPosition = gradientPosition;
+                      eventElement.style.backgroundSize = '100% 500%'; // Ensure the gradient is scaled across weeks
+                      eventElement.style.color = 'white'; // Make sure the text is visible
+                    } else {
+                      // If the event already has a backgroundColor, keep it as is
+                      eventElement.style.backgroundColor = info.event.backgroundColor;
+                    }
+                  }}
                 />
                 
             </Box>

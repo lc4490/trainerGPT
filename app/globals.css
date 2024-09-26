@@ -25,6 +25,25 @@
   background-color: #4B4B4B
 }
 
+/* Remove any border around events */
+.fc-event {
+  border: none !important;  /* Removes any borders around the event */
+  box-shadow: none !important; /* Removes shadow if any */
+}
+
+/* Remove the border when an event is focused or active (clicked) */
+.fc-event:focus,
+.fc-event:active {
+  outline: none !important; /* Removes the focus outline */
+  border: none !important;  /* Ensures no border on focus */
+}
+
+/* Remove the hover border (if any) */
+.fc-event:hover {
+  border: none !important;  /* Ensures no border on hover */
+}
+
+
 
 /* .fc .fc-view-harness, 
 .fc .fc-daygrid {

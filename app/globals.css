@@ -20,7 +20,7 @@
 
 .fc .fc-button {
   font-size: 0.8rem !important; /* Increases button text size */
-  padding: 5px !important;     /* Increases button padding */
+  padding: 5px !important;    
   border-radius: 999999px;
   background-color: #4B4B4B
 }
@@ -43,28 +43,107 @@
   border: none !important;  /* Ensures no border on hover */
 }
 
+/* rounded edges */
+.fc-col-header {
+  /* background-color: darkgray;  */
+  border-radius: 10px 10px 0px 0px !important;
+  background-color: #4B4B4B;
+  color: white;
+}
+
+.fc-scrollgrid-section > td {
+  border-radius: 0px 0px 10px 10px !important;
+}
+
+.fc-scrollgrid-section > th {
+  border-radius: 0px 10px 0px 0px !important;
+}
+
+.fc-scrollgrid {
+  border-radius: 11px !important;
+}
 
 
-/* .fc .fc-view-harness, 
+.fc .fc-view-harness, 
 .fc .fc-daygrid {
-  background-color: darkgray; 
   border-radius: 10px; 
-}  */
+  background-color: #E8E8E8;
+  color: black;
+} 
+
+.fc .fc-event {
+  border-radius: 16px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  padding: 5px;
+  white-space: normal;
+}
+
+/* Increase the height of the col-header row */
+.fc .fc-col-header-cell {
+  font-size: large;
+  height: 25px !important; /* Adjust this value as needed */
+  line-height: 40px !important; /* Center text vertically */
+  padding: 5px 0 !important; /* Adjust padding for more spacing */
+}
+
+
+/* Remove borders from table headers and cells */
+.fc-col-header-cell,
+/* .fc-daygrid-day, */
+
+.fc-scrollgrid-section,
+.fc-scrollgrid-sync-inner,
+.fc-scrollgrid
+{
+  border: none !important;
+}
+
+/* Remove grid borders */
+.fc-scrollgrid-section > td,
+.fc-scrollgrid-section > th {
+  border: none !important;
+}
+
+
+/* Remove the default highlight for the "today" day */
+.fc .fc-day-today {
+  background-color: transparent !important;
+  color: inherit !important;
+  border: none !important;
+}
+
+/* Add a perfect circle around the date number and align it to the right */
+.fc .fc-day-today .fc-daygrid-day-number {
+  border: 2px solid #ffa500; /* Orange circle */
+  border-radius: 50%; /* Round shape */
+  width: 30px; /* Set equal width and height */
+  height: 30px; /* Set equal width and height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: white;
+  
+  /* Align to the right */
+  margin-top: 3px;
+  margin-left: auto; /* Pushes the circle to the right */
+}
+
 
 
 @media (max-width: 768px) {
 /* Increase specificity with the following */
 .fc .fc-toolbar-title {
-  font-size: 1.75rem !important; /* Increases title size */
+  font-size: 2rem !important; /* Increases title size */
 }
 
 .fc .fc-button {
   font-size: 0.8rem !important; /* Increases button text size */
-  padding: 5px !important;     /* Increases button padding */
+  /* padding: 5px !important; */
 }
 
 .fc .fc-toolbar {
-  padding: 10px !important;     /* Adjusts toolbar padding */
 }
 }
 /* styles/globals.css */

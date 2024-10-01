@@ -893,7 +893,7 @@ const PlanPage = () => {
             
             {/* title */}
             <Box display="flex" flexDirection={"row"} alignItems={"center"} gap={1}>
-              <Typography variant="h6" color="text.primary" textAlign="center">
+              <Typography variant="h6" color="text.primary" textAlign="center" sx = {{fontWeight: "800"}}>
                 {t('myPlanner')}
               </Typography>
               <Button 

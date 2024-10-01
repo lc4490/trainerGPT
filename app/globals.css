@@ -1,16 +1,42 @@
+/* Base reset for all elements */
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
 }
 
+/* Default light mode colors */
+:root {
+  --fc-header-bg: #4B4B4B;
+  --fc-header-text: white;
+  --fc-bg: #E8E8E8;
+  --fc-text: black;
+  --fc-event-bg: #f0f0f0;
+  --fc-today-circle: #ffa500;
+  --fc-today-text: white;
+  --fc-toolbar-bg: inherit;
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fc-header-bg: #E8E8E8;
+    --fc-header-text: black;
+    --fc-bg: #4B4B4B;
+    --fc-text: white;
+    --fc-event-bg: #224061;
+    --fc-today-circle: #BB2D55;
+    --fc-today-text: white;
+    --fc-toolbar-bg: inherit;
+  }
+}
+/* FullCalendar styling */
 .fc {
   font-family: "Gilroy" !important;
-  /* background-color: darkgray */
 }
 
 .fc .fc-toolbar {
-  background-color: inherit
+  background-color: var(--fc-toolbar-bg);
 }
 
 .fc .fc-toolbar-title {
@@ -20,58 +46,31 @@
 
 .fc .fc-button {
   font-size: 0.8rem !important; /* Increases button text size */
-  padding: 5px !important;    
+  padding: 5px !important;
   border-radius: 999999px;
-  background-color: #4B4B4B
-}
-
-/* Remove any border around events */
-.fc-event {
-  border: none !important;  /* Removes any borders around the event */
-  box-shadow: none !important; /* Removes shadow if any */
-}
-
-/* Remove the border when an event is focused or active (clicked) */
-.fc-event:focus,
-.fc-event:active {
-  outline: none !important; /* Removes the focus outline */
-  border: none !important;  /* Ensures no border on focus */
-}
-
-/* Remove the hover border (if any) */
-.fc-event:hover {
-  border: none !important;  /* Ensures no border on hover */
-}
-
-/* rounded edges */
-.fc-col-header {
-  /* background-color: darkgray;  */
-  border-radius: 10px 10px 0px 0px !important;
   background-color: #4B4B4B;
-  color: white;
 }
 
-.fc-scrollgrid-section > td {
-  border-radius: 0px 0px 10px 10px !important;
+/* Header row */
+.fc-col-header {
+  border-radius: 10px 10px 0px 0px !important;
+  background-color: var(--fc-header-bg);
+  color: var(--fc-header-text);
 }
 
-.fc-scrollgrid-section > th {
-  border-radius: 0px 10px 0px 0px !important;
-}
-
-.fc-scrollgrid {
-  border-radius: 11px !important;
-}
-
-
+/* Daygrid and calendar background */
 .fc .fc-view-harness, 
 .fc .fc-daygrid {
-  border-radius: 10px; 
-  background-color: #E8E8E8;
-  color: black;
-} 
+  border-radius: 12px;
+  background-color: var(--fc-bg);
+  color: var(--fc-text);
+}
 
+/* Event styling */
 .fc .fc-event {
+  border: none !important;
+  box-shadow: none !important;
+  background-color: var(--fc-event-bg);
   border-radius: 16px;
   font-size: 0.6rem;
   font-weight: 600;
@@ -79,23 +78,41 @@
   white-space: normal;
 }
 
-/* Increase the height of the col-header row */
-.fc .fc-col-header-cell {
-  font-size: large;
-  height: 25px !important; /* Adjust this value as needed */
-  line-height: 40px !important; /* Center text vertically */
-  padding: 5px 0 !important; /* Adjust padding for more spacing */
+/* Custom styles for "today" day */
+.fc .fc-day-today {
+  background-color: transparent !important;
+  color: inherit !important;
+  border: none !important;
 }
 
+/* Circle around today's date */
+.fc .fc-day-today .fc-daygrid-day-number {
+  border: 2px solid var(--fc-today-circle);
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: var(--fc-today-text);
+  margin-top: 3px;
+  margin-left: auto; /* Align the circle to the right */
+}
 
-/* Remove borders from table headers and cells */
-.fc-col-header-cell,
-/* .fc-daygrid-day, */
+/* Header cell adjustments */
+.fc .fc-col-header-cell {
+  font-size: large;
+  height: 25px !important;
+  line-height: 40px !important;
+  padding: 5px 0 !important;
+}
 
-.fc-scrollgrid-section,
-.fc-scrollgrid-sync-inner,
-.fc-scrollgrid
-{
+/* Remove borders */
+.fc-col-header-cell, 
+.fc-scrollgrid-section, 
+.fc-scrollgrid-sync-inner, 
+.fc-scrollgrid {
   border: none !important;
 }
 
@@ -105,48 +122,16 @@
   border: none !important;
 }
 
-
-/* Remove the default highlight for the "today" day */
-.fc .fc-day-today {
-  background-color: transparent !important;
-  color: inherit !important;
-  border: none !important;
-}
-
-/* Add a perfect circle around the date number and align it to the right */
-.fc .fc-day-today .fc-daygrid-day-number {
-  border: 2px solid #ffa500; /* Orange circle */
-  border-radius: 50%; /* Round shape */
-  width: 30px; /* Set equal width and height */
-  height: 30px; /* Set equal width and height */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  color: white;
-  
-  /* Align to the right */
-  margin-top: 3px;
-  margin-left: auto; /* Pushes the circle to the right */
-}
-
-
-
+/* Adjust title and button font sizes for smaller screens */
 @media (max-width: 768px) {
-/* Increase specificity with the following */
-.fc .fc-toolbar-title {
-  font-size: 2rem !important; /* Increases title size */
-}
+  .fc .fc-toolbar-title {
+    font-size: 2rem !important;
+  }
 
-.fc .fc-button {
-  font-size: 0.8rem !important; /* Increases button text size */
-  /* padding: 5px !important; */
+  .fc .fc-button {
+    font-size: 0.8rem !important;
+  }
 }
-
-.fc .fc-toolbar {
-}
-}
-/* styles/globals.css */
 
 @font-face {
   font-family: 'Gilroy';

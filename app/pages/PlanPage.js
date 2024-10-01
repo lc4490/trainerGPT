@@ -937,7 +937,7 @@ const PlanPage = () => {
             </Box>
           </Box>
           {isMobile && (<Divider />)}
-          <Stack flexDirection = "column" width = "100%" height = "100%" paddingX = {2.5}>
+          <Stack flexDirection = "column" width = "100%" height = "100%" paddingTop = {3.5}>
             <Stack
                 width = "100%"
                 id = "draggable-el"
@@ -953,7 +953,7 @@ const PlanPage = () => {
                 // paddingTop={5}
                 paddingBottom={2}
                 >
-                  <Box sx={{ width: isMobile ? "100%" : "auto"}}> {/* Full width for the container */}
+                  <Box sx={{ width: isMobile ? "100%" : "auto"}} paddingX = {2.5}> {/* Full width for the container */}
                     <Box 
                       sx={{
                         width: isMobile ? "250px": "auto", // Set width explicitly within the container
@@ -962,7 +962,7 @@ const PlanPage = () => {
                       <Typography>{t("Drag and drop workouts into your schedule:")}</Typography>
                     </Box>
                   </Box>
-                  <Box display={"flex"} flexDirection={"row"} overflow={"scroll"} gap = {isMobile ? 1 : 2.5}>
+                  <Box display={"flex"} flexDirection={"row"} overflow={"scroll"} gap = {isMobile ? 1 : 2.5} paddingLeft= {2.5}>
                     {
                       events.map(event => {
                       
@@ -1011,6 +1011,8 @@ const PlanPage = () => {
               height = "100%"
               overflow= "scroll"
               backgroundColor="background.default"
+              marginTop={3.5}
+              paddingX = {2.5}
               >
                 <FullCalendar
                   plugins = {[
@@ -1065,6 +1067,29 @@ const PlanPage = () => {
                       eventElement.style.backgroundColor = info.event.backgroundColor;
                     }
                   }}
+
+                  /* Add logic to change the circle color for today */
+                  dayCellDidMount={(info) => {
+                    const dayElement = info.el;
+                    const date = info.date; // The date object for the day
+
+                    // Calculate which week this day belongs to (for example purposes, week starts on Sunday)
+                    const weekOfMonth = Math.ceil((date.getDate() + new Date(date.getFullYear(), date.getMonth(), 1).getDay()) / 7);
+
+                    // Get the corresponding color from the gradient (you could also use a pre-defined set of colors based on week number)
+                    const gradientColors = ['#224061', '#433B5F', '#6A385C', '#923258', '#BB2D55'];
+                    const colorForWeek = gradientColors[weekOfMonth - 1]; // Select color based on week
+
+                    // Apply the color only to the circle around the date number (for the current day)
+                    if (dayElement.classList.contains('fc-day-today')) {
+                      const dateNumberElement = dayElement.querySelector('.fc-daygrid-day-number');
+                      if (dateNumberElement) {
+                        dateNumberElement.style.border = `2px solid ${colorForWeek}`;
+                        dateNumberElement.style.backgroundColor = `${colorForWeek}`;
+                      }
+                    }
+                  }}
+                  dayHeaderFormat={{weekday: 'narrow'}}
                 />
                 
             </Box>

@@ -537,7 +537,7 @@ export default function Home() {
       {/* light/dark mode */}
       <ThemeProvider theme={currentTheme}>
         <CssBaseline />
-        {true ? (
+        {user ? (
           <>
         {mounted && !isTutorialComplete && isSummary && (
         <JoyRide 
@@ -866,52 +866,99 @@ export default function Home() {
                 <UserButton />
                 )}
             </Box>
-            </Box>
-            <StepForm
-              steps={steps}
-              currentStep={currentStep}
-              formData={formData}
-              handleInputChange={handleInputChange}
-              handleKeyPressStep={handleKeyPressStep}
-              handleWeightUnitChange={handleWeightUnitChange}
-              weightUnit={weightUnit}
-              handleHeightUnitChange={handleHeightUnitChange}
-              heightUnit={heightUnit}
-              handleFeetChange={handleFeetChange}
-              feet={feet}
-              handleInchesChange={handleInchesChange}
-              inches={inches}
-              t={t}
-              nextStep={nextStep}
-              prevStep={prevStep}
-              handleSubmit={handleSubmit}
-            />
+          </Box>
+          <StepForm
+            steps={steps}
+            currentStep={currentStep}
+            formData={formData}
+            handleInputChange={handleInputChange}
+            handleKeyPressStep={handleKeyPressStep}
+            handleWeightUnitChange={handleWeightUnitChange}
+            weightUnit={weightUnit}
+            handleHeightUnitChange={handleHeightUnitChange}
+            heightUnit={heightUnit}
+            handleFeetChange={handleFeetChange}
+            feet={feet}
+            handleInchesChange={handleInchesChange}
+            inches={inches}
+            t={t}
+            nextStep={nextStep}
+            prevStep={prevStep}
+            handleSubmit={handleSubmit}
+          />
     
           </>
         )}
         </>
         ) : (
-          <Box width = "100%" height = "100vh" display = "flex" justifyContent={"center"} alignItems="center" flexDirection={"column"}>
+          <Box width = "100%" height = "100vh" display = "flex" justifyContent={"center"} alignItems="center" flexDirection={"column"} gap = {2}>
             <Box><Typography variant="h4">Welcome to trAIner</Typography></Box>
-            <Button 
-                    color="inherit"
-                    href = "/sign-in"
-                    sx={{
-                    // justifyContent: "end",
-                    // right: "2%",
-                    backgroundColor: 'background.default',
-                    color: 'text.primary',
-                    borderColor: 'text.primary',
-                    justifyContent: 'center',
-                    '&:hover': {
-                        backgroundColor: 'text.primary',
-                        color: 'background.default',
-                        borderColor: 'text.primary',
+            {/* <FormControl 
+                sx={{ 
+                width: isMobile ? '100px' : '100px',
+                minWidth: '100px',
+                }}
+            >
+                <Select
+                value={prefLanguage}
+                onChange={handleLanguageChange}
+                disableunderline="true"
+                displayEmpty
+                renderValue={(selected) => {
+                    if (!selected) {
+                    return <span>{t('English')}</span>;
+                    }
+                    const selectedItem = {
+                    en: 'English',
+                    cn: '中文（简体）',
+                    tc: '中文（繁體）',
+                    es: 'Español',
+                    fr: 'Français',
+                    de: 'Deutsch',
+                    jp: '日本語',
+                    kr: '한국어'
+                    }[selected];
+                    return <span>{selectedItem}</span>;
+                }}
+                sx={{
+                    '& .MuiSelect-select': {
+                    paddingTop: '10px',
+                    paddingBottom: '10px',
                     },
-                    }}
+                    '& .MuiSelect-icon': {
+                    color: 'text.primary',
+                    },
+                }}
                 >
+                <MenuItem value="en">English</MenuItem>
+                <MenuItem value="cn">中文（简体）</MenuItem>
+                <MenuItem value="tc">中文（繁體）</MenuItem>
+                <MenuItem value="es">Español</MenuItem>
+                <MenuItem value="fr">Français</MenuItem>
+                <MenuItem value="de">Deutsch</MenuItem>
+                <MenuItem value="jp">日本語</MenuItem>
+                <MenuItem value="kr">한국어</MenuItem>
+                </Select>
+            </FormControl> */}
+            <Button 
+              color="inherit"
+              href = "/sign-in"
+              sx={{
+              // justifyContent: "end",
+              // right: "2%",
+              backgroundColor: 'background.default',
+              color: 'text.primary',
+              borderColor: 'text.primary',
+              justifyContent: 'center',
+              '&:hover': {
+                  backgroundColor: 'text.primary',
+                  color: 'background.default',
+                  borderColor: 'text.primary',
+              },
+              }}
+            >
                     {t('signIn')}
-                </Button>
+            </Button>
           </Box>
         )
         }

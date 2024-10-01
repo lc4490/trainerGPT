@@ -36,7 +36,7 @@ const Header = ({ isEditing, setEditModal, handleSignInClick, handleInfoModal, i
             
             {/* Title */}
             <Box display="flex" flexDirection={"row"} alignItems={"center"} gap ={1}>
-            <Typography variant="h6" color="text.primary" textAlign="center">
+            <Typography variant="h6" color="text.primary" textAlign="center" sx = {{fontWeight: "800"}}>
                 {t('My Info')}
             </Typography>
             <Button 

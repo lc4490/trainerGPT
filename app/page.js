@@ -736,11 +736,11 @@ export default function Home() {
                   alignItems: 'center',
                 }}
               >
-                <BottomNavigationAction id={'myinfo-step'} label={t("My Info")} icon={<HomeIcon />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
-                <BottomNavigationAction id={'equipment-step'} label={t("myEquipment")} icon={<FitnessCenter />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
-                <BottomNavigationAction id={'trainer-step'} label={t("trainerGPT")} icon={<Person />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
-                <BottomNavigationAction id={'plan-step'} label={t("myPlanner")} icon={<CalendarToday />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
-                <BottomNavigationAction id={'pantry-step'} label={t("myPantry")} icon={<LocalDiningIcon />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+                <BottomNavigationAction id={'myinfo-step'} label={t("Home")} icon={<HomeIcon />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+                <BottomNavigationAction id={'equipment-step'} label={t("Equipment")} icon={<FitnessCenter />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+                <BottomNavigationAction id={'trainer-step'} label={t("trAIner")} icon={<Person />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+                <BottomNavigationAction id={'plan-step'} label={t("Planner")} icon={<CalendarToday />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
+                <BottomNavigationAction id={'pantry-step'} label={t("Pantry")} icon={<LocalDiningIcon />} showLabel sx={{ '& .MuiBottomNavigationAction-label': { fontFamily: '"Gilroy", "Arial", sans-serif', } }}/>
               </BottomNavigation>
               </Box>
               )}

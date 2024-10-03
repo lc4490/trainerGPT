@@ -72,7 +72,7 @@ const resources = {
       "Sign out failed: ": "Sign out failed: ",
       "Guest": "Guest",
       "Loading...": "Loading...",
-      "My Info": "myInfo",
+      "Home": "Home",
       "signIn": "Sign In",
       "signOut": "Sign Out",
       "Edit": "Edit",

@@ -953,7 +953,7 @@ const PlanPage = () => {
                 // paddingTop={5}
                 paddingBottom={2}
                 >
-                  <Box sx={{ width: isMobile ? "100%" : "auto"}} paddingX = {2.5}> {/* Full width for the container */}
+                  <Box sx={{ width: isMobile ? "100%" : "auto"}} paddingX = {isMobile ? 2.5 : 0}> {/* Full width for the container */}
                     <Box 
                       sx={{
                         width: isMobile ? "250px": "auto", // Set width explicitly within the container
@@ -962,7 +962,7 @@ const PlanPage = () => {
                       <Typography>{t("Drag and drop workouts into your schedule:")}</Typography>
                     </Box>
                   </Box>
-                  <Box display={"flex"} flexDirection={"row"} overflow={"scroll"} gap = {isMobile ? 1 : 2.5} paddingLeft= {2.5}>
+                  <Box display={"flex"} flexDirection={"row"} overflow={"scroll"} gap = {isMobile ? 1 : 2.5} paddingLeft= {isMobile ? 2.5 : 0}>
                     {
                       events.map(event => {
                       
@@ -1012,7 +1012,7 @@ const PlanPage = () => {
               overflow= "scroll"
               backgroundColor="background.default"
               marginTop={3.5}
-              paddingX = {2.5}
+              paddingX = {isMobile ? 2.5 : 0}
               >
                 <FullCalendar
                   plugins = {[

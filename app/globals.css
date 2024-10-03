@@ -20,10 +20,10 @@
 /* Dark mode colors */
 @media (prefers-color-scheme: dark) {
   :root {
-    --fc-header-bg: #E8E8E8;
-    --fc-header-text: black;
-    --fc-bg: #4B4B4B;
-    --fc-text: white;
+    --fc-header-bg: #4B4B4B;
+    --fc-header-text: white;
+    --fc-bg: #E8E8E8;
+    --fc-text: black;
     --fc-event-bg: #224061;
     --fc-today-circle: #BB2D55;
     --fc-today-text: white;

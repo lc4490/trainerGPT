@@ -724,7 +724,8 @@ export default function Home() {
               <Box
                 width="100px"
                 height="750px"
-                // backgroundColor="red"
+                paddingBottom="25px"
+                backgroundColor="red"
               >
                 <BottomNavigation
                   orientation="vertical"

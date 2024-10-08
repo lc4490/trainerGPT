@@ -97,6 +97,7 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                                         justifyContent="space-between"
                                         alignItems="center"
                                         padding={1}
+                                        // paddingX={2.5}
                                         sx={{
                                             background: eventBackground, // Apply gradient background here
                                             borderRadius: '10px',
@@ -109,7 +110,7 @@ const HomePage = ({isMobile, user, plan, allEvents, handleWorkoutModal, isToday,
                                                 Scheduled for {isToday(start) ? 'Today' : new Date(start).toLocaleDateString('en-US', { weekday: 'long' })}
                                             </Typography>
                                         </Stack>
-                                        <Typography sx={{ fontWeight: "900", textAlign: "left", fontSize: isMobile ? "1rem" : "2rem" }}>
+                                        <Typography sx={{ fontWeight: "900", textAlign: "center", fontSize: isMobile ? "1rem" : "2rem" }}>
                                             {title}
                                         </Typography>
                                     </Box>

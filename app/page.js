@@ -648,6 +648,7 @@ export default function Home() {
         scrollToFirstStep
         showSkipButton
         showProgress
+        spotlightPadding={0} // Add or adjust padding here
         styles={{
           options: {
             arrowColor: currentTheme.palette.background.paper, // Match the tooltip background
@@ -670,13 +671,13 @@ export default function Home() {
           tooltip: {
             borderRadius: '8px', // Rounded corners for the tooltip
             boxShadow: currentTheme.shadows[3], // Use MUI shadow for consistency
-            padding: '16px', // Padding inside the tooltip
+            padding: '12px', // Padding inside the tooltip
           },
           tooltipContainer: {
             textAlign: 'left', // Align text to the left for readability
           },
           tooltipTitle: {
-            marginBottom: '8px', // Space below the title
+            // marginBottom: '8px', // Space below the title
             fontSize: '1.25rem', // Title font size
             fontWeight: 'bold', // Bold title
             color: currentTheme.palette.text.primary, // Title color

@@ -240,7 +240,7 @@ const ChatLog = ({
         <Button
           variant="outlined"
           onClick={sendMessage}
-          disabled={isLoading}
+          disabled={isLoading || isListening}
           sx={{
             color: 'text.primary',
             borderColor: 'text.primary',
@@ -265,7 +265,7 @@ const ChatLog = ({
             }
           }}
           variant="outlined"
-          disabled={isLoading}
+          disabled={isLoading || isListening}
           sx={{
             color: 'text.primary',
             borderColor: 'text.primary',

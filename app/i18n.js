@@ -167,6 +167,7 @@ const resources = {
       "Select the number of workout days":"Select the number of workout days",
       "myPlanner":"myPlanner",
       "Drag workouts into Calendar:":"Drag workouts into Calendar:",
+      "Welcome to trAIner":"Welcome to trAIner",
     }
   },
   cn: {
@@ -327,6 +328,7 @@ const resources = {
       "Select the number of workout days": "选择锻炼天数",
       "myPlanner": "我的计划",
       "Drag workouts into Calendar:": "将锻炼拖入日历：",
+      "Welcome to trAIner": "欢迎使用trAIner",
     }
   },
   tc: {
@@ -487,6 +489,7 @@ const resources = {
       "Select the number of workout days": "選擇鍛鍊天數",
       "myPlanner": "我的計劃",
       "Drag workouts into Calendar:": "將鍛鍊拖入日曆：",
+      "Welcome to trAIner": "歡迎使用trAIner",
     }
   },
   es: {
@@ -647,6 +650,7 @@ const resources = {
       "Select the number of workout days": "Selecciona el número de días de entrenamiento",
       "myPlanner": "miPlanificador",
       "Drag workouts into Calendar:": "Arrastra los entrenamientos al calendario:",
+      "Welcome to trAIner": "Bienvenido a trAIner",
     }
   },
   fr: {
@@ -807,6 +811,7 @@ const resources = {
       "Select the number of workout days": "Sélectionnez le nombre de jours d'entraînement",
       "myPlanner": "monPlanificateur",
       "Drag workouts into Calendar:": "Glissez les entraînements dans le calendrier :",
+      "Welcome to trAIner": "Bienvenue sur trAIner",
     }
   },
   de: {
@@ -967,6 +972,7 @@ const resources = {
       "Select the number of workout days": "Wählen Sie die Anzahl der Trainingstage",
       "myPlanner": "meinPlaner",
       "Drag workouts into Calendar:": "Ziehen Sie die Workouts in den Kalender:",
+      "Welcome to trAIner": "Willkommen bei trAIner",
     }
   },
   jp: {
@@ -1126,6 +1132,7 @@ const resources = {
       "Select the number of workout days": "ワークアウト日数を選択してください",
       "myPlanner": "マイプランナー",
       "Drag workouts into Calendar:": "ワークアウトをカレンダーにドラッグ:",
+      "Welcome to trAIner": "trAInerへようこそ",
     }
   },
   kr: {
@@ -1285,6 +1292,7 @@ const resources = {
       "Select the number of workout days": "운동 일수를 선택하세요",
       "myPlanner": "내 플래너",
       "Drag workouts into Calendar:": "운동을 캘린더로 드래그하세요:",
+      "Welcome to trAIner": "trAIner에 오신 것을 환영합니다",
     }
   }
 };

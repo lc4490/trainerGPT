@@ -207,6 +207,35 @@ export default function Home() {
     setPrefLanguage(newLanguage);
     changeLanguage(newLanguage);
   };
+
+  useEffect(() => {
+    const userLanguage = navigator.language || navigator.languages[0]; // Get the preferred language
+    // console.log(userLanguage)
+    setPrefLanguage(getLanguage(userLanguage));
+    i18n.changeLanguage(getLanguage(userLanguage))
+    
+    // Optional: Automatically change the app's language based on the detected language
+    // i18n.changeLanguage(userLanguage.split('-')[0]); // Changes language to the detected one (e.g., 'en' from 'en-US')
+  }, []);
+
+  // Function to handle custom locale mapping
+  const getLanguage = (language) => {
+    if (language === 'zh-CN') {
+      return 'cn';  // Map 'cn' or 'tc' to 'zh' for Chinese
+    }
+    if(language === 'zh-TW'){
+      return 'tc'
+    }
+    if(language ==='ja-JP'){
+      return 'jp'
+    }
+    if(language ==='ko-KR'){
+      return 'kr'
+    }
+    return language.split("-")[0]; // Default to the selected language
+  };
+
+
   const isMobile = useMediaQuery('(max-width:600px)'); // Adjust the max-width as necessary
 
   // step form
@@ -981,72 +1010,28 @@ export default function Home() {
           </>
         ) : (
           <Box width = "100%" height = "100vh" display = "flex" justifyContent={"center"} alignItems="center" flexDirection={"column"} gap = {2}>
-            <Box><Typography variant="h4">Welcome to trAIner</Typography></Box>
-            {/* <FormControl 
-                sx={{ 
-                width: isMobile ? '100px' : '100px',
-                minWidth: '100px',
-                }}
-            >
-                <Select
-                value={prefLanguage}
-                onChange={handleLanguageChange}
-                disableunderline="true"
-                displayEmpty
-                renderValue={(selected) => {
-                    if (!selected) {
-                    return <span>{t('English')}</span>;
-                    }
-                    const selectedItem = {
-                    en: 'English',
-                    cn: '中文（简体）',
-                    tc: '中文（繁體）',
-                    es: 'Español',
-                    fr: 'Français',
-                    de: 'Deutsch',
-                    jp: '日本語',
-                    kr: '한국어'
-                    }[selected];
-                    return <span>{selectedItem}</span>;
-                }}
-                sx={{
-                    '& .MuiSelect-select': {
-                    paddingTop: '10px',
-                    paddingBottom: '10px',
-                    },
-                    '& .MuiSelect-icon': {
-                    color: 'text.primary',
-                    },
-                }}
-                >
-                <MenuItem value="en">English</MenuItem>
-                <MenuItem value="cn">中文（简体）</MenuItem>
-                <MenuItem value="tc">中文（繁體）</MenuItem>
-                <MenuItem value="es">Español</MenuItem>
-                <MenuItem value="fr">Français</MenuItem>
-                <MenuItem value="de">Deutsch</MenuItem>
-                <MenuItem value="jp">日本語</MenuItem>
-                <MenuItem value="kr">한국어</MenuItem>
-                </Select>
-            </FormControl> */}
+            <Box paddingBottom="50px"><Typography variant="h4">{t("Welcome to trAIner")}</Typography></Box>
             <Button 
               color="inherit"
               href = "/sign-in"
               sx={{
+              width: "300px",
+              borderRadius: "99999px",
               // justifyContent: "end",
               // right: "2%",
-              backgroundColor: 'background.default',
-              color: 'text.primary',
+              // backgroundColor: 'text.primary',
+              background: 'linear-gradient(90deg, #224061 00%, #BB2D55 100%)', 
+              color: 'white',
               borderColor: 'text.primary',
               justifyContent: 'center',
               '&:hover': {
-                  backgroundColor: 'text.primary',
+                  // backgroundColor: 'text.primary',
                   color: 'background.default',
-                  borderColor: 'text.primary',
+                  // borderColor: 'text.primary',
               },
               }}
             >
-                    {t('signIn')}
+                    {t('Get Started')}
             </Button>
           </Box>
         )

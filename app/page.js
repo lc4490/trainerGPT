@@ -192,8 +192,8 @@ export default function Home() {
     <EquipmentPage key="equipment" />,
     <TrainerGPTPage key="trainerGPT" />,
     // <NutritionPage key = "nutrition" />,
-    <SessionContextProvider supabaseClient={supabase}>
-      <PlanPage key="plan" />
+    <SessionContextProvider  key="plan" supabaseClient={supabase}>
+      <PlanPage/>
     </SessionContextProvider>,
     hasPremiumAccess ? <NutritionPage key="nutrition" /> : <PaywallPageWithStripe key="paywall" />,
   ];

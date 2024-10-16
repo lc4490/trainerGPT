@@ -70,6 +70,15 @@ const darkTheme = createTheme({
 // guest mode
 export const GuestContext = createContext();
 
+// google calendar
+import { createClient } from '@supabase/supabase-js';
+import { SessionContextProvider } from '@supabase/auth-helpers-react';
+
+const supabase = createClient(
+  "https://qjbowyszwgmfuebxhotn.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqYm93eXN6d2dtZnVlYnhob3RuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjkwOTU0MjEsImV4cCI6MjA0NDY3MTQyMX0.P_oqYr2EA9RkBBTjkafYLzwwdMnIR9o03cErVokXvyg",
+)
+
 export default function Home() {
   // router
   const router = useRouter();
@@ -183,7 +192,9 @@ export default function Home() {
     <EquipmentPage key="equipment" />,
     <TrainerGPTPage key="trainerGPT" />,
     // <NutritionPage key = "nutrition" />,
-    <PlanPage key="plan" />,
+    <SessionContextProvider supabaseClient={supabase}>
+      <PlanPage key="plan" />
+    </SessionContextProvider>,
     hasPremiumAccess ? <NutritionPage key="nutrition" /> : <PaywallPageWithStripe key="paywall" />,
   ];
 

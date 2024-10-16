@@ -32,6 +32,11 @@ import allLocales from '@fullcalendar/core/locales-all';
 
 import { lightTheme, darkTheme } from '../theme';
 import { customComponents } from '../customMarkdownComponents'; 
+
+// google calendar
+import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
+// import { listEvents, createEvent, updateEvent, deleteEvent } from '../../utils/googleCalendar';
+
   
   
 const PlanPage = () => {
@@ -267,7 +272,7 @@ const PlanPage = () => {
           title: data.event.title,
           details: data.event.extendedProps.details, // Assuming details are stored in extendedProps
         });
-        setIdToDelete(Number(data.event.id))
+        setIdToDelete(data.event.id)
       };
       const handleCloseModal = () => {
           setSelectedEvent(null);
@@ -315,6 +320,15 @@ const PlanPage = () => {
           setGuestEvents(guestEvents.filter(event => Number(event.id) !== Number(idToDelete)));
           setGuestEvents([...guestEvents, updatedEvent]);
         }
+        if(session){
+          deleteCalendarEvent(event.id)
+          
+          setGoogleEventTitle(event.title)
+          setGoogleEventDesc(event.extendedProps.details)
+          setGoogleEventDate(event.start)
+          getDefaultTimes()
+          setTimeModalOpen(true)
+        }
       };
       
     
@@ -337,7 +351,6 @@ const PlanPage = () => {
             details: eventDetails, // Use the details from the selected event
           },
         };
-      
         // Add the new event to the `allEvents` array
         if(user){
           setAllEvents([...allEvents, event]);
@@ -345,16 +358,29 @@ const PlanPage = () => {
         else{
           setGuestEvents([...guestEvents, event]);
         }
+
+        if(session){
+          
+          setGoogleEventTitle(eventTitle)
+          setGoogleEventDesc(eventDetails)
+          setGoogleEventDate(data.date)
+          getDefaultTimes()
+          setTimeModalOpen(true)
+        }
       };
       
       const handleDelete = async () => {
+        
         if(user){
-          setAllEvents(allEvents.filter(event => Number(event.id) !== Number(idToDelete)))
+          setAllEvents(allEvents.filter(event => (event.id) !== (idToDelete)))
         }
         else{
-          setGuestEvents(guestEvents.filter(event => Number(event.id) !== Number(idToDelete)));
+          setGuestEvents(guestEvents.filter(event => (event.id) !== (idToDelete)));
         }
         handleCloseModal()
+        if(session){
+          deleteCalendarEvent(idToDelete)
+        }
         setIdToDelete(null)
       }
 
@@ -371,6 +397,8 @@ const PlanPage = () => {
             details: "",
           },
         })
+        setGoogleEventDate(data.date)
+        getDefaultTimes()
       }
 
       const handleChange = (value) => {
@@ -381,6 +409,10 @@ const PlanPage = () => {
       }
 
       const handleSubmit = () => {
+        if(session){
+          setGoogleEventTitle(newEvent.title)
+          setTimeModalOpen(true)
+        }
         if(user){
           setAllEvents([...allEvents, newEvent])
         }
@@ -420,7 +452,7 @@ const PlanPage = () => {
           }
         };
       
-        if (allEvents.length >= 0) {
+        if (allEvents?.length >= 0) {
           updateEventsInFirestore();
         }
       }, [allEvents, user]);
@@ -536,6 +568,152 @@ const PlanPage = () => {
         return weekOfMonth;
       };
 
+      // google calendar
+      const session = useSession()
+      const supabase = useSupabaseClient()
+
+      async function googleSignIn() {
+         const {error} = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            scopes: 'https://www.googleapis.com/auth/calendar'
+          }
+         })
+         if(error){
+          alert("Syncing error")
+          console.log(error)
+         }
+      }
+
+      async function signOut() {
+        await supabase.auth.signOut();
+      }
+
+      const [timeModalOpen, setTimeModalOpen] = useState(false);
+      // const [eventData, setEventData] = useState({});
+
+      const [googleEventTitle, setGoogleEventTitle] = useState("")
+      const [googleEventDesc, setGoogleEventDesc] = useState("")
+      const [googleEventDate, setGoogleEventDate] = useState("")
+      const [startTime, setStartTime] = useState(new Date());
+      const [endTime, setEndTime] = useState(new Date());
+      const handleStartTimeChange = (e) => setStartTime(e.target.value);
+      const handleEndTimeChange = (e) => setEndTime(e.target.value);
+
+      const getDefaultTimes = () => {
+        const now = new Date();
+    
+        // Calculate the next full hour
+        const nextHour = new Date(now);
+        nextHour.setHours(now.getHours() + 1, 0, 0, 0); // Set to the next hour (00 minutes)
+    
+        // Calculate one hour after the next full hour for the end time
+        const oneHourLater = new Date(nextHour);
+        oneHourLater.setHours(nextHour.getHours() + 1);
+    
+        // Format time to be in HH:MM format (24-hour time)
+        const formatTime = (date) => {
+          return date.toISOString().slice(11, 16); // Extract 'HH:MM' from 'YYYY-MM-DDTHH:MM:SS.sssZ'
+        };
+    
+        setStartTime(formatTime(nextHour));
+        setEndTime(formatTime(oneHourLater));
+      };
+
+      const combineDateAndTime = (googleEventDate, start, end) => {
+        // Ensure `googleEventDate` is a Date object
+        const date = new Date(googleEventDate); 
+      
+        // Parse the start time (e.g., "18:00")
+        const [startHours, startMinutes] = start.split(':').map(Number);
+        
+        // Create a new Date object for the start time, setting hours and minutes
+        const startDateTime = new Date(date);
+        startDateTime.setHours(startHours, startMinutes, 0, 0); // Set hours, minutes, seconds, and milliseconds
+      
+        // Parse the end time (e.g., "19:00")
+        const [endHours, endMinutes] = end.split(':').map(Number);
+        
+        // Create a new Date object for the end time, setting hours and minutes
+        const endDateTime = new Date(date);
+        endDateTime.setHours(endHours, endMinutes, 0, 0); // Set hours, minutes, seconds, and milliseconds
+      
+        return { startDateTime, endDateTime };
+      };
+
+      async function listCalendarEvents() {
+        await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
+          method: "GET",
+          headers:{
+            "Authorization": "Bearer " + session?.provider_token
+          },
+        }).then((data) => {
+          return data.json();
+        }).then((data) => {
+          const events = data.items
+          setAllEvents(events?.map(event => ({
+            id: event.id,
+            title: event.summary,
+            start: event.start.dateTime || event.start.date,
+            end: event.end.dateTime || event.end.date,
+            allDay: !event.start.dateTime,
+            extendedProps: {
+              details: event.description || null
+            },
+          })));
+        })
+      }
+      useEffect(() => {
+        console.log("session refresh")
+        listCalendarEvents();
+      }, [session])
+
+      async function createCalendarEvent() {
+        console.log(startTime)
+        console.log(endTime)
+        const { startDateTime, endDateTime } = combineDateAndTime(googleEventDate, startTime, endTime);
+        console.log(startDateTime)
+        console.log(endDateTime)
+        const event = {
+          "summary": googleEventTitle,
+          "description": googleEventDesc,
+          "start": {
+            "dateTime": startDateTime.toISOString(),
+            "timeZone": Intl.DateTimeFormat().resolvedOptions().timeZone,
+          },
+          "end": {
+            "dateTime": endDateTime.toISOString(),
+            "timeZone": Intl.DateTimeFormat().resolvedOptions().timeZone,
+          }
+        }
+        await fetch("https://www.googleapis.com/calendar/v3/calendars/primary/events", {
+          method: "POST",
+          headers:{
+            "Authorization": "Bearer " + session.provider_token
+          },
+          body: JSON.stringify(event)
+        }).then((data) => {
+          return data.json();
+        }).then((data) => {
+          console.log(data)
+        })
+        setGoogleEventTitle("")
+        setGoogleEventDesc("")
+        setGoogleEventDate("")
+        setStartTime(new Date())
+        setEndTime(new Date())
+      }
+    
+      async function deleteCalendarEvent(id) {
+        await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${id}`, {
+          method: "DELETE",
+          headers:{
+            "Authorization": "Bearer " + session.provider_token
+          },
+        })
+
+      }
+      
     return(
         // light/dark theming
         <ThemeProvider theme={theme}>
@@ -640,7 +818,7 @@ const PlanPage = () => {
                 flexDirection: 'column',
                 borderRadius: "15px",
               }}>
-                <Typography variant="h6" component="h2" fontWeight='600'>
+                <Typography component="h2" fontWeight='600'>
                     {t("How to use:")}
                   </Typography>
                   <Typography sx={{ mt: 2 }}>
@@ -834,6 +1012,73 @@ const PlanPage = () => {
               </Stack>
             </Box>
           </Modal>
+          {/* time set modal */}
+          <Modal open = {timeModalOpen} onClose = {() => setTimeModalOpen(false)}>
+            <Box
+              overflow="auto"
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 400,
+                height: 400,
+                bgcolor: 'background.default',
+                borderRadius: 1,
+                boxShadow: 24,
+                p: 4,
+                gap: 2,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <Typography>Start Time</Typography>
+              <TextField
+                // Set input type to time and force 24-hour format
+                type="time"
+                value={startTime}
+                onChange={handleStartTimeChange}
+                fullWidth
+                margin="normal"
+                inputProps={{
+                  step: 3600, // Set step to 3600 seconds (1 hour)
+                }}
+              />
+              <Typography>End Time</Typography>
+              <TextField
+                // Set input type to time and force 24-hour format
+                type="time"
+                value={endTime}
+                onChange={handleEndTimeChange}
+                fullWidth
+                margin="normal"
+                inputProps={{
+                  step: 3600, // Set step to 3600 seconds (1 hour)
+                }}
+              />
+              <Button
+                onClick={()=> {
+                  createCalendarEvent()
+                  setTimeModalOpen(false)
+                }}
+                sx={{
+                  width: "100%",
+                  justifyContent: "end",
+                  right: "2%",
+                  backgroundColor: '#90EE90',
+                  color: 'black',
+                  borderColor: 'text.primary',
+                  justifyContent: 'center',
+                  alignItems: "center",
+                  '&:hover': {
+                      backgroundColor: 'text.primary',
+                      color: 'background.default',
+                      borderColor: 'text.primary',
+                  },
+                  }}>Save</Button>
+            </Box>
+
+          </Modal>
           {/* header box */}
           <Box
             height="10%"
@@ -845,7 +1090,7 @@ const PlanPage = () => {
             alignItems="center"
             position="relative"
           >
-            <Button 
+            {/* <Button 
               variant="outlined" 
               onClick={handleMenuClick}
               sx={{
@@ -889,11 +1134,20 @@ const PlanPage = () => {
                 />
               </MenuItem>
               <MenuItem onClick={() => handleMenuClose('export')}>Export</MenuItem>
-            </Menu>
+            </Menu> */}
+            {session ? 
+            <>
+              <Button onClick={()=> signOut()}>Unsync</Button>
+            </>
+            :
+            <>
+              <Button onClick={()=> googleSignIn()}>Sync Calendar</Button>
+            </>
+            }
             
             {/* title */}
             <Box display="flex" flexDirection={"row"} alignItems={"center"} gap={1}>
-              <Typography variant="h6" color="text.primary" textAlign="center" sx = {{fontWeight: "800"}}>
+              <Typography color="text.primary" textAlign="center" sx = {{fontWeight: "800"}}>
                 {t('myPlanner')}
               </Typography>
               <Button 

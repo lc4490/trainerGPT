@@ -359,7 +359,7 @@ const EquipmentPage = () => {
             setSearchTerm={setSearchTerm}
             t={t}/>
             
-            <Grid container spacing={2} paddingX={1} sx={{paddingBottom: '60px'}}>
+            <Grid container spacing={2} paddingX={1} sx={{paddingBottom: isMobile ? '60px': "0px"}}>
               {filteredEquipmentList.map(({ name, count, image }, index) => (
                 <Grid item xs={12} sm={4} key={index}>
                   <Box
@@ -483,7 +483,7 @@ const EquipmentPage = () => {
                 </Grid>
               ))}
             </Grid>
-            <Box height={25}></Box>
+            {/* <Box height={25}></Box> */}
           </Box>
         </Box>
     </ThemeProvider>

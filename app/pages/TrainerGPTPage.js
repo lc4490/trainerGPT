@@ -646,7 +646,7 @@ const TrainerGPTPage = () => {
         height = "100%"
         display="flex"
         flexDirection="column"
-        // paddingBottom= '60px' // Ensure content is not cut off by the toolbar
+        paddingBottom= {isMobile ? '75px' : '0px' }
       >
         {/* info modal */}
         <InfoModal t={t} openInfoModal={openInfoModal} setOpenInfoModal={setOpenInfoModal} />

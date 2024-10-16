@@ -637,7 +637,13 @@ const PlanPage = () => {
         // Create a new Date object for the end time, setting hours and minutes
         const endDateTime = new Date(date);
         endDateTime.setHours(endHours, endMinutes, 0, 0); // Set hours, minutes, seconds, and milliseconds
-      
+
+        // If end time is before start time, it means the event goes past midnight
+        if (endDateTime < startDateTime) {
+          // Add an extra day to the end time
+          endDateTime.setDate(endDateTime.getDate() + 1);
+        }
+
         return { startDateTime, endDateTime };
       };
 

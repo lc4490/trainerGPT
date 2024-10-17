@@ -26,7 +26,7 @@
     "@stripe/stripe-js": "^4.5.0",
     "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/supabase-js": "^2.45.4",
-    "firebase": "^10.12.5",
+    "firebase": "^10.14.1",
     "framer-motion": "^11.3.24",
     "i18next": "^23.12.2",
     "i18next-browser-languagedetector": "^8.0.0",

@@ -1,5 +1,9 @@
-import { NextResponse } from "next/server";
-import { OpenAI } from "openai";
+// app/api/chat/route.ts (or .js)
+import OpenAI from "openai";
+
+// Run on Edge (longer streaming window) and request a higher pre-first-byte budget
+export const runtime = "edge";
+export const maxDuration = 60;
 
 const systemPrompt = `
 **System Prompt for AI Gym Trainer**
@@ -49,49 +53,56 @@ Tone and Style:
 - Clear, concise, and informative
 - Adaptable to the user's preferred communication style (e.g., formal or casual)
 
-Each plan should be compatible with regex parsing via: const days = planText.split(/Day\s*\d+(?=\n|:)/).slice(1);`;
+Each plan should be compatible with regex parsing via: const days = planText.split(/Day\\s*\\d+(?=\\n|:)/).slice(1);
+`;
 
-// POST function to handle incoming requests
 export async function POST(req) {
-  const openai = new OpenAI();
-  const data = await req.json();
-  const userMessage = data[data.length - 1].content; // Get the last user message
-
-  // Create a chat completion request to the OpenAI API
-  const completion = await openai.chat.completions.create({
-    messages: [{ role: "system", content: systemPrompt }, ...data],
-    model: "gpt-5",
-    stream: true,
-    // max_tokens: 4096,
-  });
+  const encoder = new TextEncoder();
 
   const stream = new ReadableStream({
     async start(controller) {
-      const encoder = new TextEncoder();
-      let lastMessage = "";
-
       try {
+        // Send first bytes immediately so the response "starts" within the time window
+        controller.enqueue(encoder.encode(""));
+
+        const data = await req.json(); // `data` is your messages array
+        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+        // Start OpenAI streaming AFTER we've begun the response
+        const completion = await openai.chat.completions.create({
+          model: "gpt-5",
+          stream: true,
+          messages: [{ role: "system", content: systemPrompt }, ...data],
+        });
+
+        let sawAnyToken = false;
+
         for await (const chunk of completion) {
-          const content = chunk.choices[0]?.delta?.content;
-          if (content) {
-            lastMessage += content; // Track the last message content
-            const text = encoder.encode(content);
-            controller.enqueue(text);
+          const delta = chunk.choices?.[0]?.delta?.content;
+          if (delta) {
+            sawAnyToken = true;
+            controller.enqueue(encoder.encode(delta));
           }
         }
-      } catch (err) {
-        controller.error(err);
-      } finally {
-        if (lastMessage.length === 0) {
-          // Response got cut off, mark the message as incomplete
-          controller.enqueue(
-            encoder.encode(JSON.stringify({ incomplete: true }))
-          );
+
+        if (!sawAnyToken) {
+          // If nothing came through (e.g., model error), surface a small marker
+          controller.enqueue(encoder.encode("\n"));
         }
+      } catch (err) {
+        // Stream an unobtrusive marker so the client isn't left hanging
+        controller.enqueue(encoder.encode("\n[error]\n"));
+        console.error("Chat stream error:", err?.message ?? err);
+      } finally {
         controller.close();
       }
     },
   });
 
-  return new NextResponse(stream);
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+      "Cache-Control": "no-store",
+    },
+  });
 }

@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server"
-import { OpenAI } from 'openai'
+import { NextResponse } from "next/server";
+import { OpenAI } from "openai";
 
 const systemPrompt = `
 **System Prompt for AI Gym Trainer**
@@ -47,8 +47,9 @@ Every workout program should be structured in the following format to ensure con
 Tone and Style:
 - Friendly, encouraging, and supportive
 - Clear, concise, and informative
-- Adaptable to the user's preferred communication style (e.g., formal or casual)`
+- Adaptable to the user's preferred communication style (e.g., formal or casual)
 
+Each plan should be compatible with regex parsing via: const days = planText.split(/Day\s*\d+(?=\n|:)/).slice(1);`;
 
 // POST function to handle incoming requests
 export async function POST(req) {
@@ -58,22 +59,22 @@ export async function POST(req) {
 
   // Create a chat completion request to the OpenAI API
   const completion = await openai.chat.completions.create({
-    messages: [{ role: 'system', content: systemPrompt }, ...data], 
-    model: 'gpt-4o-mini',
-    stream: true, 
-    max_tokens: 4096, 
+    messages: [{ role: "system", content: systemPrompt }, ...data],
+    model: "gpt-5",
+    stream: true,
+    // max_tokens: 4096,
   });
 
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
-      let lastMessage = '';
+      let lastMessage = "";
 
       try {
         for await (const chunk of completion) {
           const content = chunk.choices[0]?.delta?.content;
           if (content) {
-            lastMessage += content;  // Track the last message content
+            lastMessage += content; // Track the last message content
             const text = encoder.encode(content);
             controller.enqueue(text);
           }
@@ -83,7 +84,9 @@ export async function POST(req) {
       } finally {
         if (lastMessage.length === 0) {
           // Response got cut off, mark the message as incomplete
-          controller.enqueue(encoder.encode(JSON.stringify({ incomplete: true })));
+          controller.enqueue(
+            encoder.encode(JSON.stringify({ incomplete: true }))
+          );
         }
         controller.close();
       }

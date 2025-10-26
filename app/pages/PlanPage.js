@@ -420,12 +420,20 @@ const PlanPage = () => {
       setTimeModalOpen(true);
     }
   };
+  useEffect(() => {
+    console.log(allEvents);
+  }, [allEvents]);
 
   const handleDelete = async () => {
     if (user) {
-      setAllEvents(allEvents.filter((event) => event.id !== idToDelete));
+      setAllEvents(
+        allEvents.filter((event) => event.id !== Number(idToDelete))
+      );
+      console.log(allEvents);
     } else {
-      setGuestEvents(guestEvents.filter((event) => event.id !== idToDelete));
+      setGuestEvents(
+        guestEvents.filter((event) => event.id !== Number(idToDelete))
+      );
     }
     handleCloseModal();
     if (session) {

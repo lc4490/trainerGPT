@@ -256,7 +256,7 @@ const PlanPage = () => {
   };
   // turn plan into events
   const parsePlanToEvents = (planText) => {
-    const days = planText.split(/Day\s*\d+:/).slice(1); // Split by "Day" followed by any number and a colon, and exclude the first empty element
+    const days = planText.split(/Day\s*\d+(?=\n|:)/).slice(1);
     const events = [];
     let index = 1;
     days.forEach((day) => {

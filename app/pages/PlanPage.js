@@ -256,23 +256,24 @@ const PlanPage = () => {
   };
   // turn plan into events
   const parsePlanToEvents = (planText) => {
-    const days = planText.split(/Day\s*\d+(?=\n|:)/).slice(1);
-    const events = [];
-    let index = 1;
-    days.forEach((day) => {
-      const [dayTitle, ...detailsArray] = day.trim().split("\n");
+    // Split right BEFORE "Day N:" so it's preserved in each chunk
+    const days = planText
+      .split(/(?=Day\s*\d+\s*:)/g)
+      .filter((s) => s.trim().startsWith("Day")); // drop any preface before Day 1
+
+    const events = days.map((day) => {
+      const [dayTitle, ...detailsArray] = day.trim().split(/\r?\n/); // handle \r\n too
       const detailsText = detailsArray
-        .join("\\n")
-        .trim()
-        .replace(/\\n/g, "  \n")
-        .replace(/\*/g, "");
-      let event = {
-        title: `${dayTitle.replace(/\*/g, "").trim()}`, // Re-add "Day" prefix
-        details: `${detailsText}`,
+        .join("\n") // join with real newlines (not "\\n")
+        .replace(/\*/g, "") // strip asterisks if needed
+        .trim();
+
+      return {
+        title: dayTitle.replace(/\*/g, "").trim(), // e.g., "Day 1: Full Body"
+        details: detailsText,
       };
-      index = index + 1;
-      events.push(event);
     });
+
     setEvents(events);
   };
 

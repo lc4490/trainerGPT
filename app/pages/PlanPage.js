@@ -256,23 +256,27 @@ const PlanPage = () => {
   };
   // turn plan into events
   const parsePlanToEvents = (planText) => {
-    const days = planText.split(/Day\s*\d+(?=\n|:)/).slice(1);
-    const events = [];
-    let index = 1;
-    days.forEach((day) => {
-      const [dayTitle, ...detailsArray] = day.trim().split("\n");
-      const detailsText = detailsArray
-        .join("\\n")
-        .trim()
-        .replace(/\\n/g, "  \n")
-        .replace(/\*/g, "");
-      let event = {
-        title: `${dayTitle.replace(/\*/g, "").trim()}`, // Re-add "Day" prefix
-        details: `${detailsText}`,
+    // Split before each "Day X:" (keeps it in each chunk)
+    const days = planText
+      .split(/(?=Day\s*\d+\s*:)/g)
+      .filter((s) => s.trim().startsWith("Day"));
+
+    const events = days.map((day) => {
+      // Get first line
+      const [dayTitle, ...detailsArray] = day.trim().split(/\r?\n/);
+
+      // Extract text *after* "Day X:"
+      const titleMatch = dayTitle.match(/Day\s*\d+\s*:\s*(.*)/i);
+      const title = titleMatch ? titleMatch[1].trim() : dayTitle.trim();
+
+      const detailsText = detailsArray.join("\n").replace(/\*/g, "").trim();
+
+      return {
+        title, // e.g. "Chest Workout"
+        details: detailsText,
       };
-      index = index + 1;
-      events.push(event);
     });
+
     setEvents(events);
   };
 

@@ -256,25 +256,30 @@ const PlanPage = () => {
   };
   // turn plan into events
   const parsePlanToEvents = (planText) => {
-    // Split before each "Day X:" (keeps it in each chunk)
-    const days = planText
-      .split(/(?=Day\s*\d+\s*:)/g)
-      .filter((s) => s.trim().startsWith("Day"));
+    // Normalize BOM and newlines
+    const normalized = planText.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
+
+    // Split BEFORE each "day N:" or "day N：" (case-insensitive), at line starts
+    const days = normalized
+      .split(/(?=^\s*day\s*\d+\s*[:：])/gim)
+      .filter((s) => /^\s*day\s*\d+\s*[:：]/i.test(s)); // keep only real day blocks
 
     const events = days.map((day) => {
-      // Get first line
-      const [dayTitle, ...detailsArray] = day.trim().split(/\r?\n/);
+      const [firstLine, ...rest] = day.trim().split("\n");
 
-      // Extract text *after* "Day X:"
-      const titleMatch = dayTitle.match(/Day\s*\d+\s*:\s*(.*)/i);
-      const title = titleMatch ? titleMatch[1].trim() : dayTitle.trim();
+      // Match "day <num> : <title>" with ASCII or full-width colon
+      const m = firstLine.match(/^\s*day\s*(\d+)\s*[:：]\s*(.+)$/i);
+      console.log(day);
 
-      const detailsText = detailsArray.join("\n").replace(/\*/g, "").trim();
+      // Prefer captured title; fallback to text after first colon; final fallback is the whole line
+      const title = m
+        ? m[2].trim()
+        : firstLine.split(/[:：]/).slice(1).join(":").trim() ||
+          firstLine.trim();
 
-      return {
-        title, // e.g. "Chest Workout"
-        details: detailsText,
-      };
+      const details = rest.join("\n").trim();
+
+      return { title, details };
     });
 
     setEvents(events);

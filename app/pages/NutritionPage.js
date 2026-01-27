@@ -1,69 +1,100 @@
-"use client"
+"use client";
 
 // base imports
-import { Box, Stack, Typography, Button, Modal, TextField, Grid, Autocomplete, Divider } from '@mui/material'
-import { firestore, auth, provider, signInWithPopup, signOut } from '../firebase'
-import { collection, getDocs, query, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
-import { useEffect, useState, useRef } from 'react'
+import {
+  Box,
+  Stack,
+  Typography,
+  Button,
+  Modal,
+  TextField,
+  Grid,
+  Autocomplete,
+  Divider,
+} from "@mui/material";
+import {
+  firestore,
+  auth,
+  provider,
+  signInWithPopup,
+  signOut,
+} from "../firebase";
+import {
+  collection,
+  getDocs,
+  query,
+  doc,
+  setDoc,
+  deleteDoc,
+  getDoc,
+} from "firebase/firestore";
+import { useEffect, useState, useRef } from "react";
 
 // search icon
-import InputAdornment from '@mui/material/InputAdornment';
-import SearchIcon from '@mui/icons-material/Search';
+import InputAdornment from "@mui/material/InputAdornment";
+import SearchIcon from "@mui/icons-material/Search";
 
 // use image and camera
-import Image from 'next/image';
+import Image from "next/image";
 // import { Camera, switchCamera } from 'react-camera-pro';
-import Webcam from 'react-webcam';
+import Webcam from "react-webcam";
 
 // use openai
 const openaiApiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-import { OpenAI } from 'openai';
+import { OpenAI } from "openai";
 
 // use Clerk
 import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 
 // use googlesignin
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged } from "firebase/auth";
 
 // theme imports
-import { createTheme, ThemeProvider, useTheme, CssBaseline, useMediaQuery, IconButton } from '@mui/material';
-import { Brightness4, Brightness7 } from '@mui/icons-material';
+import {
+  createTheme,
+  ThemeProvider,
+  useTheme,
+  CssBaseline,
+  useMediaQuery,
+  IconButton,
+} from "@mui/material";
+import { Brightness4, Brightness7 } from "@mui/icons-material";
 
 // translations
-import { useTranslation } from 'react-i18next';
-import i18n from '../i18n'; // Adjust the path as necessary
+import { useTranslation } from "react-i18next";
+import i18n from "../i18n"; // Adjust the path as necessary
 
 // info button
-import InfoIcon from '@mui/icons-material/Info';
+import InfoIcon from "@mui/icons-material/Info";
 
 const lightTheme = createTheme({
   palette: {
-    mode: 'light',
+    mode: "light",
     background: {
-      default: '#ffffff',
-      paper: '#ffffff',
-      gray: 'lightgray',
-      banner: 'banner.png',
-      bannerColor: '#3C3C3C'
+      default: "#ffffff",
+      paper: "#ffffff",
+      gray: "lightgray",
+      banner: "banner.png",
+      bannerColor: "#3C3C3C",
     },
     text: {
-      primary: '#000000',
+      primary: "#000000",
     },
   },
 });
 
 const darkTheme = createTheme({
   palette: {
-    mode: 'dark',
+    mode: "dark",
     background: {
-      default: '#121212',
-      paper: '#121212',
-      gray: 'darkgray',
-      banner: 'banner.png',
-      bannerColor: '#fffff'
+      default: "#121212",
+      paper: "#121212",
+      gray: "darkgray",
+      banner: "banner.png",
+      bannerColor: "#fffff",
     },
     text: {
-      primary: '#ffffff',
+      primary: "#ffffff",
     },
   },
 });
@@ -73,63 +104,65 @@ const NutritionPage = () => {
   const { t, i18n } = useTranslation();
   const { user, isSignedIn } = useUser();
 
-  const [pantry, setPantry] = useState([])
-  const [recipes, setRecipes] = useState([])
+  const [pantry, setPantry] = useState([]);
+  const [recipes, setRecipes] = useState([]);
   const [openRecipeModal, setOpenRecipeModal] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState({});
   // open modal declareables
   const [openAdd, setOpenAdd] = useState(false);
   const handleOpenAdd = () => {
     clearFields();
-    setOpenAdd(true)
+    setOpenAdd(true);
   };
   const handleCloseAdd = () => {
     clearFields();
-    setOpenAdd(false)
+    setOpenAdd(false);
   };
   // search term for pantry and recipes
-  const [searchTerm, setSearchTerm] = useState('');
-  const [recipeSearchTerm, setRecipeSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [recipeSearchTerm, setRecipeSearchTerm] = useState("");
 
   // item name/quantity
-  const [itemName, setItemName] = useState('')
-  const [quantity, setQuantity] = useState('')
-  
+  const [itemName, setItemName] = useState("");
+  const [quantity, setQuantity] = useState("");
+
   // toggle searchbar for pantry and recipes
-  const [isFocused, setIsFocused] = useState(false); 
+  const [isFocused, setIsFocused] = useState(false);
   const [isFocusedRecipe, setIsFocusedRecipe] = useState(false);
 
   // camera/image
   const [cameraOpen, setCameraOpen] = useState(false);
   const [image, setImage] = useState(null);
   const webcamRef = useRef(null);
-  const [facingMode, setFacingMode] = useState('user'); // 'user' is the front camera, 'environment' is the back camera
+  const [facingMode, setFacingMode] = useState("user"); // 'user' is the front camera, 'environment' is the back camera
   const captureImage = () => {
     const imageSrc = webcamRef.current.getScreenshot();
     setImage(imageSrc);
-    predictItem(imageSrc).then(setItemName);  // Assuming predictItem is a function you have defined
+    predictItem(imageSrc).then(setItemName); // Assuming predictItem is a function you have defined
     setCameraOpen(false);
   };
   const switchCamera = () => {
-    setFacingMode((prevFacingMode) => (prevFacingMode === 'user' ? 'environment' : 'user'));
+    setFacingMode((prevFacingMode) =>
+      prevFacingMode === "user" ? "environment" : "user",
+    );
   };
   // ai
   const openai = new OpenAI({
     apiKey: openaiApiKey,
-    dangerouslyAllowBrowser: true
+    dangerouslyAllowBrowser: true,
   });
-  
+
   async function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
   // function to predict item label from picture (ai)
-  async function predictItem(image){
-    if(image){
+  async function predictItem(image) {
+    if (image) {
       const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: "gpt-4o-mini",
         messages: [
           {
-            role: 'user',
+            role: "user",
             content: [
               {
                 type: "text",
@@ -145,10 +178,13 @@ const NutritionPage = () => {
             ],
           },
         ],
-      })
+      });
       let result = response.choices[0].message.content.trim();
-      result = result.replace(/\./g, '');
-      result = result.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+      result = result.replace(/\./g, "");
+      result = result
+        .split(" ")
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ");
       return result;
     }
   }
@@ -160,51 +196,51 @@ const NutritionPage = () => {
   // function to craft ai recipes from list of pantry items (ai)
   async function craftRecipes(pantry) {
     if (pantry.length !== 0) {
-        const ingredients = pantry.map(item => item.name).join(', ');
-        const translatedPrompt =  t('Generate', { ingredients });
+      const ingredients = pantry.map((item) => item.name).join(", ");
+      const translatedPrompt = t("Generate", { ingredients });
 
-        const response = await openai.chat.completions.create({
-            model: 'gpt-4o-mini',
-            messages: [
-                {
-                    role: 'user',
-                    content: translatedPrompt,
-                },
-            ],
-        });
+      const response = await openai.chat.completions.create({
+        model: "gpt-5-mini",
+        messages: [
+          {
+            role: "user",
+            content: translatedPrompt,
+          },
+        ],
+      });
 
-        const result = response.choices[0].message.content.trim().split("\n\n");
+      const result = response.choices[0].message.content.trim().split("\n\n");
 
-        const recipePromises = result.map(async (item) => {
-            const parts = item.split("\n");
-            let recipe = '';
-            let ingredients = '';
-            let instructions = '';
-            console.log(t(": "))
+      const recipePromises = result.map(async (item) => {
+        const parts = item.split("\n");
+        let recipe = "";
+        let ingredients = "";
+        let instructions = "";
+        console.log(t(": "));
 
-            if (parts.length > 0 && parts[0].includes(t(": "))) {
-                recipe = parts[0].split(t(": "))[1]?.replace(/\*/g, '') || '';
-            }
-            if (parts.length > 1 && parts[1].includes(t(": "))) {
-                ingredients = parts[1].split(t(": "))[1]?.replace(/\*/g, '') || '';
-            }
-            if (parts.length > 2 && parts[2].includes(t(": "))) {
-                instructions = parts[2].split(t(": "))[1]?.replace(/\*/g, '') || '';
-            }
+        if (parts.length > 0 && parts[0].includes(t(": "))) {
+          recipe = parts[0].split(t(": "))[1]?.replace(/\*/g, "") || "";
+        }
+        if (parts.length > 1 && parts[1].includes(t(": "))) {
+          ingredients = parts[1].split(t(": "))[1]?.replace(/\*/g, "") || "";
+        }
+        if (parts.length > 2 && parts[2].includes(t(": "))) {
+          instructions = parts[2].split(t(": "))[1]?.replace(/\*/g, "") || "";
+        }
 
-            if (!recipe || !ingredients || !instructions) {
-                console.error('Failed to parse recipe details:', item);
-                return null;
-            }
+        if (!recipe || !ingredients || !instructions) {
+          console.error("Failed to parse recipe details:", item);
+          return null;
+        }
 
-            const image = await createImage(recipe);
-            return { recipe, ingredients, instructions, image };
-        });
+        const image = await createImage(recipe);
+        return { recipe, ingredients, instructions, image };
+      });
 
-        const recipes = await Promise.all(recipePromises);
-        console.log(recipes)
-        console.log(pantry)
-        return recipes.filter(recipe => recipe !== null);
+      const recipes = await Promise.all(recipePromises);
+      console.log(recipes);
+      console.log(pantry);
+      return recipes.filter((recipe) => recipe !== null);
     }
     return [];
   }
@@ -212,27 +248,27 @@ const NutritionPage = () => {
   async function createImage(label) {
     // return
     try {
-        const response = await openai.images.generate({
-            model: 'dall-e-2',
-            prompt: label,
-            n: 1,
-            size: "256x256",
-            response_format: 'b64_json',
-        });
-        const ret = response.data;
-        if (ret && ret.length > 0) {
-            const base64String = ret[0].b64_json;
-            return `data:image/png;base64,${base64String}`;
-        }
-        return null;
+      const response = await openai.images.generate({
+        model: "dall-e-2",
+        prompt: label,
+        n: 1,
+        size: "256x256",
+        response_format: "b64_json",
+      });
+      const ret = response.data;
+      if (ret && ret.length > 0) {
+        const base64String = ret[0].b64_json;
+        return `data:image/png;base64,${base64String}`;
+      }
+      return null;
     } catch (error) {
-        if (error.response && error.response.status === 429) {
-            console.log("Rate limit exceeded. Retrying in 10 seconds...");
-            await sleep(10000); // Wait for 10 seconds
-            return createImage(label); // Retry the request
-        } else {
-            console.error("Error creating image:", error);
-        }
+      if (error.response && error.response.status === 429) {
+        console.log("Rate limit exceeded. Retrying in 10 seconds...");
+        await sleep(10000); // Wait for 10 seconds
+        return createImage(label); // Retry the request
+      } else {
+        console.error("Error creating image:", error);
+      }
     }
   }
 
@@ -242,11 +278,11 @@ const NutritionPage = () => {
     if (str.length <= num) {
       return str;
     }
-    return str.slice(0, num) + '...';
+    return str.slice(0, num) + "...";
   };
   // clear item fields after clickoff
   const clearFields = () => {
-    setItemName('');
+    setItemName("");
     setQuantity(1);
     setImage(null);
   };
@@ -254,7 +290,7 @@ const NutritionPage = () => {
   const updatePantry = async () => {
     if (user) {
       const userId = user.id;
-      const docRef = collection(firestore, 'users', userId, 'pantry');
+      const docRef = collection(firestore, "users", userId, "pantry");
       const docs = await getDocs(docRef);
       const pantryList = [];
       docs.forEach((doc) => {
@@ -266,7 +302,10 @@ const NutritionPage = () => {
   // add item function
   const addItem = async (item, quantity, image) => {
     if (guestMode) {
-      setPantry(prevPantry => [...prevPantry, { name: item, count: quantity, image }]);
+      setPantry((prevPantry) => [
+        ...prevPantry,
+        { name: item, count: quantity, image },
+      ]);
     } else {
       if (!user) {
         alert("You must be signed in to add items.");
@@ -274,25 +313,32 @@ const NutritionPage = () => {
       }
       if (isNaN(quantity) || quantity < 0) {
         setOpenWarningAdd(true);
-      } else if (quantity >= 1 && item != '') {
+      } else if (quantity >= 1 && item != "") {
         const userId = user.id;
         // const docRef = doc(collection(firestore, `pantry_${userUID}`), item);
-        const docRef = doc(firestore, 'users', userId, 'pantry', item);
+        const docRef = doc(firestore, "users", userId, "pantry", item);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           const { count, image: existingImage } = docSnap.data();
-          await setDoc(docRef, { count: count + quantity, image: image || existingImage });
+          await setDoc(docRef, {
+            count: count + quantity,
+            image: image || existingImage,
+          });
         } else {
           await setDoc(docRef, { count: quantity, image });
         }
         await updatePantry();
       }
     }
-  }
+  };
   // change quantity function
   const handleQuantityChange = async (item, quantity) => {
     if (guestMode) {
-      setPantry(prevPantry => prevPantry.map(p => p.name === item ? { ...p, count: quantity } : p));
+      setPantry((prevPantry) =>
+        prevPantry.map((p) =>
+          p.name === item ? { ...p, count: quantity } : p,
+        ),
+      );
     } else {
       if (!user) {
         alert("You must be signed in to change item quantities.");
@@ -300,7 +346,7 @@ const NutritionPage = () => {
       }
       const userId = user.id;
       // const docRef = doc(collection(firestore, `pantry_${userUID}`), item);
-      const docRef = doc(firestore, 'users', userId, 'pantry', item);
+      const docRef = doc(firestore, "users", userId, "pantry", item);
       const docSnap = await getDoc(docRef);
       const { count, image } = docSnap.data();
       if (0 === quantity) {
@@ -312,12 +358,8 @@ const NutritionPage = () => {
     }
   };
   useEffect(() => {
-    updatePantry()
-  }, [user])
-
-  useEffect(() => {
-    generateRecipes()
-  }, [pantry])
+    updatePantry();
+  }, [user]);
 
   // open add modal and open camera at the same time
   const handleOpenAddAndOpenCamera = () => {
@@ -326,9 +368,13 @@ const NutritionPage = () => {
   };
 
   // filter pantry and recipes based on search
-  const filteredPantry = pantry.filter(({ name }) => name.toLowerCase().includes(searchTerm.toLowerCase()));
-  const filteredRecipes = recipes.filter(({ recipe }) => recipe.toLowerCase().includes(recipeSearchTerm.toLowerCase()));
-  
+  const filteredPantry = pantry.filter(({ name }) =>
+    name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+  const filteredRecipes = recipes.filter(({ recipe }) =>
+    recipe.toLowerCase().includes(recipeSearchTerm.toLowerCase()),
+  );
+
   // open recipe modal, lock in on specific recipe
   const handleRecipeModal = (index) => {
     setSelectedRecipe(index);
@@ -339,7 +385,7 @@ const NutritionPage = () => {
   const [openInfoModal, setOpenInfoModal] = useState(false);
   const handleInfoModal = () => {
     setOpenInfoModal(true);
-  }
+  };
 
   // const [user, setUser] = useState(null);
   const [guestMode, setGuestMode] = useState(false);
@@ -362,7 +408,7 @@ const NutritionPage = () => {
 
   // toggle dark mode
   // Detect user's preferred color scheme
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const [darkMode, setDarkMode] = useState(prefersDarkMode);
 
   // Update dark mode state when the user's preference changes
@@ -373,39 +419,37 @@ const NutritionPage = () => {
   const theme = darkMode ? darkTheme : lightTheme;
 
   // ismobile
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box 
-        width="100%" 
-        height = "100%"
-        display="flex" 
-        justifyContent="center" 
+      <Box
+        width="100%"
+        height="100%"
+        display="flex"
+        justifyContent="center"
         alignItems="center"
         flexDirection="column"
         gap={2}
-        bgcolor="red"
+        bgcolor="black"
         fontFamily="sans-serif"
+        overflow="scroll"
       >
         {/* add modal */}
-        <Modal
-          open={openAdd}
-          onClose={handleCloseAdd}
-        >
-          <Box 
+        <Modal open={openAdd} onClose={handleCloseAdd}>
+          <Box
             sx={{
-              position: 'absolute',
-              top: '10%',
-              width: '100%',
-              height: '90%',
-              bgcolor: 'background.default',
-              border: '2px solid #000',
+              position: "absolute",
+              top: "10%",
+              width: "100%",
+              height: "90%",
+              bgcolor: "background.default",
+              border: "2px solid #000",
               boxShadow: 24,
               p: 2,
               display: "flex",
-              alignItems: 'center',
-              flexDirection: 'column',
+              alignItems: "center",
+              flexDirection: "column",
               gap: 3,
               color: "text.primary",
               borderColor: "text.primary",
@@ -418,51 +462,51 @@ const NutritionPage = () => {
                 justifyContent="center"
                 width="100%"
                 sx={{
-                  borderRadius: '16px',
-                  overflow: 'hidden',
+                  borderRadius: "16px",
+                  overflow: "hidden",
                 }}
               >
-                <Image 
+                <Image
                   src={image}
                   alt={"Captured"}
                   width={300}
                   height={300}
-                  style={{ borderRadius: '16px', objectFit: 'cover'}}
+                  style={{ borderRadius: "16px", objectFit: "cover" }}
                 />
               </Box>
             )}
             {!image && (
               <>
-                <Button 
+                <Button
                   variant="outlined"
                   onClick={() => setCameraOpen(true)}
                   sx={{
-                    color: 'text.primary',
-                    borderColor: 'text.primary',
-                    '&:hover': {
-                      backgroundColor: 'background.default',
-                      color: 'text.primary',
-                      borderColor: 'text.primary',
+                    color: "text.primary",
+                    borderColor: "text.primary",
+                    "&:hover": {
+                      backgroundColor: "background.default",
+                      color: "text.primary",
+                      borderColor: "text.primary",
                     },
                   }}
                 >
-                  {t('Open Camera')}
+                  {t("Open Camera")}
                 </Button>
                 {/* upload photo */}
-                <Button 
+                <Button
                   variant="outlined"
                   component="label"
                   sx={{
-                    color: 'text.primary',
-                    borderColor: 'text.primary',
-                    '&:hover': {
-                      backgroundColor: 'background.default',
-                      color: 'text.primary',
-                      borderColor: 'text.primary',
+                    color: "text.primary",
+                    borderColor: "text.primary",
+                    "&:hover": {
+                      backgroundColor: "background.default",
+                      color: "text.primary",
+                      borderColor: "text.primary",
                     },
                   }}
                 >
-                  {t('Upload Photo')}
+                  {t("Upload Photo")}
                   <input
                     type="file"
                     hidden
@@ -471,157 +515,179 @@ const NutritionPage = () => {
                       const file = e.target.files[0];
                       if (file) {
                         // Validate file type
-                        const validTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
+                        const validTypes = [
+                          "image/png",
+                          "image/jpeg",
+                          "image/gif",
+                          "image/webp",
+                        ];
                         if (!validTypes.includes(file.type)) {
-                          alert('Unsupported image format. Please upload a PNG, JPEG, GIF, or WEBP file.');
+                          alert(
+                            "Unsupported image format. Please upload a PNG, JPEG, GIF, or WEBP file.",
+                          );
                           return;
                         }
 
                         // Validate file size
                         const maxSize = 20 * 1024 * 1024; // 20 MB in bytes
                         if (file.size > maxSize) {
-                          alert('File is too large. Please upload an image smaller than 20 MB.');
+                          alert(
+                            "File is too large. Please upload an image smaller than 20 MB.",
+                          );
                           return;
                         }
                         const reader = new FileReader();
                         reader.onloadend = () => {
                           setImage(reader.result);
-                          predictItem(reader.result).then(setItemName)
+                          predictItem(reader.result).then(setItemName);
                         };
                         reader.readAsDataURL(file);
                       }
                     }}
                   />
                 </Button>
-
               </>
             )}
-            <Divider sx={{ width: '100%', backgroundColor: 'background.default' }} />
+            <Divider
+              sx={{ width: "100%", backgroundColor: "background.default" }}
+            />
             <Box width="100%" height="25%">
-              <TextField 
-                label="" 
+              <TextField
+                label=""
                 variant="outlined"
                 fullWidth
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    color: 'text.primary',
-                    fontSize: '2.5rem',
-                    fontWeight: '550',
-                    '& fieldset': {
-                      borderColor: 'lightgray',
+                  "& .MuiOutlinedInput-root": {
+                    color: "text.primary",
+                    fontSize: "2.5rem",
+                    fontWeight: "550",
+                    "& fieldset": {
+                      borderColor: "lightgray",
                     },
-                    '&:hover fieldset': {
-                      borderColor: 'lightgray',
+                    "&:hover fieldset": {
+                      borderColor: "lightgray",
                     },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'lightgray',
+                    "&.Mui-focused fieldset": {
+                      borderColor: "lightgray",
                     },
                   },
-                  '& .MuiInputLabel-root': {
-                    color: 'text.primary',
-                    fontSize: '2.5rem',
-                    fontWeight: '550',
+                  "& .MuiInputLabel-root": {
+                    color: "text.primary",
+                    fontSize: "2.5rem",
+                    fontWeight: "550",
                   },
                 }}
                 InputProps={{
                   style: {
-                    textAlign: 'center',
-                    fontSize: '1.5rem',
-                  }
+                    textAlign: "center",
+                    fontSize: "1.5rem",
+                  },
                 }}
                 InputLabelProps={{
-                  style: { 
-                    color: 'text.primary', 
-                    width: '100%',
-                    fontSize: '1.5rem',
+                  style: {
+                    color: "text.primary",
+                    width: "100%",
+                    fontSize: "1.5rem",
                   },
                 }}
               />
             </Box>
-            <Stack width="100%" direction="column" spacing={2} justifyContent="space-between">
-              <Stack width="100%" direction="row" justifyContent="end" alignItems="center">
-                <Button 
+            <Stack
+              width="100%"
+              direction="column"
+              spacing={2}
+              justifyContent="space-between"
+            >
+              <Stack
+                width="100%"
+                direction="row"
+                justifyContent="end"
+                alignItems="center"
+              >
+                <Button
                   sx={{
-                    backgroundColor: 'lightgray',
-                    color: 'black',
-                    borderColor: 'lightgray',
-                    borderRadius: '50px',
+                    backgroundColor: "lightgray",
+                    color: "black",
+                    borderColor: "lightgray",
+                    borderRadius: "50px",
                     height: "50px",
                     minWidth: "50px",
-                    '&:hover': {
-                      backgroundColor: 'darkgray',
-                      color: 'text.primary',
-                      borderColor: 'text.primary',
+                    "&:hover": {
+                      backgroundColor: "darkgray",
+                      color: "text.primary",
+                      borderColor: "text.primary",
                     },
                   }}
-                  onClick={() => setQuantity(prev => Math.max(0, parseInt(prev) - 1))}
+                  onClick={() =>
+                    setQuantity((prev) => Math.max(0, parseInt(prev) - 1))
+                  }
                 >
                   -
                 </Button>
-                <TextField 
-                  label="" 
+                <TextField
+                  label=""
                   variant="outlined"
                   value={parseInt(quantity)}
                   onChange={(e) => setQuantity(parseInt(e.target.value))}
                   sx={{
                     width: "50px",
-                    '& .MuiOutlinedInput-root': {
-                      color: 'text.primary',
-                      '& fieldset': {
-                        borderColor: 'background.default',
+                    "& .MuiOutlinedInput-root": {
+                      color: "text.primary",
+                      "& fieldset": {
+                        borderColor: "background.default",
                       },
-                      '&:hover fieldset': {
-                        borderColor: 'background.default',
+                      "&:hover fieldset": {
+                        borderColor: "background.default",
                       },
-                      '&.Mui-focused fieldset': {
-                        borderColor: 'lightgray',
+                      "&.Mui-focused fieldset": {
+                        borderColor: "lightgray",
                       },
                     },
-                    '& .MuiInputLabel-root': {
-                      color: 'text.primary',
+                    "& .MuiInputLabel-root": {
+                      color: "text.primary",
                     },
                   }}
                   InputLabelProps={{
-                    style: { color: 'text.primary', width: '100%' },
+                    style: { color: "text.primary", width: "100%" },
                   }}
                 />
-                <Button 
+                <Button
                   sx={{
-                    backgroundColor: 'lightgray',
-                    color: 'black',
-                    borderColor: 'lightgray',
-                    borderRadius: '50px',
+                    backgroundColor: "lightgray",
+                    color: "black",
+                    borderColor: "lightgray",
+                    borderRadius: "50px",
                     height: "50px",
                     minWidth: "50px",
-                    '&:hover': {
-                      backgroundColor: 'darkgray',
-                      color: 'text.primary',
-                      borderColor: 'text.primary',
+                    "&:hover": {
+                      backgroundColor: "darkgray",
+                      color: "text.primary",
+                      borderColor: "text.primary",
                     },
                   }}
-                  onClick={() => setQuantity(prev => parseInt(prev) + 1)}
+                  onClick={() => setQuantity((prev) => parseInt(prev) + 1)}
                 >
                   +
                 </Button>
               </Stack>
-              <Button 
+              <Button
                 variant="outlined"
                 onClick={() => {
-                  addItem(itemName, parseInt(quantity), image)
-                  setItemName('')
-                  setQuantity(1)
-                  handleCloseAdd()
+                  addItem(itemName, parseInt(quantity), image);
+                  setItemName("");
+                  setQuantity(1);
+                  handleCloseAdd();
                 }}
                 sx={{
-                  backgroundColor: 'text.primary',
-                  color: 'background.default',
-                  borderColor: 'text.primary',
-                  '&:hover': {
-                    backgroundColor: 'darkgray',
-                    color: 'text.primary',
-                    borderColor: 'text.primary',
+                  backgroundColor: "text.primary",
+                  color: "background.default",
+                  borderColor: "text.primary",
+                  "&:hover": {
+                    backgroundColor: "darkgray",
+                    color: "text.primary",
+                    borderColor: "text.primary",
                   },
                 }}
               >
@@ -634,33 +700,39 @@ const NutritionPage = () => {
         {/* camera modal */}
         <Modal open={cameraOpen} onClose={() => setCameraOpen(false)}>
           <Box width="100%" height="100%" backgroundColor="black">
-            <Stack display="flex" justifyContent="center" alignItems="center" flexDirection="column" sx={{ transform: 'translate(0%,25%)' }}>
+            <Stack
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              flexDirection="column"
+              sx={{ transform: "translate(0%,25%)" }}
+            >
               <Box
                 sx={{
                   // position: 'absolute',
-                  top: '50%',
-                  bgcolor: 'black',
+                  top: "50%",
+                  bgcolor: "black",
                   width: 350,
                   height: 350,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
                   paddingY: 2,
-                  position: 'relative'
+                  position: "relative",
                 }}
               >
                 <Box
                   sx={{
                     // width: '50%', // This makes the width of the container 50% of its parent
                     maxWidth: 350, // Optional: Limit the maximum width
-                    aspectRatio: '1/1', // Ensures the box is a square
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    position: 'relative', // Allows the button to be positioned over the video feed
-                    backgroundColor: 'black', // Background color for the box
-                    borderRadius: '16px', // Optional: adds rounded corners
-                    overflow: 'hidden', // Ensures the video doesn't overflow the container
+                    aspectRatio: "1/1", // Ensures the box is a square
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    position: "relative", // Allows the button to be positioned over the video feed
+                    backgroundColor: "black", // Background color for the box
+                    borderRadius: "16px", // Optional: adds rounded corners
+                    overflow: "hidden", // Ensures the video doesn't overflow the container
                   }}
                 >
                   <Webcam
@@ -671,27 +743,26 @@ const NutritionPage = () => {
                       // aspectRatio: 4/3,
                     }}
                     style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover', // Ensures the video covers the square without distortion
-                      transform: facingMode === 'user' ? "scaleX(-1)" : "none"
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover", // Ensures the video covers the square without distortion
+                      transform: facingMode === "user" ? "scaleX(-1)" : "none",
                     }}
                   />
                 </Box>
-
               </Box>
               <Stack flexDirection="row" gap={2} position="relative">
-                <Button 
+                <Button
                   variant="outlined"
                   onClick={captureImage}
                   sx={{
-                    color: 'black',
-                    borderColor: 'white',
-                    backgroundColor: 'white',
-                    '&:hover': {
-                      backgroundColor: 'white',
-                      color: 'black',
-                      borderColor: 'white',
+                    color: "black",
+                    borderColor: "white",
+                    backgroundColor: "white",
+                    "&:hover": {
+                      backgroundColor: "white",
+                      color: "black",
+                      borderColor: "white",
                     },
                     marginTop: 1,
                   }}
@@ -701,37 +772,37 @@ const NutritionPage = () => {
                 <Button
                   onClick={switchCamera}
                   sx={{
-                    color: 'black',
-                    borderColor: 'white',
-                    backgroundColor: 'white',
-                    '&:hover': {
-                      backgroundColor: 'white',
-                      color: 'black',
-                      borderColor: 'white',
+                    color: "black",
+                    borderColor: "white",
+                    backgroundColor: "white",
+                    "&:hover": {
+                      backgroundColor: "white",
+                      color: "black",
+                      borderColor: "white",
                     },
                     marginTop: 1,
                   }}
                 >
                   {t("Switch Camera")}
                 </Button>
-                <Button 
+                <Button
                   variant="outlined"
                   onClick={() => {
                     setCameraOpen(false);
                   }}
                   sx={{
-                    color: 'black',
-                    borderColor: 'white',
-                    backgroundColor: 'white',
-                    '&:hover': {
-                      backgroundColor: 'white',
-                      color: 'black',
-                      borderColor: 'white',
+                    color: "black",
+                    borderColor: "white",
+                    backgroundColor: "white",
+                    "&:hover": {
+                      backgroundColor: "white",
+                      color: "black",
+                      borderColor: "white",
                     },
                     marginTop: 1,
                   }}
                 >
-                  {t('Exit')}
+                  {t("Exit")}
                 </Button>
               </Stack>
             </Stack>
@@ -743,18 +814,18 @@ const NutritionPage = () => {
           <Box
             overflow="auto"
             sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
               width: 400,
-              height: '90%',
-              bgcolor: 'background.default',
-              border: '2px solid #000',
+              height: "90%",
+              bgcolor: "background.default",
+              border: "2px solid #000",
               boxShadow: 24,
               p: 4,
-              display: 'flex',
-              flexDirection: 'column',
+              display: "flex",
+              flexDirection: "column",
             }}
           >
             {selectedRecipe !== null && recipes[selectedRecipe] && (
@@ -766,51 +837,54 @@ const NutritionPage = () => {
                   width="100%"
                   paddingY={2}
                 >
-                  {recipes[selectedRecipe].image && recipes[selectedRecipe].image !== null ? (
-                    <Image 
+                  {recipes[selectedRecipe].image &&
+                  recipes[selectedRecipe].image !== null ? (
+                    <Image
                       src={recipes[selectedRecipe].image}
                       alt={recipes[selectedRecipe].recipe}
                       width={200}
                       height={200}
-                      style={{ borderRadius: '10px', }}
+                      style={{ borderRadius: "10px" }}
                     />
                   ) : (
-                    <Image 
+                    <Image
                       src="/recipe.jpg"
                       alt={recipes[selectedRecipe].recipe}
                       width={200}
                       height={200}
-                      style={{ borderRadius: '10px', objectFit: 'cover', }}
+                      style={{ borderRadius: "10px", objectFit: "cover" }}
                     />
                   )}
                 </Box>
-                <Typography variant="h6" component="h2" fontWeight='600'>
+                <Typography variant="h6" component="h2" fontWeight="600">
                   {recipes[selectedRecipe].recipe}
                 </Typography>
                 <Typography sx={{ mt: 2 }}>
-                  <strong>{t('Ingredients')}</strong> {recipes[selectedRecipe].ingredients}
+                  <strong>{t("Ingredients")}</strong>{" "}
+                  {recipes[selectedRecipe].ingredients}
                 </Typography>
                 <Typography sx={{ mt: 2 }}>
-                  <strong>{t('Instructions')}</strong> {recipes[selectedRecipe].instructions}
+                  <strong>{t("Instructions")}</strong>{" "}
+                  {recipes[selectedRecipe].instructions}
                 </Typography>
                 <Box sx={{ flexGrow: 1 }} />
-                <Button 
+                <Button
                   variant="outlined"
                   onClick={() => {
-                    setOpenRecipeModal(false)
+                    setOpenRecipeModal(false);
                   }}
                   sx={{
-                    backgroundColor: 'text.primary',
-                    color: 'background.default',
-                    borderColor: 'text.primary',
-                    '&:hover': {
-                      backgroundColor: 'darkgray',
-                      color: 'text.primary',
-                      borderColor: 'text.primary',
+                    backgroundColor: "text.primary",
+                    color: "background.default",
+                    borderColor: "text.primary",
+                    "&:hover": {
+                      backgroundColor: "darkgray",
+                      color: "text.primary",
+                      borderColor: "text.primary",
                     },
                   }}
                 >
-                  {t('Close')}
+                  {t("Close")}
                 </Button>
               </>
             )}
@@ -818,70 +892,81 @@ const NutritionPage = () => {
         </Modal>
 
         {/* info modal */}
-        <Modal open = {openInfoModal} onClose = {() => setOpenInfoModal(false)}>
-            <Box 
+        <Modal open={openInfoModal} onClose={() => setOpenInfoModal(false)}>
+          <Box
             overflow="auto"
             sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
               width: 350,
               height: "75%",
-              bgcolor: 'background.default',
-              border: '2px solid #000',
+              bgcolor: "background.default",
+              border: "2px solid #000",
               boxShadow: 24,
               p: 4,
-              display: 'flex',
-              flexDirection: 'column',
+              display: "flex",
+              flexDirection: "column",
               borderRadius: "15px",
-            }}>
-              <Typography variant="h6" component="h2" fontWeight='600'>
-                  {t("How to use:")}
-                </Typography>
-                <Typography sx={{ mt: 2 }}>
-                  {t("1. Use the top left button to add pantry items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to your fridge right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the pantry item.")}
-                </Typography>
-                <Typography sx = {{mt: 2}}>
-                  {t("2. After adding a pantry item, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.")}
-                </Typography>
-                <Typography sx = {{mt: 2}}>
-                  {t("3. Use the search bar to find specific pantry items by name.")}
-                </Typography>
-                <Typography sx = {{mt: 2}}>
-                 {t("4. Recipes will auto-generate based on the ingredients available in your pantry. Click on the recipes to see the instructions and required ingredients.")}
-                </Typography>
-                <Typography sx = {{mt: 2}}>
-                 {t("5. Sign in using the top right button to create an account or sign in.")}
-                </Typography>
-                <Box sx={{ flexGrow: 1 }} />
-                <Button 
-                  variant="outlined"
-                  onClick={() => {
-                    setOpenInfoModal(false)
-                  }}
-                  sx={{
-                    mt: 2,
-                    backgroundColor: 'text.primary',
-                    color: 'background.default',
-                    borderColor: 'text.primary',
-                    '&:hover': {
-                      backgroundColor: 'darkgray',
-                      color: 'text.primary',
-                      borderColor: 'text.primary',
-                    },
-                  }}
-                >
-                  {t('Close')}
-                </Button>
-            </Box>
-          </Modal>
+            }}
+          >
+            <Typography variant="h6" component="h2" fontWeight="600">
+              {t("How to use:")}
+            </Typography>
+            <Typography sx={{ mt: 2 }}>
+              {t(
+                "1. Use the top left button to add pantry items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to your fridge right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the pantry item.",
+              )}
+            </Typography>
+            <Typography sx={{ mt: 2 }}>
+              {t(
+                "2. After adding a pantry item, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.",
+              )}
+            </Typography>
+            <Typography sx={{ mt: 2 }}>
+              {t(
+                "3. Use the search bar to find specific pantry items by name.",
+              )}
+            </Typography>
+            <Typography sx={{ mt: 2 }}>
+              {t(
+                "4. Recipes will auto-generate based on the ingredients available in your pantry. Click on the recipes to see the instructions and required ingredients.",
+              )}
+            </Typography>
+            <Typography sx={{ mt: 2 }}>
+              {t(
+                "5. Sign in using the top right button to create an account or sign in.",
+              )}
+            </Typography>
+            <Box sx={{ flexGrow: 1 }} />
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setOpenInfoModal(false);
+              }}
+              sx={{
+                mt: 2,
+                backgroundColor: "text.primary",
+                color: "background.default",
+                borderColor: "text.primary",
+                "&:hover": {
+                  backgroundColor: "darkgray",
+                  color: "text.primary",
+                  borderColor: "text.primary",
+                },
+              }}
+            >
+              {t("Close")}
+            </Button>
+          </Box>
+        </Modal>
 
         {/* main page */}
         <Box width="100%" height="100%" bgcolor="background.default">
           {/* header including add button, title, sign in */}
-          <Box 
-            height="10%" 
+          <Box
+            height="10%"
             bgcolor="background.default"
             display="flex"
             justifyContent="space-between"
@@ -891,71 +976,82 @@ const NutritionPage = () => {
             position="relative"
           >
             {/* add button */}
-            <Button 
-              variant="outlined" 
+            <Button
+              variant="outlined"
               onClick={handleOpenAddAndOpenCamera}
               sx={{
                 height: "55px",
-                fontSize: '1rem',
-                backgroundColor: 'background.default',
-                color: 'text.primary',
-                borderColor: 'background.default',
-                borderRadius: '50px',
-                '&:hover': {
-                  backgroundColor: 'text.primary',
-                  color: 'background.default',
-                  borderColor: 'text.primary',
+                fontSize: "1rem",
+                backgroundColor: "background.default",
+                color: "text.primary",
+                borderColor: "background.default",
+                borderRadius: "50px",
+                "&:hover": {
+                  backgroundColor: "text.primary",
+                  color: "background.default",
+                  borderColor: "text.primary",
                 },
               }}
             >
               <Typography variant="h5">+</Typography>
             </Button>
             {/* title */}
-            <Box display = "flex" flexDirection={"row"} alignItems={"center"} gap = {1}>
-              <Typography variant="h6" color="text.primary" textAlign="center" sx = {{fontWeight: "800"}}>
-                {t('myPantry')}
+            <Box
+              display="flex"
+              flexDirection={"row"}
+              alignItems={"center"}
+              gap={1}
+            >
+              <Typography
+                variant="h6"
+                color="text.primary"
+                textAlign="center"
+                sx={{ fontWeight: "800" }}
+              >
+                {t("myPantry")}
               </Typography>
-              <Button 
+              <Button
                 onClick={handleInfoModal}
-                sx={{ 
-                    minWidth: "auto",  
-                    aspectRatio: "1 / 1", 
-                    borderRadius: "50%",
-                    width: "20px",  // or adjust as needed
-                    height: "20px"  // or adjust as needed
-                }}>
-                    <InfoIcon sx={{ color: "lightgray" }}/>
-                </Button>
+                sx={{
+                  minWidth: "auto",
+                  aspectRatio: "1 / 1",
+                  borderRadius: "50%",
+                  width: "20px", // or adjust as needed
+                  height: "20px", // or adjust as needed
+                }}
+              >
+                <InfoIcon sx={{ color: "lightgray" }} />
+              </Button>
             </Box>
             {/* Sign in */}
             <Box>
-                {!isSignedIn ? (
-                  <Button 
-                    color="inherit"
-                    href="/sign-in"
-                    sx={{
-                      justifyContent: "end",
-                      right: "2%",
-                      backgroundColor: 'background.default',
-                      color: 'text.primary',
-                      borderColor: 'text.primary',
-                      '&:hover': {
-                        backgroundColor: 'text.primary',
-                        color: 'background.default',
-                        borderColor: 'text.primary',
-                      },
-                    }}
-                  >
-                    {t('signIn')}
-                  </Button>
-                ) : (
-                  <UserButton />
-                )}
-              </Box>
+              {!isSignedIn ? (
+                <Button
+                  color="inherit"
+                  href="/sign-in"
+                  sx={{
+                    justifyContent: "end",
+                    right: "2%",
+                    backgroundColor: "background.default",
+                    color: "text.primary",
+                    borderColor: "text.primary",
+                    "&:hover": {
+                      backgroundColor: "text.primary",
+                      color: "background.default",
+                      borderColor: "text.primary",
+                    },
+                  }}
+                >
+                  {t("signIn")}
+                </Button>
+              ) : (
+                <UserButton />
+              )}
+            </Box>
           </Box>
 
-          {isMobile && (<Divider />)}
-          
+          {isMobile && <Divider />}
+
           {/* banner image */}
           {/* <Image 
             src= {prefersDarkMode ? "/banner_pantry_dark.png" : "/banner_pantry.png"} 
@@ -966,66 +1062,135 @@ const NutritionPage = () => {
             style={{ width: '100%', height: 'auto'}}
           /> */}
           {/* Banner image */}
-            {/* if mobile */}
-            {isMobile ? (
-              <Box sx={{
+          {/* if mobile */}
+          {isMobile ? (
+            <Box
+              sx={{
                 backgroundImage: `url(${prefersDarkMode ? "/pantry_dark.jpg" : "/pantry.jpg"})`,
-                backgroundSize: '160%', // Stretch the image to cover the entire Box
-                backgroundPosition: 'center', // Center the image in the Box
-                backgroundRepeat: 'no-repeat', // Prevent the image from repeating
-                width:"100%",
+                backgroundSize: "160%", // Stretch the image to cover the entire Box
+                backgroundPosition: "center", // Center the image in the Box
+                backgroundRepeat: "no-repeat", // Prevent the image from repeating
+                width: "100%",
                 height: "120px",
                 display: "flex",
                 justifyContent: "center",
-                alignItems: 'center',
-                flexDirection: 'column',
+                alignItems: "center",
+                flexDirection: "column",
                 color: "background.bannerColor",
-              }}>
-                <Typography sx={{ fontSize: "1.75rem" }}>{t("Welcome to myPantry")}</Typography>
-                <Typography sx={{ width: "75%", display: "flex", justifyContent: "center", alignItems: 'center', textAlign: 'center', fontSize: "0.7rem"}}>
-                  {t("Add in new pantry items using the + in the top left corner.")}
-                </Typography>
-                <Typography sx={{ width: "75%", display: "flex", justifyContent: "center", alignItems: 'center', textAlign: 'center', fontSize: "0.7rem" }}>
-                  {t("Recipes will generate below based on ingredients available.")}
-                </Typography>
-              </Box>
-            ) : (
-              // if desktop
-              <Box sx={{
+              }}
+            >
+              <Typography sx={{ fontSize: "1.75rem" }}>
+                {t("Welcome to myPantry")}
+              </Typography>
+              <Typography
+                sx={{
+                  width: "75%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  textAlign: "center",
+                  fontSize: "0.7rem",
+                }}
+              >
+                {t(
+                  "Add in new pantry items using the + in the top left corner.",
+                )}
+              </Typography>
+              <Typography
+                sx={{
+                  width: "75%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  textAlign: "center",
+                  fontSize: "0.7rem",
+                }}
+              >
+                {t(
+                  "Recipes will generate below based on ingredients available.",
+                )}
+              </Typography>
+            </Box>
+          ) : (
+            // if desktop
+            <Box
+              sx={{
                 backgroundImage: `url(${prefersDarkMode ? "/pantry_dark.jpg" : "/pantry.jpg"})`,
-                backgroundSize: '100%', // Stretch the image to cover the entire Box
-                backgroundPosition: 'center', // Center the image in the Box
-                backgroundRepeat: 'no-repeat', // Prevent the image from repeating
-                width:"100%",
-                height: "450px",
+                backgroundSize: "100%", // Stretch the image to cover the entire Box
+                backgroundPosition: "center", // Center the image in the Box
+                backgroundRepeat: "no-repeat", // Prevent the image from repeating
+                width: "100%",
+                height: "400px",
                 display: "flex",
                 justifyContent: "center",
-                alignItems: 'center',
-                flexDirection: 'column',
+                alignItems: "center",
+                flexDirection: "column",
                 color: "background.bannerColor",
-              }}>
-                <Typography sx={{ fontSize: "6.5rem" }}>{t("Welcome to myPantry")}</Typography>
-                <Typography sx={{ width: "100%", display: "flex", justifyContent: "center", alignItems: 'center', fontSize: "1.5rem" }}>
-                  {t("Add in new pantry items using the + in the top left corner.")}
-                </Typography>
-                <Typography sx={{ width: "100%", display: "flex", justifyContent: "center", alignItems: 'center', fontSize: "1.5rem" }}>
-                  {t("Recipes will generate below based on ingredients available.")}
-                </Typography>
-              </Box>
-            )}
+              }}
+            >
+              <Typography sx={{ fontSize: "6.5rem" }}>
+                {t("Welcome to myPantry")}
+              </Typography>
+              <Typography
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  fontSize: "1.5rem",
+                }}
+              >
+                {t(
+                  "Add in new pantry items using the + in the top left corner.",
+                )}
+              </Typography>
+              <Typography
+                sx={{
+                  width: "100%",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  fontSize: "1.5rem",
+                }}
+              >
+                {t(
+                  "Recipes will generate below based on ingredients available.",
+                )}
+              </Typography>
+            </Box>
+          )}
 
           {/* recipes */}
-          <Stack 
-            direction="row" 
-            alignItems="center" 
-            justifyContent="space-between" 
-            paddingX={2} 
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            paddingX={2}
             paddingY={1}
           >
-            {/* title */}
-            <Typography variant="h4" color="text.primary" fontWeight="bold">
-              {t("Recipes")}
-            </Typography>
+            <Stack display="flex" flexDirection={"row"} gap={1}>
+              {/* title */}
+              <Typography variant="h4" color="text.primary" fontWeight="bold">
+                {t("Recipes")}
+              </Typography>
+              <Button
+                onClick={generateRecipes()}
+                sx={{
+                  fontSize: "1rem",
+                  backgroundColor: "text.primary",
+                  color: "background.default",
+                  borderColor: "text.primary",
+                  borderRadius: "4px",
+                  "&:hover": {
+                    backgroundColor: "background.default",
+                    color: "text.primary",
+                    borderColor: "text.primary",
+                  },
+                }}
+              >
+                Generate
+              </Button>
+            </Stack>
 
             {/* search bar */}
             <Autocomplete
@@ -1036,11 +1201,11 @@ const NutritionPage = () => {
                 setRecipeSearchTerm(newInputValue);
               }}
               ListboxProps={{
-                component: 'div',
+                component: "div",
                 sx: {
-                  backgroundColor: 'background.default',
-                  color: 'text.primary',
-                }
+                  backgroundColor: "background.default",
+                  color: "text.primary",
+                },
               }}
               renderInput={(params) => (
                 <TextField
@@ -1049,32 +1214,34 @@ const NutritionPage = () => {
                   onFocus={() => setIsFocusedRecipe(true)}
                   onBlur={() => setIsFocusedRecipe(false)}
                   sx={{
-                    width: isFocusedRecipe ? '100%' : `${Math.max(recipeSearchTerm.length, 0) + 5}ch`,
-                    transition: 'width 0.3s',
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: 'background.default',
+                    width: isFocusedRecipe
+                      ? "100%"
+                      : `${Math.max(recipeSearchTerm.length, 0) + 5}ch`,
+                    transition: "width 0.3s",
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "background.default",
                       },
-                      '&:hover fieldset': {
-                        borderColor: 'text.primary',
+                      "&:hover fieldset": {
+                        borderColor: "text.primary",
                       },
-                      '&.Mui-focused fieldset': {
-                        borderColor: 'text.primary',
+                      "&.Mui-focused fieldset": {
+                        borderColor: "text.primary",
                       },
                     },
-                    '& .MuiInputBase-input': {
-                      color: 'text.primary',
+                    "& .MuiInputBase-input": {
+                      color: "text.primary",
                     },
                   }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon style={{ color: 'text.primary' }} />
+                        <SearchIcon style={{ color: "text.primary" }} />
                       </InputAdornment>
                     ),
                   }}
                   InputLabelProps={{
-                    style: { color: 'text.primary', textAlign: 'center' },
+                    style: { color: "text.primary", textAlign: "center" },
                   }}
                 />
               )}
@@ -1083,82 +1250,95 @@ const NutritionPage = () => {
 
           <Divider />
           {/* recipes stack */}
-          <Stack paddingX={2} flexDirection="row" alignItems="flex-start" style={{ overflow: 'scroll' }}>
-            {filteredRecipes.map(({ recipe, ingredients, instructions, image }, index) => (
-              <Button 
-                key={index} 
-                sx={{ color: "text.primary", marginRight: 2, flexShrink: 0 }}
-                onClick={() => handleRecipeModal(index)}
-              >
-                {/* recipe item */}
-                <Box
-                  display="flex"
-                  flexDirection="column"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  bgcolor="background.default"
-                  padding={1}
-                  sx={{
-                    width: '275px',
-                    borderRadius: '10px',
-                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-                    overflow: 'hidden',
-                  }}
+          <Stack
+            paddingX={2}
+            flexDirection="row"
+            alignItems="flex-start"
+            style={{ overflow: "scroll" }}
+          >
+            {filteredRecipes.map(
+              ({ recipe, ingredients, instructions, image }, index) => (
+                <Button
+                  key={index}
+                  sx={{ color: "text.primary", marginRight: 2, flexShrink: 0 }}
+                  onClick={() => handleRecipeModal(index)}
                 >
-                  {/* recipe image */}
-                  <Stack direction="column" justifyContent="space-between" alignItems="center">
-                    
-                    {image && image !== null ? (
-                      <Image 
-                        src={image}
-                        alt={recipe}
-                        width={200}
-                        height={200}
-                        style={{ borderRadius: '10px', }}
-                      />
-                    ) : (
-                      <Image 
-                        src="/recipe.jpg"
-                        alt={recipe}
-                        width={200}
-                        height={200}
-                        style={{ borderRadius: '10px', objectFit: 'cover' }}
-                      />
-                    )}
-                  </Stack>
-                  {/* recipe name */}
-                  <Stack>
-                    <Typography
-                      variant="h5"
-                      color="text.primary"
-                      textAlign="center"
-                      fontWeight="550"
-                      style={{
-                        flexGrow: 1,
-                        textAlign: "center",
-                        overflow: 'hidden',
-                        padding: 5,
-                      }}
+                  {/* recipe item */}
+                  <Box
+                    display="flex"
+                    flexDirection="column"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    bgcolor="background.default"
+                    padding={1}
+                    sx={{
+                      width: "275px",
+                      borderRadius: "10px",
+                      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {/* recipe image */}
+                    <Stack
+                      direction="column"
+                      justifyContent="space-between"
+                      alignItems="center"
                     >
-                      {truncateString(recipe.charAt(0).toUpperCase() + recipe.slice(1), 50)}
-                    </Typography>
-                  </Stack>
-                </Box>
-              </Button>
-            ))}
+                      {image && image !== null ? (
+                        <Image
+                          src={image}
+                          alt={recipe}
+                          width={200}
+                          height={200}
+                          style={{ borderRadius: "10px" }}
+                        />
+                      ) : (
+                        <Image
+                          src="/recipe.jpg"
+                          alt={recipe}
+                          width={200}
+                          height={200}
+                          style={{ borderRadius: "10px", objectFit: "cover" }}
+                        />
+                      )}
+                    </Stack>
+                    {/* recipe name */}
+                    <Stack>
+                      <Typography
+                        variant="h5"
+                        color="text.primary"
+                        textAlign="center"
+                        fontWeight="550"
+                        style={{
+                          flexGrow: 1,
+                          textAlign: "center",
+                          overflow: "hidden",
+                          padding: 5,
+                        }}
+                      >
+                        {truncateString(
+                          recipe.charAt(0).toUpperCase() + recipe.slice(1),
+                          50,
+                        )}
+                      </Typography>
+                    </Stack>
+                  </Box>
+                </Button>
+              ),
+            )}
           </Stack>
 
           {/* pantry */}
-          <Stack 
-            direction="row" 
-            alignItems="center" 
-            justifyContent="space-between" 
-            paddingX={2} 
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="space-between"
+            paddingX={2}
             paddingY={1}
           >
             {/* title */}
             <Typography variant="h4" color="text.primary" fontWeight="bold">
-              {t('Pantry')}
+              {t("Pantry")}
             </Typography>
 
             {/* search bar */}
@@ -1170,11 +1350,11 @@ const NutritionPage = () => {
                 setSearchTerm(newInputValue);
               }}
               ListboxProps={{
-                component: 'div',
+                component: "div",
                 sx: {
-                  backgroundColor: 'background.default',
-                  color: 'text.primary',
-                }
+                  backgroundColor: "background.default",
+                  color: "text.primary",
+                },
               }}
               renderInput={(params) => (
                 <TextField
@@ -1183,32 +1363,34 @@ const NutritionPage = () => {
                   onFocus={() => setIsFocused(true)}
                   onBlur={() => setIsFocused(false)}
                   sx={{
-                    width: isFocused ? '100%' : `${Math.max(searchTerm.length, 0) + 5}ch`,
-                    transition: 'width 0.3s',
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: 'background.default',
+                    width: isFocused
+                      ? "100%"
+                      : `${Math.max(searchTerm.length, 0) + 5}ch`,
+                    transition: "width 0.3s",
+                    "& .MuiOutlinedInput-root": {
+                      "& fieldset": {
+                        borderColor: "background.default",
                       },
-                      '&:hover fieldset': {
-                        borderColor: 'text.primary',
+                      "&:hover fieldset": {
+                        borderColor: "text.primary",
                       },
-                      '&.Mui-focused fieldset': {
-                        borderColor: 'text.primary',
+                      "&.Mui-focused fieldset": {
+                        borderColor: "text.primary",
                       },
                     },
-                    '& .MuiInputBase-input': {
-                      color: 'text.primary',
+                    "& .MuiInputBase-input": {
+                      color: "text.primary",
                     },
                   }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon style={{ color: 'text.primary' }} />
+                        <SearchIcon style={{ color: "text.primary" }} />
                       </InputAdornment>
                     ),
                   }}
                   InputLabelProps={{
-                    style: { color: 'text.primary', textAlign: 'center' },
+                    style: { color: "text.primary", textAlign: "center" },
                   }}
                 />
               )}
@@ -1218,7 +1400,12 @@ const NutritionPage = () => {
           <Divider />
           <Box height={25}></Box>
           {/* pantry stack */}
-          <Grid container spacing={2} paddingX={1} sx={{paddingBottom: '60px'}}>
+          <Grid
+            container
+            spacing={2}
+            paddingX={1}
+            sx={{ paddingBottom: "60px", overflowY: "auto" }}
+          >
             {filteredPantry.map(({ name, count, image }, index) => (
               // pantry item
               <Grid item xs={12} sm={4} key={index}>
@@ -1241,28 +1428,38 @@ const NutritionPage = () => {
                       textAlign="left"
                       style={{
                         flexGrow: 1,
-                        whiteSpace: 'nowrap',
+                        whiteSpace: "nowrap",
                       }}
                     >
-                      {truncateString(name.charAt(0).toUpperCase() + name.slice(1), 16)}
+                      {truncateString(
+                        name.charAt(0).toUpperCase() + name.slice(1),
+                        16,
+                      )}
                     </Typography>
                     {/* quantity adjuster */}
-                    <Stack width="100%" direction="row" justifyContent="start" alignItems="center">
+                    <Stack
+                      width="100%"
+                      direction="row"
+                      justifyContent="start"
+                      alignItems="center"
+                    >
                       <Button
                         sx={{
                           height: "25px",
                           minWidth: "25px",
-                          backgroundColor: 'lightgray',
-                          color: 'black',
-                          borderColor: 'lightgray',
-                          borderRadius: '50px',
-                          '&:hover': {
-                            backgroundColor: 'darkgray',
-                            color: 'text.primary',
-                            borderColor: 'text.primary',
+                          backgroundColor: "lightgray",
+                          color: "black",
+                          borderColor: "lightgray",
+                          borderRadius: "50px",
+                          "&:hover": {
+                            backgroundColor: "darkgray",
+                            color: "text.primary",
+                            borderColor: "text.primary",
                           },
                         }}
-                        onClick={() => handleQuantityChange(name, Math.max(0, count - 1))}
+                        onClick={() =>
+                          handleQuantityChange(name, Math.max(0, count - 1))
+                        }
                       >
                         -
                       </Button>
@@ -1270,50 +1467,59 @@ const NutritionPage = () => {
                         label=""
                         variant="outlined"
                         value={parseInt(count)}
-                        onChange={(e) => handleQuantityChange(name, parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          handleQuantityChange(
+                            name,
+                            parseInt(e.target.value) || 0,
+                          )
+                        }
                         sx={{
                           width: "45px",
-                          '& .MuiOutlinedInput-root': {
-                            color: 'text.primary',
-                            '& fieldset': {
-                              borderColor: 'background.default',
+                          "& .MuiOutlinedInput-root": {
+                            color: "text.primary",
+                            "& fieldset": {
+                              borderColor: "background.default",
                             },
-                            '&:hover fieldset': {
-                              borderColor: 'background.default',
+                            "&:hover fieldset": {
+                              borderColor: "background.default",
                             },
-                            '&.Mui-focused fieldset': {
-                              borderColor: 'lightgray',
+                            "&.Mui-focused fieldset": {
+                              borderColor: "lightgray",
                             },
                           },
-                          '& .MuiInputLabel-root': {
-                            color: 'text.primary',
+                          "& .MuiInputLabel-root": {
+                            color: "text.primary",
                           },
                         }}
                         InputProps={{
                           sx: {
-                            textAlign: 'center',
-                            fontSize: '0.75rem',
+                            textAlign: "center",
+                            fontSize: "0.75rem",
                           },
                           inputProps: {
-                            style: { textAlign: 'center' },
+                            style: { textAlign: "center" },
                           },
                         }}
                         InputLabelProps={{
-                          style: { color: 'text.primary', width: '100%', textAlign: 'center' },
+                          style: {
+                            color: "text.primary",
+                            width: "100%",
+                            textAlign: "center",
+                          },
                         }}
                       />
                       <Button
                         sx={{
                           height: "25px",
                           minWidth: "25px",
-                          backgroundColor: 'lightgray',
-                          color: 'black',
-                          borderColor: 'lightgray',
-                          borderRadius: '50px',
-                          '&:hover': {
-                            backgroundColor: 'darkgray',
-                            color: 'text.primary',
-                            borderColor: 'text.primary',
+                          backgroundColor: "lightgray",
+                          color: "black",
+                          borderColor: "lightgray",
+                          borderRadius: "50px",
+                          "&:hover": {
+                            backgroundColor: "darkgray",
+                            color: "text.primary",
+                            borderColor: "text.primary",
                           },
                         }}
                         onClick={() => handleQuantityChange(name, count + 1)}
@@ -1323,14 +1529,19 @@ const NutritionPage = () => {
                     </Stack>
                   </Stack>
                   {/* pantry ingredient image */}
-                  <Stack width="100%" direction="column" justifyContent="space-between" alignItems="flex-end">
+                  <Stack
+                    width="100%"
+                    direction="column"
+                    justifyContent="space-between"
+                    alignItems="flex-end"
+                  >
                     {image ? (
                       <Image
                         src={image}
                         alt={name}
                         width={100}
                         height={100}
-                        style={{ borderRadius: '10px', objectFit: 'cover', }}
+                        style={{ borderRadius: "10px", objectFit: "cover" }}
                       />
                     ) : (
                       <Image
@@ -1338,7 +1549,7 @@ const NutritionPage = () => {
                         alt={name}
                         width={100}
                         height={100}
-                        style={{ borderRadius: '10px', objectFit: 'cover'}}
+                        style={{ borderRadius: "10px", objectFit: "cover" }}
                       />
                     )}
                   </Stack>
@@ -1351,6 +1562,6 @@ const NutritionPage = () => {
       </Box>
     </ThemeProvider>
   );
-}
+};
 
 export default NutritionPage;

@@ -6,30 +6,25 @@ import {
   BottomNavigationAction,
   Box,
   Button,
+  Card,
+  CardContent,
+  Chip,
+  createTheme,
+  CssBaseline,
   FormControl,
+  Grid,
   InputLabel,
   MenuItem,
   NativeSelect,
   Select,
-  Typography,
-} from "@mui/material";
-import {
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  setDoc,
-} from "firebase/firestore";
-import { createContext, useEffect, useState } from "react";
-import { firestore } from "./firebase";
-// light/dark theme
-import {
-  createTheme,
-  CssBaseline,
+  Stack,
   ThemeProvider,
+  Typography,
   useMediaQuery,
 } from "@mui/material";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { createContext, useEffect, useState } from "react";
+import { firestore } from "./firebase";
 // import icons
 import { CalendarToday, FitnessCenter, Person } from "@mui/icons-material";
 import HomeIcon from "@mui/icons-material/Home";
@@ -49,6 +44,7 @@ import { UserButton, useUser } from "@clerk/nextjs";
 // stripe
 // router
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 // tutorial
 import JoyRide, { STATUS } from "react-joyride";
 
@@ -88,7 +84,6 @@ const darkTheme = createTheme({
   },
 });
 
-// guest mode
 export const GuestContext = createContext();
 
 // google calendar
@@ -106,38 +101,6 @@ export default function Home() {
   const { t } = useTranslation();
   // user
   const { user, isLoaded, isSignedIn } = useUser(); // Clerk hook to get the current user
-  // guest mode
-  const [guestData, setGuestData] = useState({});
-  const [guestImage, setGuestImage] = useState("");
-  const [guestEquipment, setGuestEquipment] = useState([]);
-  const [guestMessages, setGuestMessages] = useState([]);
-  const [guestPlan, setGuestPlan] = useState("");
-  const [guestEvents, setGuestEvents] = useState([]);
-  // guest mode hooks
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedData = sessionStorage.getItem("guestData");
-      if (savedData) {
-        setGuestData(JSON.parse(savedData));
-      }
-    }
-  }, []);
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("guestData", JSON.stringify(guestData));
-    }
-  }, [guestData]);
-  useEffect(() => {
-    const handleUnload = () => {
-      if (typeof window !== "undefined") {
-        sessionStorage.removeItem("guestData");
-      }
-    };
-    window.addEventListener("beforeunload", handleUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleUnload);
-    };
-  }, []);
   // local storage
   const [localData, setLocalData] = useState({});
   const [localImage, setLocalImage] = useState("");
@@ -173,7 +136,6 @@ export default function Home() {
       fetchPremiumMode();
 
       const setPremiumMode = async () => {
-        console.log("setpremium mode page.js");
         if (user) {
           try {
             const userDocRef = doc(firestore, "users", user.id);
@@ -213,7 +175,7 @@ export default function Home() {
   const pages = [
     <MyInfoPage key="myInfo" setValue={setValue} />,
     <EquipmentPage key="equipment" />,
-    <TrainerGPTPage key="trainerGPT" />,
+    <TrainerGPTPage key="trainerGPT" setValue={setValue} />,
     // <NutritionPage key = "nutrition" />,
     <SessionContextProvider key="plan" supabaseClient={supabase}>
       <PlanPage />
@@ -302,13 +264,6 @@ export default function Home() {
     if (user) {
       const userDocRef = doc(firestore, "users", user.id);
       await setDoc(userDocRef, { userData: data }, { merge: true });
-    } else {
-      // Updating guest data
-      setGuestData((prevState) => {
-        const updatedGuestData = { ...prevState, ...data };
-        console.log(updatedGuestData); // Log updated guestData here
-        return updatedGuestData;
-      });
     }
   };
 
@@ -352,7 +307,7 @@ export default function Home() {
   // State to manage weight and unit
   const [weightUnit, setWeightUnit] = useState("kg"); // Default to kg
 
-  const handleWeightUnitChange = (event, newUnit) => {
+  const handleWeightUnitChange = (_event, newUnit) => {
     if (newUnit !== null) {
       setWeightUnit(newUnit);
 
@@ -370,7 +325,7 @@ export default function Home() {
 
   // state to manage height and unit
   const [heightUnit, setHeightUnit] = useState("cm"); // Default to cm
-  const handleHeightUnitChange = (event, newUnit) => {
+  const handleHeightUnitChange = (_event, newUnit) => {
     if (newUnit !== null) {
       setHeightUnit(newUnit);
 
@@ -409,10 +364,7 @@ export default function Home() {
   };
 
   const handleFeetChange = (value) => {
-    const [feet, inches] = formData["What is Your Height?"]?.split("'") || [
-      "",
-      "",
-    ];
+    const [, inches] = formData["What is Your Height?"]?.split("'") || ["", ""];
     setFormData((prevFormData) => ({
       ...prevFormData,
       ["What is Your Height?"]: `${value || 0}'${inches.replace('"', "") || 0}"`, // Update only feet
@@ -421,10 +373,7 @@ export default function Home() {
 
   const handleInchesChange = (value) => {
     const limitedInches = Math.min(parseInt(value, 10), 11); // Ensure inches are capped at 12
-    const [feet, inches] = formData["What is Your Height?"]?.split("'") || [
-      "",
-      "",
-    ];
+    const [feet] = formData["What is Your Height?"]?.split("'") || ["", ""];
     setFormData((prevFormData) => ({
       ...prevFormData,
       ["What is Your Height?"]: `${feet || 0}'${limitedInches || 0}"`, // Update only inches
@@ -441,7 +390,7 @@ export default function Home() {
   // upon user change, get prefLanguage and also data
   useEffect(() => {
     const initializeData = async () => {
-      // fix loading speed. store all acquired data from firebase into guest storage.
+      // use local cache to avoid extra Firebase reads on re-render
       if (localData.Age && localMessages.length > 0) {
         setFormData(localData);
         setIsSummary(true);
@@ -455,124 +404,13 @@ export default function Home() {
           if (userDoc.exists() ? userDoc.data().userData : null) {
             setIsSummary(true);
           }
-          await transferGuestDataToUser();
-        } else {
-          if (guestData && guestData.Age) {
-            setIsSummary(true);
-          } else {
-            setIsSummary(false);
-            setValue(0);
-          }
         }
         setLoading(false);
       }
     };
 
     initializeData();
-  }, [user, isLoaded, guestData, localData, localMessages.length]);
-
-  const transferGuestDataToUser = async () => {
-    const guestDocRef = doc(firestore, "users", "guest");
-    const userDocRef = doc(firestore, "users", user.id);
-
-    try {
-      // Transfer equipment data
-      const guestEquipmentCollectionRef = collection(guestDocRef, "equipment");
-      const userEquipmentCollectionRef = collection(userDocRef, "equipment");
-
-      const guestEquipmentSnapshot = await getDocs(guestEquipmentCollectionRef);
-      guestEquipmentSnapshot.forEach(async (item) => {
-        const userEquipmentDocRef = doc(userEquipmentCollectionRef, item.id);
-        const userEquipmentDoc = await getDoc(userEquipmentDocRef);
-
-        if (!userEquipmentDoc.exists()) {
-          // Only set guest equipment data if the user does not have it
-          await setDoc(userEquipmentDocRef, item.data());
-        }
-        await deleteDoc(item.ref);
-      });
-
-      // Check if the user has any existing chat data
-      const guestChatCollectionRef = collection(guestDocRef, "chat");
-      const userChatCollectionRef = collection(userDocRef, "chat");
-
-      const guestChatSnapshot = await getDocs(guestChatCollectionRef);
-      guestChatSnapshot.forEach(async (item) => {
-        const userChatDocRef = doc(userChatCollectionRef, item.id);
-        const userChatDoc = await getDoc(userChatDocRef);
-
-        if (!userChatDoc.exists()) {
-          await setDoc(userChatDocRef, item.data());
-        }
-        await deleteDoc(item.ref);
-      });
-      // Transfer events data
-      const guestEventCollectionRef = collection(guestDocRef, "events");
-      const userEventCollectionRef = collection(userDocRef, "events");
-
-      const guestEventSnapshot = await getDocs(guestEventCollectionRef);
-      const userEventSnapshot = await getDocs(userEventCollectionRef);
-
-      if (userEventSnapshot.empty) {
-        guestEventSnapshot.forEach(async (eventDoc) => {
-          const userEventDocRef = doc(userEventCollectionRef, eventDoc.id);
-
-          // Copy event data from guest to user
-          await setDoc(userEventDocRef, eventDoc.data());
-
-          // Optionally delete the event from the guest collection
-          await deleteDoc(eventDoc.ref);
-        });
-      }
-
-      // Transfer user data and profile picture
-      const guestDoc = await getDoc(guestDocRef);
-      if (guestDoc.exists()) {
-        const guestData = guestDoc.data();
-        const userDoc = await getDoc(userDocRef);
-
-        // Ensure plan exists and is not undefined
-        const guestPlan = guestData?.plan || null;
-
-        if (userDoc.exists()) {
-          const userData = userDoc.data();
-
-          // Merge guest data only if user data does not exist
-          const mergedUserData = {
-            userData: userData?.userData || guestData.userData,
-            profilePic: userData?.profilePic || guestData.profilePic,
-            plan: userData?.plan || guestPlan, // Ensure that the plan is defined
-          };
-
-          await setDoc(userDocRef, mergedUserData, { merge: true });
-        } else {
-          // If no user document exists, set the guest data directly
-          await setDoc(
-            userDocRef,
-            {
-              userData: guestData.userData,
-              profilePic: guestData.profilePic,
-              plan: guestPlan, // Ensure that the plan is defined
-            },
-            { merge: true },
-          );
-        }
-      }
-
-      // If user data is transferred, set a summary
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists() && userDoc.data().userData) {
-        setIsSummary(true);
-      }
-
-      // Delete guest data
-      await deleteDoc(guestDocRef);
-
-      console.log("Guest data transferred to user and guest data deleted.");
-    } catch (error) {
-      console.error("Error transferring guest data to user:", error);
-    }
-  };
+  }, [user, isLoaded, localData, localMessages.length]);
 
   // Track whether the tutorial has been completed
   const [isTutorialComplete, setIsTutorialComplete] = useState(false);
@@ -623,21 +461,8 @@ export default function Home() {
   }
 
   return (
-    // guest mode
     <GuestContext.Provider
       value={{
-        guestData,
-        setGuestData,
-        guestImage,
-        setGuestImage,
-        guestEquipment,
-        setGuestEquipment,
-        guestMessages,
-        setGuestMessages,
-        guestPlan,
-        setGuestPlan,
-        guestEvents,
-        setGuestEvents,
         localData,
         setLocalData,
         localImage,
@@ -664,474 +489,396 @@ export default function Home() {
                 run={true}
                 steps={[
                   {
-                    title: t("Welcome to trainerGPT"),
+                    title: "Welcome to trAIner 👋",
                     content: (
-                      <FormControl
-                        id={"language-button"}
-                        sx={{ width: "85px" }}
-                      >
-                        <InputLabel
-                          variant="standard"
-                          htmlFor="uncontrolled-native"
-                        >
-                          {t("language")}
-                        </InputLabel>
-                        <NativeSelect
-                          defaultValue={t("en")}
-                          onChange={handleLanguageChange}
-                          inputProps={{
-                            name: t("language"),
-                            id: "uncontrolled-native",
-                          }}
-                          sx={{
-                            "& .MuiNativeSelect-select": {
-                              "&:focus": {
-                                backgroundColor: "transparent",
-                              },
-                            },
-                            "&::before": {
-                              borderBottom: "none",
-                            },
-                            "&::after": {
-                              borderBottom: "none",
-                            },
-                          }}
-                          disableUnderline
-                        >
-                          <option value="en">English</option>
-                          <option value="cn">中文（简体）</option>
-                          <option value="tc">中文（繁體）</option>
-                          <option value="es">Español</option>
-                          <option value="fr">Français</option>
-                          <option value="de">Deutsch</option>
-                          <option value="jp">日本語</option>
-                          <option value="kr">한국어</option>
-                        </NativeSelect>
-                      </FormControl>
+                      <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
+                        {t("You're all set. Let's take a quick look at what's inside.")}
+                      </Typography>
                     ),
-                    locale: {
-                      skip: <strong>{t("Skip Tour")}</strong>,
-                      next: t("Next"),
-                      back: t("Back"),
-                    },
                     placement: "center",
                     target: "body",
+                    locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next") },
                   },
-                  // {
-                  //   title: t("Language Selection"),
-                  //   content: <Typography variant="h6">{t("Select your language with the top left button.")}</Typography>,
-                  //   placement: "auto",
-                  //   target: "#language-button", // Only shows when on the page with language button
-                  //   locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
-                  // },
-                  // {
-                  //   title: t("Sign In / Sign Up"),
-                  //   content: <Typography variant="h6">{t("Sign in or sign up with the top right button.")}</Typography>,
-                  //   placement: "auto",
-                  //   target: "#auth-button", // Only shows when on the page with auth button
-                  //   locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
-                  // },
                   {
                     title: t("Personal Information"),
                     content: (
-                      <Typography variant="h6">{t("Home page.")}</Typography>
+                      <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
+                        {t("View and update your fitness profile — age, weight, goals, and more.")}
+                      </Typography>
                     ),
                     placement: "auto",
                     target: "#myinfo-step",
-                    locale: {
-                      skip: <strong>{t("Skip Tour")}</strong>,
-                      next: t("Next"),
-                      back: t("Back"),
-                    },
+                    locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
                   },
                   {
                     title: t("Log Equipment"),
                     content: (
-                      <Typography variant="h6">
-                        {t("Let us know what equipment you have access to.")}
+                      <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
+                        {t("Tell us what gear you have. Your AI plan adapts to exactly what's available to you.")}
                       </Typography>
                     ),
                     placement: "auto",
                     target: "#equipment-step",
-                    locale: {
-                      skip: <strong>{t("Skip Tour")}</strong>,
-                      next: t("Next"),
-                      back: t("Back"),
-                    },
+                    locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
                   },
                   {
                     title: t("Get a Workout Plan"),
                     content: (
-                      <Typography variant="h6">
-                        {t("Ask the trAIner for a custom workout plan.")}.
+                      <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
+                        {t("Chat with your AI coach and get a personalized workout plan built around your goals.")}
                       </Typography>
                     ),
                     placement: "auto",
                     target: "#trainer-step",
-                    locale: {
-                      skip: <strong>{t("Skip Tour")}</strong>,
-                      next: t("Next"),
-                      back: t("Back"),
-                    },
+                    locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
                   },
                   {
                     title: t("Make Your Plan"),
                     content: (
-                      <Typography variant="h6">
-                        {t("Use this page to create your schedule")}
+                      <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
+                        {t("Schedule your sessions on the calendar and keep your training consistent.")}
                       </Typography>
                     ),
                     placement: "auto",
                     target: "#plan-step",
-                    locale: {
-                      skip: <strong>{t("Skip Tour")}</strong>,
-                      next: t("Next"),
-                      back: t("Back"),
-                    },
+                    locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
                   },
                   {
-                    title: t("Craft Recipes"),
+                    title: t("Nutrition & Recipes"),
                     content: (
-                      <Typography variant="h6">
-                        {t(
-                          "*Premium only* Use this page to craft recipes from the ingredients you have available.",
-                        )}
+                      <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
+                        {t("Log your pantry and get AI-generated recipes tailored to what you have. Premium feature.")}
                       </Typography>
                     ),
                     placement: "auto",
                     target: "#pantry-step",
-                    locale: {
-                      skip: <strong>{t("Skip Tour")}</strong>,
-                      next: t("Next"),
-                      back: t("Back"),
-                    },
+                    locale: { skip: <strong>{t("Skip Tour")}</strong>, back: t("Back"), last: t("Done") },
                   },
-                  // {
-                  //   title: t("Further Clarification"),
-                  //   content: <Typography variant="h6">{t("For further clarification on what each page does, click the (i) icon at the top of the page.")}</Typography>,
-                  //   placement: "auto",
-                  //   target: "#info-icon", // Assuming there's an element with this ID
-                  //   locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back"), last: t("Last")  },
-                  // },
                 ]}
                 hideCloseButton
                 scrollToFirstStep
                 showSkipButton
                 showProgress
-                spotlightPadding={0} // Add or adjust padding here
+                spotlightPadding={4}
                 styles={{
                   options: {
-                    arrowColor: currentTheme.palette.background.paper, // Match the tooltip background
-                    backgroundColor: currentTheme.palette.background.paper, // Tooltip background color
-                    overlayColor:
-                      currentTheme.palette.mode === "dark"
-                        ? "rgba(0, 0, 0, 0.7)"
-                        : "rgba(255, 255, 255, 0.7)", // Overlay color
-                    primaryColor: currentTheme.palette.primary.main, // Primary color for buttons
-                    textColor: currentTheme.palette.text.primary, // Text color in tooltips
-                    zIndex: 1000, // Ensure it is above other elements
+                    arrowColor: currentTheme.palette.background.paper,
+                    backgroundColor: currentTheme.palette.background.paper,
+                    overlayColor: darkMode ? "rgba(0,0,0,0.65)" : "rgba(0,0,0,0.4)",
+                    primaryColor: "#E53935",
+                    textColor: currentTheme.palette.text.primary,
+                    zIndex: 1000,
                   },
                   buttonNext: {
-                    backgroundColor: currentTheme.palette.primary.main, // Background color of the "Next" button
-                    color: currentTheme.palette.primary.contrastText, // Text color on the "Next" button
+                    background: "linear-gradient(90deg, #E53935, #FB8C00)",
+                    color: "white",
+                    borderRadius: "999px",
+                    border: "none",
+                    padding: "8px 20px",
+                    fontWeight: "bold",
                   },
                   buttonBack: {
-                    color: currentTheme.palette.primary.main, // Color of the "Back" button
+                    color: currentTheme.palette.text.secondary,
                   },
                   buttonSkip: {
-                    color: currentTheme.palette.primary.main, // Color of the "Skip" button
+                    color: currentTheme.palette.text.secondary,
                   },
                   tooltip: {
-                    borderRadius: "8px", // Rounded corners for the tooltip
-                    boxShadow: currentTheme.shadows[3], // Use MUI shadow for consistency
-                    padding: "12px", // Padding inside the tooltip
+                    borderRadius: "12px",
+                    boxShadow: currentTheme.shadows[4],
+                    padding: "20px",
+                    maxWidth: "300px",
                   },
                   tooltipContainer: {
-                    textAlign: "left", // Align text to the left for readability
+                    textAlign: "left",
                   },
                   tooltipTitle: {
-                    // marginBottom: '8px', // Space below the title
-                    fontSize: "1.25rem", // Title font size
-                    fontWeight: "bold", // Bold title
-                    color: currentTheme.palette.text.primary, // Title color
+                    fontSize: "1rem",
+                    fontWeight: "bold",
+                    fontFamily: '"Gilroy", "Arial", sans-serif',
+                    color: currentTheme.palette.text.primary,
+                    marginBottom: "6px",
                   },
                   tooltipContent: {
-                    fontSize: "1rem", // Content font size
-                    color: currentTheme.palette.text.secondary, // Content text color
+                    fontSize: "0.875rem",
+                    color: currentTheme.palette.text.secondary,
+                    padding: "0",
                   },
                   spotlight: {
-                    backgroundColor: darkMode
-                      ? "rgba(255, 255, 255, 0.5)" // Example for light mode (50% opacity white)
-                      : "rgba(18, 18, 18, 0.5)", // Example for dark mode (50% opacity black)
-                    borderRadius: "8px", // Rounded corners for spotlighted element
-                    boxShadow: currentTheme.shadows[2], // Add shadow to the spotlighted element
-                  },
-                  overlay: {
-                    backgroundColor:
-                      currentTheme.palette.mode === "dark"
-                        ? "rgba(0, 0, 0, 0.7)"
-                        : "rgba(255, 255, 255, 0.7)", // Dim the background
+                    borderRadius: "10px",
                   },
                 }}
               />
             )}
             {isSummary ? (
               <Box
-                width="100vw"
-                // height="100vh"
-                display="flex"
-                justifyContent="center"
-                alignItems="center"
-                flexDirection="column"
-                gap={2}
-                // bgcolor="background.default"
-                fontFamily="sans-serif"
+                sx={{
+                  width: "100vw",
+                  height: "100dvh",
+                  display: "flex",
+                  flexDirection: "row",
+                  overflow: "hidden",
+                  bgcolor: "background.default",
+                }}
               >
-                <Box
-                  width="100%"
-                  height="100%"
-                  display="flex"
-                  flexDirection={"row"}
-                  justifyContent={"center"}
-                  alignItems={"center"}
-                  backgroundColor="background.bubbles"
-                >
-                  {/* sidebar */}
-                  {!isMobile && (
-                    <Box
-                      width="100px"
-                      height="750px"
-                      paddingBottom="25px"
-                      // backgroundColor="red"
-                    >
-                      <BottomNavigation
-                        orientation="vertical"
-                        value={value}
-                        onChange={(event, newValue) => setValue(newValue)}
-                        sx={{
-                          width: "100px",
-                          height: "100%",
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          backgroundColor: "inherit",
-                        }}
-                      >
-                        <BottomNavigationAction
-                          id={"myinfo-step"}
-                          label={t("Home")}
-                          icon={<HomeIcon />}
-                          showLabel
-                          sx={{
-                            "& .MuiBottomNavigationAction-label": {
-                              fontFamily: '"Gilroy", "Arial", sans-serif',
-                            },
-                            "& .MuiSvgIcon-root": {
-                              fontSize: "36px", // Icon size
-                            },
-                            minWidth: "100px", // Increase width of button area
-                            padding: "20px", // Increase padding
-                            height: "80px", // Increase height of button area
-                          }}
-                        />
-                        <BottomNavigationAction
-                          id={"equipment-step"}
-                          label={t("Equipment")}
-                          icon={<FitnessCenter />}
-                          showLabel
-                          sx={{
-                            "& .MuiBottomNavigationAction-label": {
-                              fontFamily: '"Gilroy", "Arial", sans-serif',
-                            },
-                            "& .MuiSvgIcon-root": {
-                              fontSize: "36px",
-                            },
-                            minWidth: "100px",
-                            padding: "20px",
-                            height: "80px",
-                          }}
-                        />
-                        <BottomNavigationAction
-                          id={"trainer-step"}
-                          label={t("trAIner")}
-                          icon={<Person />}
-                          showLabel
-                          sx={{
-                            "& .MuiBottomNavigationAction-label": {
-                              fontFamily: '"Gilroy", "Arial", sans-serif',
-                            },
-                            "& .MuiSvgIcon-root": {
-                              fontSize: "36px",
-                            },
-                            minWidth: "100px",
-                            padding: "20px",
-                            height: "80px",
-                          }}
-                        />
-                        <BottomNavigationAction
-                          id={"plan-step"}
-                          label={t("Planner")}
-                          icon={<CalendarToday />}
-                          showLabel
-                          sx={{
-                            "& .MuiBottomNavigationAction-label": {
-                              fontFamily: '"Gilroy", "Arial", sans-serif',
-                            },
-                            "& .MuiSvgIcon-root": {
-                              fontSize: "36px",
-                            },
-                            minWidth: "100px",
-                            padding: "20px",
-                            height: "80px",
-                          }}
-                        />
-                        <BottomNavigationAction
-                          id={"pantry-step"}
-                          label={t("Pantry")}
-                          icon={<LocalDiningIcon />}
-                          showLabel
-                          sx={{
-                            "& .MuiBottomNavigationAction-label": {
-                              fontFamily: '"Gilroy", "Arial", sans-serif',
-                            },
-                            "& .MuiSvgIcon-root": {
-                              fontSize: "36px",
-                            },
-                            minWidth: "100px",
-                            padding: "20px",
-                            height: "80px",
-                          }}
-                        />
-                      </BottomNavigation>
-                    </Box>
-                  )}
-
+                {/* ── Desktop sidebar ── */}
+                {!isMobile && (
                   <Box
-                    maxWidth={isMobile ? "100vw" : "calc(100vw - 90px)"} // Subtract the sidebar width from the total width
-                    maxHeight={isMobile ? "calc(100vh - 60px)" : "100vh"}
-                    height={isMobile ? "calc(100vh - 60px)" : "100vh"}
-                    flex="1" // This makes sure the content takes up the remaining height
-                    bgcolor="background.default"
-                    // overflow="auto" // Allows scrolling if content is taller than the available space
-                    display="flex"
-                    justifyContent="center"
-                    alignItems="center"
+                    sx={{
+                      width: 72,
+                      height: "100vh",
+                      flexShrink: 0,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      borderRight: "1px solid",
+                      borderColor: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)",
+                      bgcolor: "background.default",
+                      py: 2.5,
+                    }}
                   >
-                    {pages[value]}
+                    {/* Brand mark */}
+                    <Typography
+                      sx={{
+                        fontFamily: '"Gilroy", "Arial", sans-serif',
+                        fontWeight: 900,
+                        fontSize: "0.95rem",
+                        background: "linear-gradient(90deg, #E53935, #FB8C00)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        mb: 3,
+                        letterSpacing: "-0.5px",
+                        userSelect: "none",
+                      }}
+                    >
+                      trAI
+                    </Typography>
+
+                    {/* Nav items */}
+                    {[
+                      { id: "myinfo-step", icon: <HomeIcon />, label: t("Home"), tabIdx: 0 },
+                      { id: "equipment-step", icon: <FitnessCenter />, label: t("Equipment"), tabIdx: 1 },
+                      { id: "trainer-step", icon: <Person />, label: t("trAIner"), tabIdx: 2 },
+                      { id: "plan-step", icon: <CalendarToday />, label: t("Planner"), tabIdx: 3 },
+                      { id: "pantry-step", icon: <LocalDiningIcon />, label: t("Pantry"), tabIdx: 4 },
+                    ].map(({ id, icon, label, tabIdx }) => {
+                      const selected = value === tabIdx;
+                      return (
+                        <Box
+                          key={id}
+                          id={id}
+                          onClick={() => setValue(tabIdx)}
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 0.5,
+                            py: 1.25,
+                            cursor: "pointer",
+                            width: "100%",
+                            position: "relative",
+                            "&:hover .nav-pill": {
+                              bgcolor: !selected
+                                ? darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"
+                                : undefined,
+                            },
+                          }}
+                        >
+                          {/* Active accent bar */}
+                          {selected && (
+                            <Box
+                              sx={{
+                                position: "absolute",
+                                left: 0,
+                                top: "50%",
+                                transform: "translateY(-50%)",
+                                width: 3,
+                                height: 30,
+                                borderRadius: "0 3px 3px 0",
+                                background: "linear-gradient(180deg, #E53935, #FB8C00)",
+                              }}
+                            />
+                          )}
+
+                          {/* Icon container */}
+                          <Box
+                            className="nav-pill"
+                            sx={{
+                              width: 44,
+                              height: 34,
+                              borderRadius: "10px",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              bgcolor: selected
+                                ? darkMode ? "rgba(229,57,53,0.15)" : "rgba(229,57,53,0.08)"
+                                : "transparent",
+                              transition: "background-color 0.2s",
+                              "& .MuiSvgIcon-root": {
+                                fontSize: "1.25rem",
+                                color: selected
+                                  ? "#E53935"
+                                  : darkMode ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)",
+                              },
+                            }}
+                          >
+                            {icon}
+                          </Box>
+
+                          {/* Label */}
+                          <Typography
+                            sx={{
+                              fontSize: "0.58rem",
+                              fontWeight: selected ? 700 : 400,
+                              fontFamily: '"Gilroy", "Arial", sans-serif',
+                              color: selected
+                                ? "#E53935"
+                                : darkMode ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)",
+                              lineHeight: 1,
+                            }}
+                          >
+                            {label}
+                          </Typography>
+                        </Box>
+                      );
+                    })}
                   </Box>
+                )}
+
+                {/* ── Page content ── */}
+                <Box
+                  sx={{
+                    flex: 1,
+                    height: isMobile ? "calc(100dvh - 60px)" : "100dvh",
+                    overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    bgcolor: "background.default",
+                  }}
+                >
+                  {pages[value]}
                 </Box>
 
-                {/* bottom navigation */}
+                {/* ── Mobile bottom nav ── */}
                 {isMobile && (
-                  <BottomNavigation
-                    showLabels
-                    value={value}
-                    onChange={(event, newValue) => {
-                      setValue(newValue);
+                  <Box
+                    sx={{
+                      position: "fixed",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: 60,
+                      display: "flex",
+                      flexDirection: "row",
+                      bgcolor: "background.default",
+                      borderTop: "1px solid",
+                      borderColor: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)",
+                      zIndex: 100,
+                      px: 0.5,
                     }}
-                    sx={{ width: "100%", position: "fixed", bottom: 0 }}
                   >
-                    <BottomNavigationAction
-                      id={"myinfo-step"}
-                      label={t("My Info")}
-                      icon={<HomeIcon />}
-                      sx={{
-                        "& .MuiBottomNavigationAction-label": {
-                          fontFamily: '"Gilroy", "Arial", sans-serif',
-                        },
-                      }}
-                    />
-                    <BottomNavigationAction
-                      id={"equipment-step"}
-                      label={t("myEquipment")}
-                      icon={<FitnessCenter />}
-                      sx={{
-                        "& .MuiBottomNavigationAction-label": {
-                          fontFamily: '"Gilroy", "Arial", sans-serif',
-                        },
-                      }}
-                    />
-                    <BottomNavigationAction
-                      id={"trainer-step"}
-                      label={t("trainerGPT")}
-                      icon={<Person />}
-                      sx={{
-                        "& .MuiBottomNavigationAction-label": {
-                          fontFamily: '"Gilroy", "Arial", sans-serif',
-                        },
-                      }}
-                    />
-                    <BottomNavigationAction
-                      id={"plan-step"}
-                      label={t("myPlanner")}
-                      icon={<CalendarToday />}
-                      sx={{
-                        "& .MuiBottomNavigationAction-label": {
-                          fontFamily: '"Gilroy", "Arial", sans-serif',
-                        },
-                      }}
-                    />
-                    <BottomNavigationAction
-                      id={"pantry-step"}
-                      label={t("myPantry")}
-                      icon={<LocalDiningIcon />}
-                      sx={{
-                        "& .MuiBottomNavigationAction-label": {
-                          fontFamily: '"Gilroy", "Arial", sans-serif',
-                        },
-                      }}
-                    />
-                  </BottomNavigation>
+                    {[
+                      { id: "myinfo-step", icon: <HomeIcon />, label: t("Home"), tabIdx: 0 },
+                      { id: "equipment-step", icon: <FitnessCenter />, label: t("Equipment"), tabIdx: 1 },
+                      { id: "trainer-step", icon: <Person />, label: "trAI", tabIdx: 2 },
+                      { id: "plan-step", icon: <CalendarToday />, label: t("Planner"), tabIdx: 3 },
+                      { id: "pantry-step", icon: <LocalDiningIcon />, label: t("Pantry"), tabIdx: 4 },
+                    ].map(({ id, icon, label, tabIdx }) => {
+                      const selected = value === tabIdx;
+                      return (
+                        <Box
+                          key={id}
+                          id={id}
+                          onClick={() => setValue(tabIdx)}
+                          sx={{
+                            flex: 1,
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            gap: 0.25,
+                            cursor: "pointer",
+                            py: 0.5,
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              "& .MuiSvgIcon-root": {
+                                fontSize: "1.3rem",
+                                color: selected
+                                  ? "#E53935"
+                                  : darkMode ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)",
+                              },
+                            }}
+                          >
+                            {icon}
+                          </Box>
+                          <Typography
+                            sx={{
+                              fontSize: "0.58rem",
+                              fontWeight: selected ? 700 : 400,
+                              fontFamily: '"Gilroy", "Arial", sans-serif',
+                              color: selected
+                                ? "#E53935"
+                                : darkMode ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)",
+                              lineHeight: 1,
+                            }}
+                          >
+                            {label}
+                          </Typography>
+                          {selected && (
+                            <Box
+                              sx={{
+                                width: 16,
+                                height: 3,
+                                borderRadius: "999px",
+                                background: "linear-gradient(90deg, #E53935, #FB8C00)",
+                                mt: 0.25,
+                              }}
+                            />
+                          )}
+                        </Box>
+                      );
+                    })}
+                  </Box>
                 )}
               </Box>
             ) : (
-              <>
+              <Box sx={{ height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                {/* ── Onboarding header ── */}
                 <Box
-                  height="10%"
-                  bgcolor="background.default"
-                  display="flex"
-                  justifyContent="space-between"
-                  paddingX={2.5}
-                  paddingY={2.5}
-                  alignItems="center"
-                  position="relative"
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    px: 2.5,
+                    py: 1.25,
+                    bgcolor: "background.default",
+                    borderBottom: "1px solid",
+                    borderColor: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)",
+                    flexShrink: 0,
+                  }}
                 >
-                  <FormControl
-                    sx={{
-                      width: isMobile ? "100px" : "100px",
-                      minWidth: "100px",
-                    }}
-                  >
+                  {/* Language selector */}
+                  <FormControl sx={{ minWidth: 80 }}>
                     <Select
                       value={prefLanguage}
                       onChange={handleLanguageChange}
                       disableunderline="true"
                       displayEmpty
                       renderValue={(selected) => {
-                        if (!selected) {
-                          return <span>{t("English")}</span>;
-                        }
-                        const selectedItem = {
-                          en: "English",
-                          cn: "中文（简体）",
-                          tc: "中文（繁體）",
-                          es: "Español",
-                          fr: "Français",
-                          de: "Deutsch",
-                          jp: "日本語",
-                          kr: "한국어",
-                        }[selected];
-                        return <span>{selectedItem}</span>;
+                        const labels = { en: "EN", cn: "ZH", tc: "TC", es: "ES", fr: "FR", de: "DE", jp: "JP", kr: "KR" };
+                        return (
+                          <Typography sx={{ fontSize: "0.82rem", color: "text.secondary", fontWeight: 500 }}>
+                            {labels[selected] || "EN"}
+                          </Typography>
+                        );
                       }}
                       sx={{
-                        "& .MuiSelect-select": {
-                          paddingTop: "10px",
-                          paddingBottom: "10px",
-                        },
-                        "& .MuiSelect-icon": {
-                          color: "text.primary",
-                        },
+                        "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                        "& .MuiSelect-select": { py: 0.75, px: 1 },
+                        "& .MuiSelect-icon": { color: "text.secondary", fontSize: "1.1rem" },
                       }}
                     >
                       <MenuItem value="en">English</MenuItem>
@@ -1145,23 +892,37 @@ export default function Home() {
                     </Select>
                   </FormControl>
 
+                  {/* Brand */}
+                  <Typography
+                    fontWeight="bold"
+                    sx={{
+                      fontSize: "1.3rem",
+                      background: "linear-gradient(90deg, #E53935, #FB8C00)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      fontFamily: '"Gilroy", "Arial", sans-serif',
+                      letterSpacing: "-0.5px",
+                    }}
+                  >
+                    trAIner
+                  </Typography>
+
+                  {/* Auth */}
                   <Box>
                     {!isSignedIn ? (
                       <Button
-                        color="inherit"
+                        component={Link}
                         href="/sign-in"
                         sx={{
-                          justifyContent: "end",
-                          right: "2%",
-                          backgroundColor: "background.default",
-                          color: "text.primary",
-                          borderColor: "text.primary",
-                          justifyContent: "center",
-                          "&:hover": {
-                            backgroundColor: "text.primary",
-                            color: "background.default",
-                            borderColor: "text.primary",
-                          },
+                          background: "linear-gradient(90deg, #E53935, #FB8C00)",
+                          color: "white",
+                          borderRadius: "999px",
+                          fontWeight: 700,
+                          fontSize: "0.78rem",
+                          px: 2,
+                          py: 0.6,
+                          minWidth: "auto",
+                          "&:hover": { opacity: 0.88 },
                         }}
                       >
                         {t("signIn")}
@@ -1190,44 +951,396 @@ export default function Home() {
                   prevStep={prevStep}
                   handleSubmit={handleSubmit}
                 />
-              </>
+              </Box>
             )}
           </>
         ) : (
-          <Box
-            width="100%"
-            height="100vh"
-            display="flex"
-            justifyContent={"center"}
-            alignItems="center"
-            flexDirection={"column"}
-            gap={2}
-          >
-            <Box paddingBottom="50px">
-              <Typography variant="h4">{t("Welcome to trAIner")}</Typography>
-            </Box>
-            <Button
-              color="inherit"
-              href="/sign-in"
+          /* ── Landing page for unauthenticated visitors ── */
+          <Box width="100%" minHeight="100vh" sx={{ overflowX: "hidden" }}>
+            {/* Navbar — dark */}
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              px={isMobile ? 3 : 6}
+              py={2}
               sx={{
-                width: "300px",
-                borderRadius: "99999px",
-                // justifyContent: "end",
-                // right: "2%",
-                // backgroundColor: 'text.primary',
-                background: "linear-gradient(90deg, #224061 00%, #BB2D55 100%)",
-                color: "white",
-                borderColor: "text.primary",
-                justifyContent: "center",
-                "&:hover": {
-                  // backgroundColor: 'text.primary',
-                  color: "background.default",
-                  // borderColor: 'text.primary',
-                },
+                borderBottom: "1px solid rgba(255,255,255,0.1)",
+                position: "sticky",
+                top: 0,
+                zIndex: 100,
+                bgcolor: "#111111",
               }}
             >
-              {t("Get Started")}
-            </Button>
+              <Typography
+                variant="h5"
+                fontWeight="bold"
+                sx={{
+                  background: "linear-gradient(90deg, #E53935, #FB8C00)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  fontFamily: '"Gilroy", "Arial", sans-serif',
+                }}
+              >
+                trAIner
+              </Typography>
+              <Button
+                component={Link}
+                href="/sign-in"
+                variant="outlined"
+                sx={{
+                  borderRadius: "99999px",
+                  px: 3,
+                  borderColor: "rgba(255,255,255,0.5)",
+                  color: "white",
+                  "&:hover": {
+                    bgcolor: "white",
+                    borderColor: "white",
+                    color: "#111111",
+                  },
+                }}
+              >
+                {t("signIn")}
+              </Button>
+            </Box>
+
+            {/* Hero — dark */}
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              textAlign="center"
+              px={isMobile ? 3 : 6}
+              pt={isMobile ? 8 : 12}
+              pb={isMobile ? 8 : 12}
+              gap={3}
+              sx={{ bgcolor: "#111111" }}
+            >
+              <Chip
+                label="AI-Powered Fitness"
+                sx={{
+                  background: "linear-gradient(90deg, #E53935, #FB8C00)",
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "0.85rem",
+                  px: 1,
+                }}
+              />
+              <Typography
+                variant={isMobile ? "h3" : "h2"}
+                fontWeight="bold"
+                maxWidth="700px"
+                sx={{
+                  lineHeight: 1.2,
+                  color: "white",
+                  fontFamily: '"Gilroy", "Arial", sans-serif',
+                }}
+              >
+                Your Personal{" "}
+                <Box
+                  component="span"
+                  sx={{
+                    background: "linear-gradient(90deg, #E53935, #FB8C00)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
+                >
+                  AI Fitness Coach
+                </Box>
+              </Typography>
+              <Typography
+                variant="h6"
+                maxWidth="520px"
+                sx={{
+                  fontWeight: 400,
+                  lineHeight: 1.6,
+                  color: "rgba(255,255,255,0.65)",
+                }}
+              >
+                Get a custom workout plan, track your equipment, and hit your
+                goals — all powered by AI, tailored just for you.
+              </Typography>
+              <Stack
+                direction="row"
+                gap={2}
+                flexWrap="wrap"
+                justifyContent="center"
+              >
+                <Button
+                  component={Link}
+                  href="/sign-in"
+                  sx={{
+                    borderRadius: "99999px",
+                    px: 5,
+                    py: 1.5,
+                    background: "linear-gradient(90deg, #E53935, #FB8C00)",
+                    color: "white",
+                    fontWeight: "bold",
+                    fontSize: "1rem",
+                    "&:hover": { opacity: 0.9 },
+                  }}
+                >
+                  {t("Get Started")} →
+                </Button>
+              </Stack>
+            </Box>
+
+            {/* Features — light */}
+            <Box
+              px={isMobile ? 3 : 8}
+              py={isMobile ? 6 : 8}
+              sx={{ bgcolor: "#FAFAFA" }}
+            >
+              <Box maxWidth="1100px" mx="auto">
+                <Typography
+                  variant="h4"
+                  textAlign="center"
+                  fontWeight="bold"
+                  mb={1}
+                  sx={{
+                    fontFamily: '"Gilroy", "Arial", sans-serif',
+                    color: "#111111",
+                  }}
+                >
+                  Everything you need to train smarter
+                </Typography>
+                <Typography
+                  variant="body1"
+                  textAlign="center"
+                  mb={5}
+                  sx={{ color: "#666666" }}
+                >
+                  One app. All the tools. No guesswork.
+                </Typography>
+                <Grid container spacing={3}>
+                  {[
+                    {
+                      icon: <Person fontSize="large" />,
+                      title: "AI Personal Trainer",
+                      desc: "Chat with your AI coach to get a personalized workout plan based on your body, goals, and available equipment.",
+                    },
+                    {
+                      icon: <FitnessCenter fontSize="large" />,
+                      title: "Equipment Tracker",
+                      desc: "Log the gear you have — from resistance bands to a full gym setup. Your plan adapts to what you've got.",
+                    },
+                    {
+                      icon: <CalendarToday fontSize="large" />,
+                      title: "Workout Planner",
+                      desc: "Schedule your sessions with an interactive calendar, track upcoming workouts, and stay consistent.",
+                    },
+                    {
+                      icon: <LocalDiningIcon fontSize="large" />,
+                      title: "Nutrition & Recipes",
+                      desc: "Track pantry ingredients and get AI-generated recipes to fuel your training. Premium feature.",
+                    },
+                  ].map((feature, i) => (
+                    <Grid item xs={12} sm={6} key={i}>
+                      <Card
+                        elevation={0}
+                        sx={{
+                          border: "1px solid",
+                          borderColor: "#E0E0E0",
+                          borderRadius: 3,
+                          height: "100%",
+                          bgcolor: "#FFFFFF",
+                          transition: "box-shadow 0.2s",
+                          "&:hover": { boxShadow: 4 },
+                        }}
+                      >
+                        <CardContent sx={{ p: 3 }}>
+                          <Box
+                            sx={{
+                              mb: 2,
+                              width: 48,
+                              height: 48,
+                              borderRadius: 2,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              background:
+                                "linear-gradient(135deg, #E53935, #FB8C00)",
+                              color: "white",
+                            }}
+                          >
+                            {feature.icon}
+                          </Box>
+                          <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            mb={1}
+                            sx={{
+                              fontFamily: '"Gilroy", "Arial", sans-serif',
+                              color: "#111111",
+                            }}
+                          >
+                            {feature.title}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            sx={{ lineHeight: 1.7, color: "#666666" }}
+                          >
+                            {feature.desc}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            </Box>
+
+            {/* How it works */}
+            <Box
+              px={isMobile ? 3 : 8}
+              py={isMobile ? 6 : 8}
+              sx={{
+                bgcolor: "#F5F5F5",
+                borderTop: "1px solid #E0E0E0",
+                borderBottom: "1px solid #E0E0E0",
+              }}
+            >
+              <Typography
+                variant="h4"
+                textAlign="center"
+                fontWeight="bold"
+                mb={1}
+                sx={{
+                  fontFamily: '"Gilroy", "Arial", sans-serif',
+                  color: "#111111",
+                }}
+              >
+                How it works
+              </Typography>
+              <Typography
+                variant="body1"
+                textAlign="center"
+                mb={6}
+                sx={{ color: "#666666" }}
+              >
+                Up and running in three simple steps.
+              </Typography>
+              <Stack
+                direction={isMobile ? "column" : "row"}
+                gap={isMobile ? 5 : 4}
+                justifyContent="center"
+                alignItems={isMobile ? "center" : "flex-start"}
+                maxWidth="900px"
+                mx="auto"
+              >
+                {[
+                  {
+                    num: "1",
+                    title: "Tell us about yourself",
+                    desc: "Share your age, weight, goals, and current fitness level so your plan is built for you.",
+                  },
+                  {
+                    num: "2",
+                    title: "Log your equipment",
+                    desc: "Let us know what gear you have available — at home, at the gym, or anywhere in between.",
+                  },
+                  {
+                    num: "3",
+                    title: "Get your plan",
+                    desc: "Your AI trainer instantly generates a personalized workout plan and helps you stay on track.",
+                  },
+                ].map((step, i) => (
+                  <Box
+                    key={i}
+                    flex={1}
+                    display="flex"
+                    flexDirection="column"
+                    alignItems="center"
+                    textAlign="center"
+                    gap={1.5}
+                    maxWidth={isMobile ? "320px" : "none"}
+                  >
+                    <Box
+                      sx={{
+                        width: 60,
+                        height: 60,
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "linear-gradient(135deg, #E53935, #FB8C00)",
+                        color: "white",
+                        fontSize: "1.5rem",
+                        fontWeight: "bold",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {step.num}
+                    </Box>
+                    <Typography
+                      variant="h6"
+                      fontWeight="bold"
+                      sx={{
+                        fontFamily: '"Gilroy", "Arial", sans-serif',
+                        color: "#111111",
+                      }}
+                    >
+                      {step.title}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ lineHeight: 1.7, color: "#666666" }}
+                    >
+                      {step.desc}
+                    </Typography>
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
+
+            {/* Footer CTA — dark */}
+            <Box
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              textAlign="center"
+              px={isMobile ? 3 : 6}
+              py={isMobile ? 8 : 12}
+              gap={2.5}
+              sx={{ bgcolor: "#111111" }}
+            >
+              <Typography
+                variant={isMobile ? "h4" : "h3"}
+                fontWeight="bold"
+                maxWidth="600px"
+                sx={{
+                  color: "white",
+                  fontFamily: '"Gilroy", "Arial", sans-serif',
+                }}
+              >
+                Start your fitness journey today
+              </Typography>
+              <Typography
+                variant="body1"
+                maxWidth="420px"
+                sx={{ color: "rgba(255,255,255,0.65)" }}
+              >
+                Join thousands of people already using trAIner to build better
+                habits and reach their goals.
+              </Typography>
+              <Button
+                component={Link}
+                href="/sign-in"
+                sx={{
+                  mt: 1,
+                  borderRadius: "99999px",
+                  px: 6,
+                  py: 1.75,
+                  background: "linear-gradient(90deg, #E53935, #FB8C00)",
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  "&:hover": { opacity: 0.9 },
+                }}
+              >
+                {t("Get Started")} →
+              </Button>
+            </Box>
           </Box>
         )}
       </ThemeProvider>

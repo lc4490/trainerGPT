@@ -1,13 +1,12 @@
 import { Box, Typography, Button, CircularProgress, Grid, Avatar, Card, CardContent, useMediaQuery, ThemeProvider, CssBaseline } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useUser } from "@clerk/nextjs";
-import { useState, useContext, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { redirect, useRouter } from 'next/navigation';
 import { useStripe, useElements, CardElement, Elements, ExpressCheckoutElement } from '@stripe/react-stripe-js'; 
 import { loadStripe } from '@stripe/stripe-js'; 
-import { GuestContext } from '../page';
 import { firestore } from '../firebase'
-import { collection, getDocs, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import FastfoodIcon from '@mui/icons-material/Fastfood';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -20,7 +19,6 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 const PaywallPage = ({ clientSecret }) => {
     const { t } = useTranslation();
     const { user, isLoaded, isSignedIn } = useUser();
-    const { guestData, guestEquipment, guestMessages } = useContext(GuestContext);
     const router = useRouter();
     const [loading, setLoading] = useState(false);
 
@@ -105,7 +103,6 @@ const PaywallPage = ({ clientSecret }) => {
     // Handle CardElement payment flow triggered by the button click
     const handlePurchase = async () => {
         if (!isSignedIn) {
-            await saveGuestDataToFirebase();
             router.push('/sign-in');
             return;
         }
@@ -184,27 +181,6 @@ const PaywallPage = ({ clientSecret }) => {
         }
     };
 
-    const saveGuestDataToFirebase = async () => {
-        try {
-            const guestDocRef = doc(firestore, 'users', 'guest');
-            await setDoc(guestDocRef, { userData: guestData }, { merge: true });
-
-            // Save guest equipment and chat data
-            const equipmentCollectionRef = collection(guestDocRef, 'equipment');
-            for (const item of guestEquipment) {
-                const equipmentDocRef = doc(equipmentCollectionRef, item.name);
-                await setDoc(equipmentDocRef, { count: item.count || 0 });
-            }
-
-            const chatCollectionRef = collection(guestDocRef, 'chat');
-            const chatDocRef = doc(chatCollectionRef, 'en');
-            await setDoc(chatDocRef, { messages: guestMessages || [], timestamp: new Date().toISOString() });
-
-            console.log('Guest data saved to Firebase.');
-        } catch (error) {
-            console.error('Error saving guest data:', error);
-        }
-    };
 
     return (
         <ThemeProvider theme = {theme}>

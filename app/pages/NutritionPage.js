@@ -12,13 +12,7 @@ import {
   Autocomplete,
   Divider,
 } from "@mui/material";
-import {
-  firestore,
-  auth,
-  provider,
-  signInWithPopup,
-  signOut,
-} from "../firebase";
+import { firestore } from "../firebase";
 import {
   collection,
   getDocs,
@@ -36,33 +30,21 @@ import SearchIcon from "@mui/icons-material/Search";
 
 // use image and camera
 import Image from "next/image";
-// import { Camera, switchCamera } from 'react-camera-pro';
 import Webcam from "react-webcam";
 
-// use openai
-const openaiApiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY;
-import { OpenAI } from "openai";
-
 // use Clerk
-import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
-
-// use googlesignin
-import { onAuthStateChanged } from "firebase/auth";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 // theme imports
 import {
   createTheme,
   ThemeProvider,
-  useTheme,
   CssBaseline,
   useMediaQuery,
-  IconButton,
 } from "@mui/material";
-import { Brightness4, Brightness7 } from "@mui/icons-material";
 
 // translations
 import { useTranslation } from "react-i18next";
-import i18n from "../i18n"; // Adjust the path as necessary
 
 // info button
 import InfoIcon from "@mui/icons-material/Info";
@@ -146,129 +128,80 @@ const NutritionPage = () => {
       prevFacingMode === "user" ? "environment" : "user",
     );
   };
-  // ai
-  const openai = new OpenAI({
-    apiKey: openaiApiKey,
-    dangerouslyAllowBrowser: true,
-  });
-
-  async function sleep(ms) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
   // function to predict item label from picture (ai)
   async function predictItem(image) {
-    if (image) {
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "user",
-            content: [
-              {
-                type: "text",
-                text: t("Identify"),
-              },
-              {
-                type: "image_url",
-                image_url: {
-                  url: image,
-                  detail: "low",
-                },
-              },
-            ],
-          },
-        ],
-      });
-      let result = response.choices[0].message.content.trim();
-      result = result.replace(/\./g, "");
-      result = result
-        .split(" ")
-        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-      return result;
-    }
+    if (!image) return;
+    const res = await fetch("/api/nutrition", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "identify", image, prompt: t("Identify") }),
+    });
+    const { result } = await res.json();
+    let formatted = result.replace(/\./g, "");
+    return formatted
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   }
   // helper function to craft and set recipes
   const generateRecipes = async () => {
-    const recipes = await craftRecipes(pantry);
-    setRecipes(recipes);
+    const recipeList = await craftRecipes(pantry);
+    setRecipes(recipeList);
   };
   // function to craft ai recipes from list of pantry items (ai)
-  async function craftRecipes(pantry) {
-    if (pantry.length !== 0) {
-      const ingredients = pantry.map((item) => item.name).join(", ");
-      const translatedPrompt = t("Generate", { ingredients });
+  async function craftRecipes(pantryItems) {
+    if (pantryItems.length === 0) return [];
+    const ingredients = pantryItems.map((item) => item.name).join(", ");
+    const translatedPrompt = t("Generate", { ingredients });
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-5-mini",
-        messages: [
-          {
-            role: "user",
-            content: translatedPrompt,
-          },
-        ],
-      });
+    const res = await fetch("/api/nutrition", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "recipes", prompt: translatedPrompt }),
+    });
+    const { result } = await res.json();
 
-      const result = response.choices[0].message.content.trim().split("\n\n");
+    const recipePromises = result.split("\n\n").map(async (item) => {
+      const parts = item.split("\n");
+      let recipe = "";
+      let ingredients = "";
+      let instructions = "";
 
-      const recipePromises = result.map(async (item) => {
-        const parts = item.split("\n");
-        let recipe = "";
-        let ingredients = "";
-        let instructions = "";
-        console.log(t(": "));
+      if (parts.length > 0 && parts[0].includes(t(": "))) {
+        recipe = parts[0].split(t(": "))[1]?.replace(/\*/g, "") || "";
+      }
+      if (parts.length > 1 && parts[1].includes(t(": "))) {
+        ingredients = parts[1].split(t(": "))[1]?.replace(/\*/g, "") || "";
+      }
+      if (parts.length > 2 && parts[2].includes(t(": "))) {
+        instructions = parts[2].split(t(": "))[1]?.replace(/\*/g, "") || "";
+      }
 
-        if (parts.length > 0 && parts[0].includes(t(": "))) {
-          recipe = parts[0].split(t(": "))[1]?.replace(/\*/g, "") || "";
-        }
-        if (parts.length > 1 && parts[1].includes(t(": "))) {
-          ingredients = parts[1].split(t(": "))[1]?.replace(/\*/g, "") || "";
-        }
-        if (parts.length > 2 && parts[2].includes(t(": "))) {
-          instructions = parts[2].split(t(": "))[1]?.replace(/\*/g, "") || "";
-        }
+      if (!recipe || !ingredients || !instructions) {
+        console.error("Failed to parse recipe details:", item);
+        return null;
+      }
 
-        if (!recipe || !ingredients || !instructions) {
-          console.error("Failed to parse recipe details:", item);
-          return null;
-        }
+      const image = await createImage(recipe);
+      return { recipe, ingredients, instructions, image };
+    });
 
-        const image = await createImage(recipe);
-        return { recipe, ingredients, instructions, image };
-      });
-
-      const recipes = await Promise.all(recipePromises);
-      console.log(recipes);
-      console.log(pantry);
-      return recipes.filter((recipe) => recipe !== null);
-    }
-    return [];
+    const recipes = await Promise.all(recipePromises);
+    return recipes.filter((recipe) => recipe !== null);
   }
   // function to craft ai images from label (ai)
   async function createImage(label) {
-    // return
     try {
-      const response = await openai.images.generate({
-        model: "dall-e-2",
-        prompt: label,
-        n: 1,
-        size: "256x256",
-        response_format: "b64_json",
+      const res = await fetch("/api/nutrition", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "image", label }),
       });
-      const ret = response.data;
-      if (ret && ret.length > 0) {
-        const base64String = ret[0].b64_json;
-        return `data:image/png;base64,${base64String}`;
-      }
-      return null;
+      const { result } = await res.json();
+      return result;
     } catch (error) {
-      if (error.response && error.response.status === 429) {
-        console.log("Rate limit exceeded. Retrying in 10 seconds...");
-        await sleep(10000); // Wait for 10 seconds
-        return createImage(label); // Retry the request
-      } else {
-        console.error("Error creating image:", error);
-      }
+      console.error("Error creating image:", error);
+      return null;
     }
   }
 
@@ -301,61 +234,38 @@ const NutritionPage = () => {
   };
   // add item function
   const addItem = async (item, quantity, image) => {
-    if (guestMode) {
-      setPantry((prevPantry) => [
-        ...prevPantry,
-        { name: item, count: quantity, image },
-      ]);
-    } else {
-      if (!user) {
-        alert("You must be signed in to add items.");
-        return;
+    if (!user) return;
+    if (isNaN(quantity) || quantity < 0) {
+      setOpenWarningAdd(true);
+    } else if (quantity >= 1 && item != "") {
+      const userId = user.id;
+      const docRef = doc(firestore, "users", userId, "pantry", item);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const { count, image: existingImage } = docSnap.data();
+        await setDoc(docRef, {
+          count: count + quantity,
+          image: image || existingImage,
+        });
+      } else {
+        await setDoc(docRef, { count: quantity, image });
       }
-      if (isNaN(quantity) || quantity < 0) {
-        setOpenWarningAdd(true);
-      } else if (quantity >= 1 && item != "") {
-        const userId = user.id;
-        // const docRef = doc(collection(firestore, `pantry_${userUID}`), item);
-        const docRef = doc(firestore, "users", userId, "pantry", item);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const { count, image: existingImage } = docSnap.data();
-          await setDoc(docRef, {
-            count: count + quantity,
-            image: image || existingImage,
-          });
-        } else {
-          await setDoc(docRef, { count: quantity, image });
-        }
-        await updatePantry();
-      }
+      await updatePantry();
     }
   };
   // change quantity function
   const handleQuantityChange = async (item, quantity) => {
-    if (guestMode) {
-      setPantry((prevPantry) =>
-        prevPantry.map((p) =>
-          p.name === item ? { ...p, count: quantity } : p,
-        ),
-      );
+    if (!user) return;
+    const userId = user.id;
+    const docRef = doc(firestore, "users", userId, "pantry", item);
+    const docSnap = await getDoc(docRef);
+    const { count, image } = docSnap.data();
+    if (0 === quantity) {
+      await deleteDoc(docRef);
     } else {
-      if (!user) {
-        alert("You must be signed in to change item quantities.");
-        return;
-      }
-      const userId = user.id;
-      // const docRef = doc(collection(firestore, `pantry_${userUID}`), item);
-      const docRef = doc(firestore, "users", userId, "pantry", item);
-      const docSnap = await getDoc(docRef);
-      const { count, image } = docSnap.data();
-      if (0 === quantity) {
-        await deleteDoc(docRef);
-      } else {
-        await setDoc(docRef, { count: quantity, ...(image && { image }) });
-      }
-      await updatePantry();
+      await setDoc(docRef, { count: quantity, ...(image && { image }) });
     }
+    await updatePantry();
   };
   useEffect(() => {
     updatePantry();
@@ -386,25 +296,6 @@ const NutritionPage = () => {
   const handleInfoModal = () => {
     setOpenInfoModal(true);
   };
-
-  // const [user, setUser] = useState(null);
-  const [guestMode, setGuestMode] = useState(false);
-
-  // useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
-  //     if (user) {
-  //       setUser(user);
-  //       setGuestMode(false);
-  //       updatePantry();
-  //     } else {
-  //       setUser(null);
-  //       setGuestMode(true);
-  //       setPantry([]);
-  //       setRecipes([]);
-  //     }
-  //   });
-  //   return () => unsubscribe();
-  // }, []);
 
   // toggle dark mode
   // Detect user's preferred color scheme

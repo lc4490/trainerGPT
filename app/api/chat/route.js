@@ -70,7 +70,7 @@ export async function POST(req) {
 
         // Start OpenAI streaming AFTER we've begun the response
         const completion = await openai.chat.completions.create({
-          model: "gpt-5",
+          model: "gpt-4o",
           stream: true,
           messages: [{ role: "system", content: systemPrompt }, ...data],
         });

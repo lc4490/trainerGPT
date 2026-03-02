@@ -1114,7 +1114,7 @@ const HomePage = ({
             sx={{ color: c.subtitle, fontSize: "0.85rem", lineHeight: 1.65 }}
           >
             You have a plan — now put it into action. Head to the Planner, place
-            your workouts on the calendar, and they'll show up right here.
+            your workouts on the calendar, and they&apos;ll show up right here.
           </Typography>
           <Button
             onClick={() => setValue(3)}

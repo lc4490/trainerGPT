@@ -84,7 +84,7 @@ const darkTheme = createTheme({
 const NutritionPage = () => {
   // Implementing multi-languages
   const { t, i18n } = useTranslation();
-  const { user, isSignedIn } = useUser();
+  const { user } = useUser();
 
   const [pantry, setPantry] = useState([]);
   const [recipes, setRecipes] = useState([]);
@@ -308,6 +308,7 @@ const NutritionPage = () => {
   }, [prefersDarkMode]);
 
   const theme = darkMode ? darkTheme : lightTheme;
+  const GRAD = "linear-gradient(90deg, #E53935, #FB8C00)";
 
   // ismobile
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -318,12 +319,8 @@ const NutritionPage = () => {
         width="100%"
         height="100%"
         display="flex"
-        justifyContent="center"
-        alignItems="center"
         flexDirection="column"
-        gap={2}
-        bgcolor="black"
-        fontFamily="sans-serif"
+        bgcolor="background.default"
         overflow="scroll"
       >
         {/* add modal */}
@@ -335,7 +332,7 @@ const NutritionPage = () => {
               width: "100%",
               height: "90%",
               bgcolor: "background.default",
-              border: "2px solid #000",
+              border: "none",
               boxShadow: 24,
               p: 2,
               display: "flex",
@@ -343,8 +340,7 @@ const NutritionPage = () => {
               flexDirection: "column",
               gap: 3,
               color: "text.primary",
-              borderColor: "text.primary",
-              borderRadius: "15px",
+              borderRadius: 3,
             }}
           >
             {image && (
@@ -712,11 +708,12 @@ const NutritionPage = () => {
               width: 400,
               height: "90%",
               bgcolor: "background.default",
-              border: "2px solid #000",
+              border: "none",
               boxShadow: 24,
               p: 4,
               display: "flex",
               flexDirection: "column",
+              borderRadius: 3,
             }}
           >
             {selectedRecipe !== null && recipes[selectedRecipe] && (
@@ -794,12 +791,12 @@ const NutritionPage = () => {
               width: 350,
               height: "75%",
               bgcolor: "background.default",
-              border: "2px solid #000",
+              border: "none",
               boxShadow: 24,
               p: 4,
               display: "flex",
               flexDirection: "column",
-              borderRadius: "15px",
+              borderRadius: 3,
             }}
           >
             <Typography variant="h6" component="h2" fontWeight="600">
@@ -855,49 +852,54 @@ const NutritionPage = () => {
 
         {/* main page */}
         <Box width="100%" height="100%" bgcolor="background.default">
-          {/* header including add button, title, sign in */}
+          {/* header */}
           <Box
-            height="10%"
             bgcolor="background.default"
             display="flex"
             justifyContent="space-between"
             paddingX={2.5}
-            paddingY={2.5}
+            paddingY={1.25}
             alignItems="center"
-            position="relative"
+            sx={{
+              borderBottom: "1px solid",
+              borderColor: darkMode
+                ? "rgba(255,255,255,0.08)"
+                : "rgba(0,0,0,0.07)",
+              flexShrink: 0,
+            }}
           >
             {/* add button */}
             <Button
               variant="outlined"
               onClick={handleOpenAddAndOpenCamera}
               sx={{
-                height: "55px",
-                fontSize: "1rem",
-                backgroundColor: "background.default",
+                height: "44px",
+                minWidth: "44px",
+                bgcolor: "background.default",
                 color: "text.primary",
-                borderColor: "background.default",
-                borderRadius: "50px",
+                borderColor: "divider",
+                borderRadius: "22px",
                 "&:hover": {
-                  backgroundColor: "text.primary",
+                  bgcolor: "text.primary",
                   color: "background.default",
-                  borderColor: "text.primary",
                 },
               }}
             >
-              <Typography variant="h5">+</Typography>
+              <Typography variant="h5" lineHeight={1}>
+                +
+              </Typography>
             </Button>
             {/* title */}
-            <Box
-              display="flex"
-              flexDirection={"row"}
-              alignItems={"center"}
-              gap={1}
-            >
+            <Box display="flex" alignItems="center" gap={0.5}>
               <Typography
-                variant="h6"
-                color="text.primary"
-                textAlign="center"
-                sx={{ fontWeight: "800" }}
+                sx={{
+                  fontWeight: 800,
+                  fontSize: "1.1rem",
+                  background: GRAD,
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  fontFamily: '"Gilroy", "Arial", sans-serif',
+                }}
               >
                 {t("myPantry")}
               </Typography>
@@ -905,43 +907,17 @@ const NutritionPage = () => {
                 onClick={handleInfoModal}
                 sx={{
                   minWidth: "auto",
-                  aspectRatio: "1 / 1",
+                  width: 28,
+                  height: 28,
                   borderRadius: "50%",
-                  width: "20px", // or adjust as needed
-                  height: "20px", // or adjust as needed
+                  p: 0,
                 }}
               >
-                <InfoIcon sx={{ color: "lightgray" }} />
+                <InfoIcon sx={{ color: "text.disabled", fontSize: "1.1rem" }} />
               </Button>
             </Box>
-            {/* Sign in */}
-            <Box>
-              {!isSignedIn ? (
-                <Button
-                  color="inherit"
-                  href="/sign-in"
-                  sx={{
-                    justifyContent: "end",
-                    right: "2%",
-                    backgroundColor: "background.default",
-                    color: "text.primary",
-                    borderColor: "text.primary",
-                    "&:hover": {
-                      backgroundColor: "text.primary",
-                      color: "background.default",
-                      borderColor: "text.primary",
-                    },
-                  }}
-                >
-                  {t("signIn")}
-                </Button>
-              ) : (
-                <UserButton />
-              )}
-            </Box>
+            <UserButton />
           </Box>
-
-          {isMobile && <Divider />}
 
           {/* banner image */}
           {/* <Image 
@@ -957,7 +933,7 @@ const NutritionPage = () => {
           {isMobile ? (
             <Box
               sx={{
-                backgroundImage: `url(${prefersDarkMode ? "/pantry_dark.jpg" : "/pantry.jpg"})`,
+                backgroundImage: `url(${darkMode ? "/pantry_dark.jpg" : "/pantry.jpg"})`,
                 backgroundSize: "160%", // Stretch the image to cover the entire Box
                 backgroundPosition: "center", // Center the image in the Box
                 backgroundRepeat: "no-repeat", // Prevent the image from repeating
@@ -1006,7 +982,7 @@ const NutritionPage = () => {
             // if desktop
             <Box
               sx={{
-                backgroundImage: `url(${prefersDarkMode ? "/pantry_dark.jpg" : "/pantry.jpg"})`,
+                backgroundImage: `url(${darkMode ? "/pantry_dark.jpg" : "/pantry.jpg"})`,
                 backgroundSize: "100%", // Stretch the image to cover the entire Box
                 backgroundPosition: "center", // Center the image in the Box
                 backgroundRepeat: "no-repeat", // Prevent the image from repeating
@@ -1065,21 +1041,17 @@ const NutritionPage = () => {
                 {t("Recipes")}
               </Typography>
               <Button
-                onClick={generateRecipes()}
+                onClick={generateRecipes}
                 sx={{
                   fontSize: "1rem",
-                  backgroundColor: "text.primary",
-                  color: "background.default",
-                  borderColor: "text.primary",
-                  borderRadius: "4px",
-                  "&:hover": {
-                    backgroundColor: "background.default",
-                    color: "text.primary",
-                    borderColor: "text.primary",
-                  },
+                  background: GRAD,
+                  color: "white",
+                  borderRadius: "999px",
+                  px: 2,
+                  "&:hover": { opacity: 0.85 },
                 }}
               >
-                Generate
+                {t("Generate Recipes")}
               </Button>
             </Stack>
 

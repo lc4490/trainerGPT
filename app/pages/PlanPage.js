@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Box,
   Typography,
@@ -211,6 +211,7 @@ const PlanPage = () => {
   }, [user]);
 
   // event state
+  const eventsLoaded = useRef(false);
   const [events, setEvents] = useState([]);
   const [allEvents, setAllEvents] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -279,8 +280,6 @@ const PlanPage = () => {
       start: new Date().toISOString(),
       id: new Date().getTime(),
       allDay: true,
-      backgroundColor: "orange",
-      borderColor: "orange",
       extendedProps: { details: workoutEvent.details },
     });
     setShowAddModal(true);
@@ -327,7 +326,7 @@ const PlanPage = () => {
         }
       }
     };
-    if (allEvents?.length >= 0) updateEventsInFirestore();
+    if (eventsLoaded.current) updateEventsInFirestore();
   }, [allEvents, user]);
 
   const updateEvents = async () => {
@@ -338,6 +337,7 @@ const PlanPage = () => {
       const evts = [];
       docs.forEach((d) => evts.push({ name: d.id, ...d.data() }));
       setAllEvents(evts);
+      eventsLoaded.current = true;
     }
   };
   useEffect(() => {

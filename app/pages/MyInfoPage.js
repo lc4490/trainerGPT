@@ -1720,6 +1720,7 @@ const MyInfoPage = ({ setValue }) => {
     fetchPlan();
   }, [user]);
 
+  const eventsLoaded = useRef(false);
   const [allEvents, setAllEvents] = useState([]);
   const updateEvents = async () => {
     setLoading(true);
@@ -1734,6 +1735,7 @@ const MyInfoPage = ({ setValue }) => {
       });
       events.sort((a, b) => new Date(a.start) - new Date(b.start));
       setAllEvents(events);
+      eventsLoaded.current = true;
     }
 
     setLoading(false);
@@ -1884,7 +1886,7 @@ const MyInfoPage = ({ setValue }) => {
       }
     };
 
-    if (allEvents.length >= 0) {
+    if (eventsLoaded.current) {
       updateEventsInFirestore();
     }
   }, [allEvents, user]);

@@ -2,8 +2,6 @@
 
 // base imports
 import {
-  BottomNavigation,
-  BottomNavigationAction,
   Box,
   Button,
   Card,
@@ -13,9 +11,7 @@ import {
   CssBaseline,
   FormControl,
   Grid,
-  InputLabel,
   MenuItem,
-  NativeSelect,
   Select,
   Stack,
   ThemeProvider,
@@ -43,8 +39,8 @@ import i18n from "./i18n";
 import { UserButton, useUser } from "@clerk/nextjs";
 // stripe
 // router
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 // tutorial
 import JoyRide, { STATUS } from "react-joyride";
 
@@ -492,67 +488,102 @@ export default function Home() {
                     title: "Welcome to trAIner 👋",
                     content: (
                       <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
-                        {t("You're all set. Let's take a quick look at what's inside.")}
+                        {t(
+                          "You're all set. Let's take a quick look at what's inside.",
+                        )}
                       </Typography>
                     ),
                     placement: "center",
                     target: "body",
-                    locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next") },
+                    locale: {
+                      skip: <strong>{t("Skip Tour")}</strong>,
+                      next: t("Next"),
+                    },
                   },
                   {
                     title: t("Personal Information"),
                     content: (
                       <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
-                        {t("View and update your fitness profile — age, weight, goals, and more.")}
+                        {t(
+                          "View and update your fitness profile — age, weight, goals, and more.",
+                        )}
                       </Typography>
                     ),
                     placement: "auto",
                     target: "#myinfo-step",
-                    locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
+                    locale: {
+                      skip: <strong>{t("Skip Tour")}</strong>,
+                      next: t("Next"),
+                      back: t("Back"),
+                    },
                   },
                   {
                     title: t("Log Equipment"),
                     content: (
                       <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
-                        {t("Tell us what gear you have. Your AI plan adapts to exactly what's available to you.")}
+                        {t(
+                          "Tell us what gear you have. Your AI plan adapts to exactly what's available to you.",
+                        )}
                       </Typography>
                     ),
                     placement: "auto",
                     target: "#equipment-step",
-                    locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
+                    locale: {
+                      skip: <strong>{t("Skip Tour")}</strong>,
+                      next: t("Next"),
+                      back: t("Back"),
+                    },
                   },
                   {
                     title: t("Get a Workout Plan"),
                     content: (
                       <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
-                        {t("Chat with your AI coach and get a personalized workout plan built around your goals.")}
+                        {t(
+                          "Chat with your AI coach and get a personalized workout plan built around your goals.",
+                        )}
                       </Typography>
                     ),
                     placement: "auto",
                     target: "#trainer-step",
-                    locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
+                    locale: {
+                      skip: <strong>{t("Skip Tour")}</strong>,
+                      next: t("Next"),
+                      back: t("Back"),
+                    },
                   },
                   {
                     title: t("Make Your Plan"),
                     content: (
                       <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
-                        {t("Schedule your sessions on the calendar and keep your training consistent.")}
+                        {t(
+                          "Schedule your sessions on the calendar and keep your training consistent.",
+                        )}
                       </Typography>
                     ),
                     placement: "auto",
                     target: "#plan-step",
-                    locale: { skip: <strong>{t("Skip Tour")}</strong>, next: t("Next"), back: t("Back") },
+                    locale: {
+                      skip: <strong>{t("Skip Tour")}</strong>,
+                      next: t("Next"),
+                      back: t("Back"),
+                    },
                   },
                   {
                     title: t("Nutrition & Recipes"),
                     content: (
                       <Typography variant="body2" sx={{ lineHeight: 1.6 }}>
-                        {t("Log your pantry and get AI-generated recipes tailored to what you have. Premium feature.")}
+                        {t(
+                          "Log your pantry and get AI-generated recipes tailored to what you have. Premium feature.",
+                        )}
                       </Typography>
                     ),
                     placement: "auto",
                     target: "#pantry-step",
-                    locale: { skip: <strong>{t("Skip Tour")}</strong>, back: t("Back"), last: t("Done") },
+                    locale: {
+                      skip: <strong>{t("Skip Tour")}</strong>,
+                      back: t("Back"),
+                      last: t("Done"),
+                    },
                   },
                 ]}
                 hideCloseButton
@@ -564,7 +595,9 @@ export default function Home() {
                   options: {
                     arrowColor: currentTheme.palette.background.paper,
                     backgroundColor: currentTheme.palette.background.paper,
-                    overlayColor: darkMode ? "rgba(0,0,0,0.65)" : "rgba(0,0,0,0.4)",
+                    overlayColor: darkMode
+                      ? "rgba(0,0,0,0.65)"
+                      : "rgba(0,0,0,0.4)",
                     primaryColor: "#E53935",
                     textColor: currentTheme.palette.text.primary,
                     zIndex: 1000,
@@ -632,7 +665,9 @@ export default function Home() {
                       flexDirection: "column",
                       alignItems: "center",
                       borderRight: "1px solid",
-                      borderColor: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)",
+                      borderColor: darkMode
+                        ? "rgba(255,255,255,0.08)"
+                        : "rgba(0,0,0,0.07)",
                       bgcolor: "background.default",
                       py: 2.5,
                     }}
@@ -656,11 +691,36 @@ export default function Home() {
 
                     {/* Nav items */}
                     {[
-                      { id: "myinfo-step", icon: <HomeIcon />, label: t("Home"), tabIdx: 0 },
-                      { id: "equipment-step", icon: <FitnessCenter />, label: t("Equipment"), tabIdx: 1 },
-                      { id: "trainer-step", icon: <Person />, label: t("trAIner"), tabIdx: 2 },
-                      { id: "plan-step", icon: <CalendarToday />, label: t("Planner"), tabIdx: 3 },
-                      { id: "pantry-step", icon: <LocalDiningIcon />, label: t("Pantry"), tabIdx: 4 },
+                      {
+                        id: "myinfo-step",
+                        icon: <HomeIcon />,
+                        label: t("Home"),
+                        tabIdx: 0,
+                      },
+                      {
+                        id: "equipment-step",
+                        icon: <FitnessCenter />,
+                        label: t("Equipment"),
+                        tabIdx: 1,
+                      },
+                      {
+                        id: "trainer-step",
+                        icon: <Person />,
+                        label: t("trAIner"),
+                        tabIdx: 2,
+                      },
+                      {
+                        id: "plan-step",
+                        icon: <CalendarToday />,
+                        label: t("Planner"),
+                        tabIdx: 3,
+                      },
+                      {
+                        id: "pantry-step",
+                        icon: <LocalDiningIcon />,
+                        label: t("Pantry"),
+                        tabIdx: 4,
+                      },
                     ].map(({ id, icon, label, tabIdx }) => {
                       const selected = value === tabIdx;
                       return (
@@ -680,7 +740,9 @@ export default function Home() {
                             position: "relative",
                             "&:hover .nav-pill": {
                               bgcolor: !selected
-                                ? darkMode ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.05)"
+                                ? darkMode
+                                  ? "rgba(255,255,255,0.06)"
+                                  : "rgba(0,0,0,0.05)"
                                 : undefined,
                             },
                           }}
@@ -696,7 +758,8 @@ export default function Home() {
                                 width: 3,
                                 height: 30,
                                 borderRadius: "0 3px 3px 0",
-                                background: "linear-gradient(180deg, #E53935, #FB8C00)",
+                                background:
+                                  "linear-gradient(180deg, #E53935, #FB8C00)",
                               }}
                             />
                           )}
@@ -712,14 +775,18 @@ export default function Home() {
                               alignItems: "center",
                               justifyContent: "center",
                               bgcolor: selected
-                                ? darkMode ? "rgba(229,57,53,0.15)" : "rgba(229,57,53,0.08)"
+                                ? darkMode
+                                  ? "rgba(229,57,53,0.15)"
+                                  : "rgba(229,57,53,0.08)"
                                 : "transparent",
                               transition: "background-color 0.2s",
                               "& .MuiSvgIcon-root": {
                                 fontSize: "1.25rem",
                                 color: selected
                                   ? "#E53935"
-                                  : darkMode ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)",
+                                  : darkMode
+                                    ? "rgba(255,255,255,0.45)"
+                                    : "rgba(0,0,0,0.4)",
                               },
                             }}
                           >
@@ -734,7 +801,9 @@ export default function Home() {
                               fontFamily: '"Gilroy", "Arial", sans-serif',
                               color: selected
                                 ? "#E53935"
-                                : darkMode ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)",
+                                : darkMode
+                                  ? "rgba(255,255,255,0.45)"
+                                  : "rgba(0,0,0,0.4)",
                               lineHeight: 1,
                             }}
                           >
@@ -773,17 +842,44 @@ export default function Home() {
                       flexDirection: "row",
                       bgcolor: "background.default",
                       borderTop: "1px solid",
-                      borderColor: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)",
+                      borderColor: darkMode
+                        ? "rgba(255,255,255,0.08)"
+                        : "rgba(0,0,0,0.07)",
                       zIndex: 100,
                       px: 0.5,
                     }}
                   >
                     {[
-                      { id: "myinfo-step", icon: <HomeIcon />, label: t("Home"), tabIdx: 0 },
-                      { id: "equipment-step", icon: <FitnessCenter />, label: t("Equipment"), tabIdx: 1 },
-                      { id: "trainer-step", icon: <Person />, label: "trAI", tabIdx: 2 },
-                      { id: "plan-step", icon: <CalendarToday />, label: t("Planner"), tabIdx: 3 },
-                      { id: "pantry-step", icon: <LocalDiningIcon />, label: t("Pantry"), tabIdx: 4 },
+                      {
+                        id: "myinfo-step",
+                        icon: <HomeIcon />,
+                        label: t("Home"),
+                        tabIdx: 0,
+                      },
+                      {
+                        id: "equipment-step",
+                        icon: <FitnessCenter />,
+                        label: t("Equipment"),
+                        tabIdx: 1,
+                      },
+                      {
+                        id: "trainer-step",
+                        icon: <Person />,
+                        label: "trAI",
+                        tabIdx: 2,
+                      },
+                      {
+                        id: "plan-step",
+                        icon: <CalendarToday />,
+                        label: t("Planner"),
+                        tabIdx: 3,
+                      },
+                      {
+                        id: "pantry-step",
+                        icon: <LocalDiningIcon />,
+                        label: t("Pantry"),
+                        tabIdx: 4,
+                      },
                     ].map(({ id, icon, label, tabIdx }) => {
                       const selected = value === tabIdx;
                       return (
@@ -808,7 +904,9 @@ export default function Home() {
                                 fontSize: "1.3rem",
                                 color: selected
                                   ? "#E53935"
-                                  : darkMode ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)",
+                                  : darkMode
+                                    ? "rgba(255,255,255,0.45)"
+                                    : "rgba(0,0,0,0.4)",
                               },
                             }}
                           >
@@ -821,7 +919,9 @@ export default function Home() {
                               fontFamily: '"Gilroy", "Arial", sans-serif',
                               color: selected
                                 ? "#E53935"
-                                : darkMode ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.4)",
+                                : darkMode
+                                  ? "rgba(255,255,255,0.45)"
+                                  : "rgba(0,0,0,0.4)",
                               lineHeight: 1,
                             }}
                           >
@@ -833,7 +933,8 @@ export default function Home() {
                                 width: 16,
                                 height: 3,
                                 borderRadius: "999px",
-                                background: "linear-gradient(90deg, #E53935, #FB8C00)",
+                                background:
+                                  "linear-gradient(90deg, #E53935, #FB8C00)",
                                 mt: 0.25,
                               }}
                             />
@@ -845,7 +946,14 @@ export default function Home() {
                 )}
               </Box>
             ) : (
-              <Box sx={{ height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+              <Box
+                sx={{
+                  height: "100vh",
+                  display: "flex",
+                  flexDirection: "column",
+                  overflow: "hidden",
+                }}
+              >
                 {/* ── Onboarding header ── */}
                 <Box
                   sx={{
@@ -856,7 +964,9 @@ export default function Home() {
                     py: 1.25,
                     bgcolor: "background.default",
                     borderBottom: "1px solid",
-                    borderColor: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)",
+                    borderColor: darkMode
+                      ? "rgba(255,255,255,0.08)"
+                      : "rgba(0,0,0,0.07)",
                     flexShrink: 0,
                   }}
                 >
@@ -868,17 +978,37 @@ export default function Home() {
                       disableunderline="true"
                       displayEmpty
                       renderValue={(selected) => {
-                        const labels = { en: "EN", cn: "ZH", tc: "TC", es: "ES", fr: "FR", de: "DE", jp: "JP", kr: "KR" };
+                        const labels = {
+                          en: "EN",
+                          cn: "ZH",
+                          tc: "TC",
+                          es: "ES",
+                          fr: "FR",
+                          de: "DE",
+                          jp: "JP",
+                          kr: "KR",
+                        };
                         return (
-                          <Typography sx={{ fontSize: "0.82rem", color: "text.secondary", fontWeight: 500 }}>
+                          <Typography
+                            sx={{
+                              fontSize: "0.82rem",
+                              color: "text.secondary",
+                              fontWeight: 500,
+                            }}
+                          >
                             {labels[selected] || "EN"}
                           </Typography>
                         );
                       }}
                       sx={{
-                        "& .MuiOutlinedInput-notchedOutline": { border: "none" },
+                        "& .MuiOutlinedInput-notchedOutline": {
+                          border: "none",
+                        },
                         "& .MuiSelect-select": { py: 0.75, px: 1 },
-                        "& .MuiSelect-icon": { color: "text.secondary", fontSize: "1.1rem" },
+                        "& .MuiSelect-icon": {
+                          color: "text.secondary",
+                          fontSize: "1.1rem",
+                        },
                       }}
                     >
                       <MenuItem value="en">English</MenuItem>
@@ -914,7 +1044,8 @@ export default function Home() {
                         component={Link}
                         href="/sign-in"
                         sx={{
-                          background: "linear-gradient(90deg, #E53935, #FB8C00)",
+                          background:
+                            "linear-gradient(90deg, #E53935, #FB8C00)",
                           color: "white",
                           borderRadius: "999px",
                           fontWeight: 700,

@@ -28,62 +28,62 @@ import { firestore } from "../firebase";
 import Image from "next/image";
 import { useUser, UserButton } from "@clerk/nextjs";
 import { useTranslation } from "react-i18next";
-import { useRouter } from "next/navigation";
 import { darkTheme, lightTheme } from "../theme";
 import Webcam from "react-webcam";
 import SearchIcon from "@mui/icons-material/Search";
 import InfoIcon from "@mui/icons-material/Info";
 
-const AddItemModal = ({ openAdd, handleCloseAdd, image, setImage, itemName, setItemName, quantity, setQuantity, predictItem, addItem, setCameraOpen, t }) => (
+const GRAD = "linear-gradient(90deg, #E53935, #FB8C00)";
+
+// ─── Add Item Modal ────────────────────────────────────────────────────────────
+const AddItemModal = ({
+  openAdd, handleCloseAdd, image, setImage, itemName, setItemName,
+  quantity, setQuantity, predictItem, addItem, setCameraOpen, t,
+}) => (
   <Modal open={openAdd} onClose={handleCloseAdd}>
     <Box
       sx={{
-        position: 'absolute',
-        top: '10%',
-        width: '100%',
-        height: '90%',
-        bgcolor: 'background.default',
-        border: '2px solid #000',
+        position: "absolute",
+        top: "10%",
+        width: "100%",
+        height: "90%",
+        bgcolor: "background.default",
+        border: "none",
         boxShadow: 24,
-        p: 2,
+        p: 3,
         display: "flex",
-        alignItems: 'center',
-        flexDirection: 'column',
+        alignItems: "center",
+        flexDirection: "column",
         gap: 3,
         color: "text.primary",
-        borderColor: "text.primary",
-        borderRadius: "15px",
+        borderRadius: 3,
       }}
     >
-      {image && (
+      {image ? (
         <Box
           display="flex"
           justifyContent="center"
           width="100%"
-          sx={{ borderRadius: '16px', overflow: 'hidden' }}
+          sx={{ borderRadius: 2, overflow: "hidden" }}
         >
           <Image
             src={image}
-            alt={"Captured"}
+            alt="Captured"
             width={300}
             height={300}
-            style={{ borderRadius: '16px', objectFit: 'cover' }}
+            style={{ borderRadius: "12px", objectFit: "cover" }}
           />
         </Box>
-      )}
-      {!image && (
-        <>
+      ) : (
+        <Stack direction="row" gap={2}>
           <Button
             variant="outlined"
             onClick={() => setCameraOpen(true)}
             sx={{
-              color: 'text.primary',
-              borderColor: 'text.primary',
-              '&:hover': {
-                backgroundColor: 'background.default',
-                color: 'text.primary',
-                borderColor: 'text.primary',
-              },
+              color: "text.primary",
+              borderColor: "divider",
+              borderRadius: "999px",
+              "&:hover": { bgcolor: "text.primary", color: "background.default" },
             }}
           >
             {t("Open Camera")}
@@ -92,13 +92,10 @@ const AddItemModal = ({ openAdd, handleCloseAdd, image, setImage, itemName, setI
             variant="outlined"
             component="label"
             sx={{
-              color: 'text.primary',
-              borderColor: 'text.primary',
-              '&:hover': {
-                backgroundColor: 'background.default',
-                color: 'text.primary',
-                borderColor: 'text.primary',
-              },
+              color: "text.primary",
+              borderColor: "divider",
+              borderRadius: "999px",
+              "&:hover": { bgcolor: "text.primary", color: "background.default" },
             }}
           >
             {t("Upload Photo")}
@@ -108,117 +105,101 @@ const AddItemModal = ({ openAdd, handleCloseAdd, image, setImage, itemName, setI
               accept="image/*"
               onChange={(e) => {
                 const file = e.target.files[0];
-                if (file) {
-                  const validTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
-                  if (!validTypes.includes(file.type)) {
-                    alert('Unsupported image format. Please upload a PNG, JPEG, GIF, or WEBP file.');
-                    return;
-                  }
-                  const maxSize = 20 * 1024 * 1024;
-                  if (file.size > maxSize) {
-                    alert('File is too large. Please upload an image smaller than 20 MB.');
-                    return;
-                  }
-                  const reader = new FileReader();
-                  reader.onloadend = () => {
-                    setImage(reader.result);
-                    predictItem(reader.result).then(setItemName);
-                  };
-                  reader.readAsDataURL(file);
+                if (!file) return;
+                const validTypes = ["image/png", "image/jpeg", "image/gif", "image/webp"];
+                if (!validTypes.includes(file.type)) {
+                  alert("Unsupported format. Use PNG, JPEG, GIF, or WEBP.");
+                  return;
                 }
+                if (file.size > 20 * 1024 * 1024) {
+                  alert("File too large. Max 20 MB.");
+                  return;
+                }
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                  setImage(reader.result);
+                  predictItem(reader.result).then(setItemName);
+                };
+                reader.readAsDataURL(file);
               }}
             />
           </Button>
-        </>
+        </Stack>
       )}
-      <Divider sx={{ width: '100%', backgroundColor: 'background.default' }} />
-      <Box width="100%" height="25%">
-        <TextField
-          label=""
-          variant="outlined"
-          fullWidth
-          value={itemName}
-          onChange={(e) => setItemName(e.target.value)}
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              color: 'text.primary',
-              fontSize: '2.5rem',
-              fontWeight: '550',
-              '& fieldset': { borderColor: 'lightgray' },
-              '&:hover fieldset': { borderColor: 'lightgray' },
-              '&.Mui-focused fieldset': { borderColor: 'lightgray' },
-            },
-            '& .MuiInputLabel-root': {
-              color: 'text.primary',
-              fontSize: '2.5rem',
-              fontWeight: '550',
-            },
-          }}
-          InputProps={{ style: { textAlign: 'center', fontSize: '1.5rem' } }}
-          InputLabelProps={{ style: { color: 'text.primary', width: '100%', fontSize: '1.5rem' } }}
-        />
-      </Box>
-      <Stack width="100%" direction="column" spacing={2} justifyContent="space-between">
-        <Stack width="100%" direction="row" justifyContent="end" alignItems="center">
+
+      <Divider sx={{ width: "100%" }} />
+
+      <TextField
+        variant="outlined"
+        fullWidth
+        value={itemName}
+        onChange={(e) => setItemName(e.target.value)}
+        placeholder={t("Item name")}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            color: "text.primary",
+            fontSize: "1.5rem",
+            fontWeight: 600,
+            "& fieldset": { borderColor: "divider" },
+            "&:hover fieldset": { borderColor: "text.primary" },
+            "&.Mui-focused fieldset": { borderColor: "text.primary" },
+          },
+        }}
+        InputProps={{ style: { textAlign: "center" } }}
+      />
+
+      <Stack width="100%" direction="column" spacing={2}>
+        <Stack direction="row" justifyContent="center" alignItems="center" gap={1}>
           <Button
+            onClick={() => setQuantity((p) => Math.max(0, parseInt(p) - 1))}
             sx={{
-              backgroundColor: 'lightgray',
-              color: 'black',
-              borderColor: 'lightgray',
-              borderRadius: '50px',
-              height: "50px",
-              minWidth: "50px",
-              '&:hover': { backgroundColor: 'darkgray', color: 'text.primary', borderColor: 'text.primary' },
+              height: 40, minWidth: 40, borderRadius: "50%",
+              bgcolor: "action.hover", color: "text.primary",
+              "&:hover": { bgcolor: "text.primary", color: "background.default" },
             }}
-            onClick={() => setQuantity(prev => Math.max(0, parseInt(prev) - 1))}
           >
-            -
+            −
           </Button>
           <TextField
-            label=""
             variant="outlined"
             value={parseInt(quantity)}
-            onChange={(e) => setQuantity(parseInt(e.target.value))}
+            onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
             sx={{
-              width: "50px",
-              '& .MuiOutlinedInput-root': {
-                color: 'text.primary',
-                '& fieldset': { borderColor: 'background.default' },
-                '&:hover fieldset': { borderColor: 'background.default' },
-                '&.Mui-focused fieldset': { borderColor: 'lightgray' },
+              width: 60,
+              "& .MuiOutlinedInput-root": {
+                color: "text.primary",
+                "& fieldset": { borderColor: "divider" },
               },
-              '& .MuiInputLabel-root': { color: 'text.primary' },
             }}
-            InputLabelProps={{ style: { color: 'text.primary', width: '100%' } }}
+            InputProps={{
+              inputProps: { style: { textAlign: "center", fontWeight: 700 } },
+            }}
           />
           <Button
+            onClick={() => setQuantity((p) => parseInt(p) + 1)}
             sx={{
-              backgroundColor: 'lightgray',
-              color: 'black',
-              borderColor: 'lightgray',
-              borderRadius: '50px',
-              height: "50px",
-              minWidth: "50px",
-              '&:hover': { backgroundColor: 'darkgray', color: 'text.primary', borderColor: 'text.primary' },
+              height: 40, minWidth: 40, borderRadius: "50%",
+              bgcolor: "action.hover", color: "text.primary",
+              "&:hover": { bgcolor: "text.primary", color: "background.default" },
             }}
-            onClick={() => setQuantity(prev => parseInt(prev) + 1)}
           >
             +
           </Button>
         </Stack>
         <Button
-          variant="outlined"
           onClick={() => {
             addItem(itemName, parseInt(quantity), image);
-            setItemName('');
+            setItemName("");
             setQuantity(1);
             handleCloseAdd();
           }}
           sx={{
-            backgroundColor: 'text.primary',
-            color: 'background.default',
-            borderColor: 'text.primary',
-            '&:hover': { backgroundColor: 'darkgray', color: 'text.primary', borderColor: 'text.primary' },
+            background: GRAD,
+            color: "white",
+            borderRadius: "999px",
+            py: 1.5,
+            fontWeight: 700,
+            "&:hover": { opacity: 0.85 },
           }}
         >
           {t("Add")}
@@ -228,284 +209,91 @@ const AddItemModal = ({ openAdd, handleCloseAdd, image, setImage, itemName, setI
   </Modal>
 );
 
-const Banner = ({ isMobile, prefersDarkMode, t }) => (
-  <>
-    {isMobile ? (
-      <Box sx={{
-        backgroundImage: `url(${prefersDarkMode ? "/gym_dark.jpg" : "/gym_dark.jpg"})`,
-        backgroundSize: '160%',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        width: "100%",
-        height: "120px",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: 'center',
-        flexDirection: 'column',
-        color: "white",
-      }}>
-        <Typography sx={{ fontSize: "1.75rem" }}>{t("Welcome to myEquipment")}</Typography>
-        <Typography sx={{ width: "75%", display: "flex", justifyContent: "center", alignItems: 'center', textAlign: 'center', fontSize: "0.7rem" }}>
-          {t("Take or upload pictures of gym equipment you have access to using the + in the top left corner.")}
-        </Typography>
-      </Box>
-    ) : (
-      <Box sx={{
-        backgroundImage: `url(${prefersDarkMode ? "/gym_dark.jpg" : "/gym_dark.jpg"})`,
-        backgroundSize: '200%',
-        backgroundPosition: 'left',
-        backgroundRepeat: 'no-repeat',
-        width: "100%",
-        height: "450px",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: 'center',
-        flexDirection: 'column',
-        color: "white",
-      }}>
-        <Typography sx={{ fontSize: "6.5rem" }}>{t("Welcome to myEquipment")}</Typography>
-        <Typography sx={{ width: "100%", display: "flex", justifyContent: "center", alignItems: 'center', fontSize: "1.5rem" }}>
-          {t("Take or upload pictures of gym equipment you have access to using the + in the top left corner.")}
-        </Typography>
-      </Box>
-    )}
-  </>
-);
-
+// ─── Camera Modal ──────────────────────────────────────────────────────────────
 const CameraModal = ({ cameraOpen, setCameraOpen, captureImage, switchCamera, facingMode, webcamRef, t }) => (
   <Modal open={cameraOpen} onClose={() => setCameraOpen(false)}>
-    <Box width="100vw" height="100vh" backgroundColor="black">
-      <Stack display="flex" justifyContent="center" alignItems="center" flexDirection="column" sx={{ transform: 'translate(0%,25%)' }}>
-        <Box
-          sx={{
-            top: '50%',
-            bgcolor: 'black',
-            width: 350,
-            height: 350,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            paddingY: 2,
-            position: 'relative',
+    <Box width="100vw" height="100vh" bgcolor="black" display="flex" alignItems="center" justifyContent="center" flexDirection="column" gap={2}>
+      <Box
+        sx={{
+          width: 320, height: 320,
+          borderRadius: 3, overflow: "hidden",
+          border: "2px solid rgba(255,255,255,0.2)",
+        }}
+      >
+        <Webcam
+          ref={webcamRef}
+          screenshotFormat="image/jpeg"
+          videoConstraints={{ facingMode }}
+          style={{
+            width: "100%", height: "100%", objectFit: "cover",
+            transform: facingMode === "user" ? "scaleX(-1)" : "none",
           }}
-        >
-          <Box
-            sx={{
-              maxWidth: 350,
-              aspectRatio: '1/1',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              position: 'relative',
-              backgroundColor: 'black',
-              borderRadius: '16px',
-              overflow: 'hidden',
-            }}
-          >
-            <Webcam
-              ref={webcamRef}
-              screenshotFormat="image/jpeg"
-              videoConstraints={{ facingMode }}
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transform: facingMode === 'user' ? "scaleX(-1)" : "none",
-              }}
-            />
-          </Box>
-        </Box>
-        <Stack flexDirection="row" gap={2} position="relative">
+        />
+      </Box>
+      <Stack flexDirection="row" gap={1.5}>
+        {[
+          { label: t("Take Photo"), onClick: captureImage },
+          { label: t("Switch Camera"), onClick: switchCamera },
+          { label: t("Exit"), onClick: () => setCameraOpen(false) },
+        ].map(({ label, onClick }) => (
           <Button
-            variant="outlined"
-            onClick={captureImage}
+            key={label}
+            onClick={onClick}
             sx={{
-              color: 'black', borderColor: 'white', backgroundColor: 'white',
-              '&:hover': { backgroundColor: 'white', color: 'black', borderColor: 'white' },
-              marginTop: 1,
+              bgcolor: "white", color: "black", borderRadius: "999px",
+              "&:hover": { bgcolor: "rgba(255,255,255,0.85)" },
             }}
           >
-            {t("Take Photo")}
+            {label}
           </Button>
-          <Button
-            onClick={switchCamera}
-            sx={{
-              color: 'black', borderColor: 'white', backgroundColor: 'white',
-              '&:hover': { backgroundColor: 'white', color: 'black', borderColor: 'white' },
-              marginTop: 1,
-            }}
-          >
-            {t("Switch Camera")}
-          </Button>
-          <Button
-            variant="outlined"
-            onClick={() => setCameraOpen(false)}
-            sx={{
-              color: 'black', borderColor: 'white', backgroundColor: 'white',
-              '&:hover': { backgroundColor: 'white', color: 'black', borderColor: 'white' },
-              marginTop: 1,
-            }}
-          >
-            {t("Exit")}
-          </Button>
-        </Stack>
+        ))}
       </Stack>
     </Box>
   </Modal>
 );
 
-const EquipmentHeader = ({ equipmentList, isFocused, setIsFocused, searchTerm, setSearchTerm, t }) => (
-  <>
-    <Stack direction="row" alignItems="center" justifyContent="space-between" paddingX={2} paddingY={1}>
-      <Typography variant="h4" color="text.primary" fontWeight="bold">
-        {t("Equipment")}
-      </Typography>
-      <Autocomplete
-        freeSolo
-        disableClearable
-        options={equipmentList.map((option) => option.name)}
-        onInputChange={(_event, newInputValue) => setSearchTerm(newInputValue)}
-        ListboxProps={{
-          component: 'div',
-          sx: { backgroundColor: 'background.default', color: 'text.primary' },
-        }}
-        renderInput={(params) => (
-          <TextField
-            {...params}
-            variant="outlined"
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            sx={{
-              paddingY: 1,
-              width: isFocused ? '100%' : `${Math.max(searchTerm.length, 0) + 5}ch`,
-              transition: 'width 0.3s',
-              marginLeft: 'auto',
-              '& .MuiOutlinedInput-root': {
-                '& fieldset': { borderColor: 'background.default' },
-                '&:hover fieldset': { borderColor: 'text.primary' },
-                '&.Mui-focused fieldset': { borderColor: 'text.primary' },
-              },
-              '& .MuiInputBase-input': { color: 'text.primary' },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon style={{ color: 'text.primary' }} />
-                </InputAdornment>
-              ),
-            }}
-            InputLabelProps={{ style: { color: 'text.primary', width: '100%', textAlign: 'center' } }}
-          />
-        )}
-      />
-    </Stack>
-    <Divider />
-    <Box height={25}></Box>
-  </>
-);
-
-const EquipmentPageHeader = ({ handleOpenAddAndOpenCamera, handleInfoModal, isMobile, t }) => (
-  <>
-    <Box
-      height="10%"
-      bgcolor="background.default"
-      display="flex"
-      justifyContent="space-between"
-      paddingX={2.5}
-      paddingY={2.5}
-      alignItems="center"
-      position="relative"
-    >
-      <Button
-        variant="outlined"
-        onClick={handleOpenAddAndOpenCamera}
-        sx={{
-          height: "55px",
-          fontSize: '1rem',
-          backgroundColor: 'background.default',
-          color: 'text.primary',
-          borderColor: 'background.default',
-          borderRadius: '50px',
-          '&:hover': { backgroundColor: 'text.primary', color: 'background.default', borderColor: 'text.primary' },
-        }}
-      >
-        <Typography variant="h5">+</Typography>
-      </Button>
-      <Box display="flex" flexDirection={"row"} alignItems={"center"} gap={1}>
-        <Typography variant="h6" color="text.primary" textAlign="center" sx={{ fontWeight: "800" }}>
-          {t("myEquipment")}
-        </Typography>
-        <Button
-          onClick={handleInfoModal}
-          sx={{ minWidth: "auto", aspectRatio: "1 / 1", borderRadius: "50%", width: "20px", height: "20px" }}
-        >
-          <InfoIcon sx={{ color: "lightgray" }} />
-        </Button>
-      </Box>
-      <Box>
-        <UserButton />
-      </Box>
-    </Box>
-    {isMobile && <Divider />}
-  </>
-);
-
+// ─── Info Modal ────────────────────────────────────────────────────────────────
 const EquipmentInfoModal = ({ openInfoModal, setOpenInfoModal, t }) => (
   <Modal open={openInfoModal} onClose={() => setOpenInfoModal(false)}>
     <Box
       overflow="auto"
       sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 350,
-        height: "75%",
-        bgcolor: 'background.default',
-        border: '2px solid #000',
-        boxShadow: 24,
-        p: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        borderRadius: "15px",
+        position: "absolute", top: "50%", left: "50%",
+        transform: "translate(-50%, -50%)",
+        width: 350, height: "75%",
+        bgcolor: "background.default",
+        border: "none", borderRadius: 3,
+        boxShadow: 24, p: 4,
+        display: "flex", flexDirection: "column",
       }}
     >
-      <Typography variant="h6" component="h2" fontWeight='600'>
-        {t("How to use:")}
-      </Typography>
-      <Typography sx={{ mt: 2 }}>
+      <Typography fontWeight={700}>{t("How to use:")}</Typography>
+      <Typography sx={{ mt: 2, fontSize: "0.9rem" }}>
         {t("1. Use the top left button to add items. You can either take a picture with your device's camera or upload an image from your device (make sure the render size is set to small). If you don't have access to the equipment right now, or you would like to manually enter or edit the AI's prediction, you can also directly type the name of the equipment.")}
       </Typography>
-      <Typography sx={{ mt: 2 }}>
+      <Typography sx={{ mt: 2, fontSize: "0.9rem" }}>
         {t("2. After adding a piece of equipment, you can adjust the quantity using the '-' and '+' icons under the item name. Set a quantity to 0 to delete an item.")}
       </Typography>
-      <Typography sx={{ mt: 2 }}>
+      <Typography sx={{ mt: 2, fontSize: "0.9rem" }}>
         {t("3. Use the search bar to find specific equipment by name.")}
-      </Typography>
-      <Typography sx={{ mt: 2 }}>
-        {t("4. Sign in using the top right button to create an account or sign in.")}
       </Typography>
       <Box sx={{ flexGrow: 1 }} />
       <Button
-        variant="outlined"
         onClick={() => setOpenInfoModal(false)}
         sx={{
-          mt: 2,
-          backgroundColor: 'text.primary',
-          color: 'background.default',
-          borderColor: 'text.primary',
-          '&:hover': { backgroundColor: 'darkgray', color: 'text.primary', borderColor: 'text.primary' },
+          mt: 2, background: GRAD, color: "white",
+          borderRadius: "999px", "&:hover": { opacity: 0.85 },
         }}
       >
-        {t('Close')}
+        {t("Close")}
       </Button>
     </Box>
   </Modal>
 );
 
+// ─── EquipmentPage ─────────────────────────────────────────────────────────────
 const EquipmentPage = () => {
-  const router = useRouter();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { user } = useUser();
 
   const [equipmentList, setEquipmentList] = useState([]);
@@ -520,14 +308,15 @@ const EquipmentPage = () => {
   const [facingMode, setFacingMode] = useState("user");
   const [openInfoModal, setOpenInfoModal] = useState(false);
 
-  const handleOpenAdd = () => {
-    clearFields();
-    setOpenAdd(true);
-  };
-  const handleCloseAdd = () => {
-    clearFields();
-    setOpenAdd(false);
-  };
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const [darkMode, setDarkMode] = useState(prefersDarkMode);
+  useEffect(() => { setDarkMode(prefersDarkMode); }, [prefersDarkMode]);
+  const theme = darkMode ? darkTheme : lightTheme;
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const clearFields = () => { setItemName(""); setQuantity(1); setImage(null); };
+  const handleOpenAdd = () => { clearFields(); setOpenAdd(true); };
+  const handleCloseAdd = () => { clearFields(); setOpenAdd(false); };
 
   const captureImage = () => {
     const imageSrc = webcamRef.current.getScreenshot();
@@ -535,298 +324,337 @@ const EquipmentPage = () => {
     predictItem(imageSrc).then(setItemName);
     setCameraOpen(false);
   };
+  const switchCamera = () =>
+    setFacingMode((p) => (p === "user" ? "environment" : "user"));
 
-  const switchCamera = () => {
-    setFacingMode((prevFacingMode) =>
-      prevFacingMode === "user" ? "environment" : "user",
-    );
-  };
-
-  async function predictItem(image) {
-    if (!image) return;
+  async function predictItem(img) {
+    if (!img) return;
     const res = await fetch("/api/nutrition", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        type: "identify",
-        image,
+        type: "identify", image: img,
         prompt: "Label this piece of gym equipment in as few words as possible",
       }),
     });
     const { result } = await res.json();
-    let cleaned = result.replace(/\./g, "");
-    return cleaned
+    return result
+      .replace(/\./g, "")
       .split(" ")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ");
   }
 
-  const truncateString = (str, num) => {
-    if (str.length <= num) return str;
-    return str.slice(0, num) + "...";
-  };
-
-  const clearFields = () => {
-    setItemName("");
-    setQuantity(1);
-    setImage(null);
-  };
+  const truncateString = (str, num) =>
+    str.length <= num ? str : str.slice(0, num) + "...";
 
   const sanitizeItemName = (name) => name.replace(/\//g, " and ");
 
   const updateEquipment = async () => {
     if (user) {
       const userId = user.id;
-      const docRef = collection(firestore, "users", userId, "equipment");
-      const docs = await getDocs(docRef);
+      const colRef = collection(firestore, "users", userId, "equipment");
+      const docs = await getDocs(colRef);
       const equipment = [];
-      docs.forEach((doc) => {
-        equipment.push({ name: doc.id, ...doc.data() });
-      });
+      docs.forEach((d) => equipment.push({ name: d.id, ...d.data() }));
       setEquipmentList(equipment);
     }
   };
+  useEffect(() => { updateEquipment(); }, [user]);
 
-  useEffect(() => {
-    updateEquipment();
-  }, [user]);
-
-  const addItem = async (item, quantity, image) => {
-    const sanitizedItemName = sanitizeItemName(item);
-    if (isNaN(quantity) || quantity < 0) {
-      alert("Quantity must be a positive number.");
-      return;
-    }
-    if (user && quantity >= 1 && item) {
+  const addItem = async (item, qty, img) => {
+    const sanitized = sanitizeItemName(item);
+    if (isNaN(qty) || qty < 1 || !item) return;
+    if (user) {
       const userId = user.id;
-      const docRef = doc(firestore, "users", userId, "equipment", sanitizedItemName);
+      const docRef = doc(firestore, "users", userId, "equipment", sanitized);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const { count, image: existingImage } = docSnap.data();
-        await setDoc(docRef, { count: count + quantity, image: image || existingImage });
+        await setDoc(docRef, { count: count + qty, image: img || existingImage });
       } else {
-        await setDoc(docRef, { count: quantity, image });
+        await setDoc(docRef, { count: qty, image: img });
       }
       await updateEquipment();
     }
   };
 
-  const handleQuantityChange = async (item, quantity) => {
-    if (user) {
-      const userId = user.id;
-      const docRef = doc(firestore, "users", userId, "equipment", item);
-      if (quantity === 0) {
-        await deleteDoc(docRef);
-      } else {
-        await setDoc(docRef, { count: quantity });
-      }
-      await updateEquipment();
+  const handleQuantityChange = async (item, qty) => {
+    if (!user) return;
+    const userId = user.id;
+    const docRef = doc(firestore, "users", userId, "equipment", item);
+    if (qty === 0) {
+      await deleteDoc(docRef);
+    } else {
+      const docSnap = await getDoc(docRef);
+      const existingImage = docSnap.exists() ? docSnap.data().image : null;
+      await setDoc(docRef, { count: qty, ...(existingImage && { image: existingImage }) });
     }
-  };
-
-  const handleOpenAddAndOpenCamera = () => {
-    handleOpenAdd();
+    await updateEquipment();
   };
 
   const filteredEquipmentList = equipmentList.filter(({ name }) =>
     name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
-  const [darkMode, setDarkMode] = useState(prefersDarkMode);
-  useEffect(() => {
-    setDarkMode(prefersDarkMode);
-  }, [prefersDarkMode]);
-  const theme = darkMode ? darkTheme : lightTheme;
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
-  const handleInfoModal = () => {
-    setOpenInfoModal(true);
-  };
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box
-        width="100%"
-        height="100%"
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        flexDirection="column"
-        overflow="scroll"
-      >
-        <AddItemModal
-          openAdd={openAdd}
-          handleCloseAdd={handleCloseAdd}
-          image={image}
-          setImage={setImage}
-          itemName={itemName}
-          setItemName={setItemName}
-          quantity={quantity}
-          setQuantity={setQuantity}
-          predictItem={predictItem}
-          addItem={addItem}
-          setCameraOpen={setCameraOpen}
-          t={t}
-        />
-        <CameraModal
-          cameraOpen={cameraOpen}
-          setCameraOpen={setCameraOpen}
-          captureImage={captureImage}
-          switchCamera={switchCamera}
-          facingMode={facingMode}
-          webcamRef={webcamRef}
-          t={t}
-        />
-        <EquipmentInfoModal
-          openInfoModal={openInfoModal}
-          setOpenInfoModal={setOpenInfoModal}
-          t={t}
-        />
 
-        <Box width="100%" height="100%" bgcolor="background.default">
-          <EquipmentPageHeader
-            handleOpenAddAndOpenCamera={handleOpenAddAndOpenCamera}
-            handleInfoModal={handleInfoModal}
-            isMobile={isMobile}
-            t={t}
-          />
+      <AddItemModal
+        openAdd={openAdd} handleCloseAdd={handleCloseAdd}
+        image={image} setImage={setImage}
+        itemName={itemName} setItemName={setItemName}
+        quantity={quantity} setQuantity={setQuantity}
+        predictItem={predictItem} addItem={addItem}
+        setCameraOpen={setCameraOpen} t={t}
+      />
+      <CameraModal
+        cameraOpen={cameraOpen} setCameraOpen={setCameraOpen}
+        captureImage={captureImage} switchCamera={switchCamera}
+        facingMode={facingMode} webcamRef={webcamRef} t={t}
+      />
+      <EquipmentInfoModal
+        openInfoModal={openInfoModal} setOpenInfoModal={setOpenInfoModal} t={t}
+      />
 
-          <Banner isMobile={isMobile} prefersDarkMode={prefersDarkMode} t={t} />
+      <Box width="100%" height="100%" display="flex" flexDirection="column" bgcolor="background.default" overflow="auto">
 
-          <EquipmentHeader
-            equipmentList={equipmentList}
-            isFocused={isFocused}
-            setIsFocused={setIsFocused}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            t={t}
-          />
-
-          <Grid
-            container
-            spacing={2}
-            paddingX={1}
-            sx={{ paddingBottom: isMobile ? "60px" : "0px" }}
+        {/* ── Header ── */}
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          paddingX={2.5}
+          paddingY={1.25}
+          bgcolor="background.default"
+          sx={{
+            borderBottom: "1px solid",
+            borderColor: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)",
+            flexShrink: 0,
+          }}
+        >
+          <Button
+            onClick={handleOpenAdd}
+            variant="outlined"
+            sx={{
+              height: 44, minWidth: 44,
+              borderColor: "divider", borderRadius: "22px",
+              color: "text.primary", bgcolor: "background.default",
+              "&:hover": { bgcolor: "text.primary", color: "background.default" },
+            }}
           >
-            {filteredEquipmentList.map(({ name, count, image }, index) => (
-              <Grid item xs={12} sm={4} key={index}>
-                <Box
-                  width="100%"
-                  display="flex"
-                  flexDirection="row"
-                  justifyContent="space-between"
-                  alignItems="center"
-                  backgroundColor="background.default"
-                  padding={2.5}
-                  border="1px solid lightgray"
-                  borderRadius="10px"
-                >
-                  <Stack>
-                    <Typography
-                      variant="h6"
-                      color="text.primary"
-                      textAlign="left"
-                      style={{ flexGrow: 1, whiteSpace: "nowrap" }}
-                    >
-                      {truncateString(
-                        name.charAt(0).toUpperCase() + name.slice(1),
-                        16,
-                      )}
-                    </Typography>
-                    <Stack
-                      width="100%"
-                      direction="row"
-                      justifyContent="start"
-                      alignItems="center"
-                    >
-                      <Button
-                        sx={{
-                          height: "25px",
-                          minWidth: "25px",
-                          backgroundColor: "lightgray",
-                          color: "black",
-                          borderColor: "lightgray",
-                          borderRadius: "50px",
-                          "&:hover": { backgroundColor: "darkgray", color: "text.primary", borderColor: "text.primary" },
-                        }}
-                        onClick={() =>
-                          handleQuantityChange(name, Math.max(0, count - 1))
-                        }
-                      >
-                        -
-                      </Button>
-                      <TextField
-                        label=""
-                        variant="outlined"
-                        value={parseInt(count)}
-                        onChange={(e) =>
-                          handleQuantityChange(name, parseInt(e.target.value) || 0)
-                        }
-                        sx={{
-                          width: "45px",
-                          "& .MuiOutlinedInput-root": {
-                            color: "text.primary",
-                            "& fieldset": { borderColor: "background.default" },
-                            "&:hover fieldset": { borderColor: "background.default" },
-                            "&.Mui-focused fieldset": { borderColor: "lightgray" },
-                          },
-                          "& .MuiInputLabel-root": { color: "text.primary" },
-                        }}
-                        InputProps={{
-                          sx: { textAlign: "center", fontSize: "0.75rem" },
-                          inputProps: { style: { textAlign: "center" } },
-                        }}
-                        InputLabelProps={{
-                          style: { color: "text.primary", width: "100%", textAlign: "center" },
-                        }}
-                      />
-                      <Button
-                        sx={{
-                          height: "25px",
-                          minWidth: "25px",
-                          backgroundColor: "lightgray",
-                          color: "black",
-                          borderColor: "lightgray",
-                          borderRadius: "50px",
-                          "&:hover": { backgroundColor: "darkgray", color: "text.primary", borderColor: "text.primary" },
-                        }}
-                        onClick={() => handleQuantityChange(name, count + 1)}
-                      >
-                        +
-                      </Button>
-                    </Stack>
-                  </Stack>
-                  <Stack
-                    width="100%"
-                    direction="column"
-                    justifyContent="space-between"
-                    alignItems="flex-end"
-                  >
-                    {image ? (
-                      <Image
-                        src={image}
-                        alt={name}
-                        width={100}
-                        height={100}
-                        style={{ borderRadius: "10px", objectFit: "cover" }}
-                      />
-                    ) : (
-                      <Image
-                        src="/equipment.png"
-                        alt={name}
-                        width={100}
-                        height={100}
-                        style={{ borderRadius: "10px", objectFit: "cover" }}
-                      />
-                    )}
-                  </Stack>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
+            <Typography variant="h5" lineHeight={1}>+</Typography>
+          </Button>
+
+          <Box display="flex" alignItems="center" gap={0.5}>
+            <Typography
+              sx={{
+                fontWeight: 800, fontSize: "1.1rem",
+                background: GRAD,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                fontFamily: '"Gilroy", "Arial", sans-serif',
+              }}
+            >
+              {t("myEquipment")}
+            </Typography>
+            <Button
+              onClick={() => setOpenInfoModal(true)}
+              sx={{ minWidth: "auto", width: 28, height: 28, borderRadius: "50%", p: 0 }}
+            >
+              <InfoIcon sx={{ color: "text.disabled", fontSize: "1.1rem" }} />
+            </Button>
+          </Box>
+
+          <UserButton />
         </Box>
+
+        {/* ── Banner ── */}
+        <Box
+          sx={{
+            width: "100%",
+            height: isMobile ? 140 : 180,
+            position: "relative",
+            flexShrink: 0,
+            overflow: "hidden",
+          }}
+        >
+          <Image
+            src={darkMode ? "/gym_dark.jpg" : "/gym.jpg"}
+            alt="gym"
+            fill
+            style={{ objectFit: "cover" }}
+            priority
+          />
+        </Box>
+
+        {/* ── Equipment section header ── */}
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          paddingX={2.5}
+          paddingY={1.5}
+        >
+          <Typography fontWeight={700} fontSize="1rem" color="text.secondary" textTransform="uppercase" letterSpacing={0.5}>
+            {t("Equipment")}
+          </Typography>
+          <Autocomplete
+            freeSolo
+            disableClearable
+            options={equipmentList.map((o) => o.name)}
+            onInputChange={(_e, val) => setSearchTerm(val)}
+            ListboxProps={{
+              sx: { bgcolor: "background.default", color: "text.primary" },
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                variant="outlined"
+                size="small"
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                placeholder={t("Search")}
+                sx={{
+                  width: isFocused ? 200 : `${Math.max(searchTerm.length, 8)}ch`,
+                  transition: "width 0.3s",
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "999px",
+                    "& fieldset": { borderColor: "divider" },
+                    "&:hover fieldset": { borderColor: "text.primary" },
+                    "&.Mui-focused fieldset": { borderColor: "text.primary" },
+                  },
+                  "& .MuiInputBase-input": { color: "text.primary" },
+                }}
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: "text.disabled", fontSize: "1rem" }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+          />
+        </Stack>
+        <Divider />
+
+        {/* ── Equipment grid ── */}
+        <Grid
+          container
+          spacing={2}
+          paddingX={2.5}
+          paddingTop={2}
+          paddingBottom={isMobile ? "80px" : 4}
+        >
+          {filteredEquipmentList.map(({ name, count, image }, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Box
+                display="flex"
+                flexDirection="row"
+                justifyContent="space-between"
+                alignItems="center"
+                bgcolor="background.paper"
+                padding={2}
+                sx={{
+                  border: "1px solid",
+                  borderColor: darkMode ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)",
+                  borderRadius: 3,
+                  transition: "box-shadow 0.15s",
+                  "&:hover": { boxShadow: "0 2px 12px rgba(0,0,0,0.10)" },
+                }}
+              >
+                {/* Name + quantity controls */}
+                <Stack gap={1}>
+                  <Typography
+                    fontWeight={700}
+                    fontSize="0.95rem"
+                    color="text.primary"
+                    noWrap
+                    sx={{ maxWidth: 140 }}
+                  >
+                    {truncateString(
+                      name.charAt(0).toUpperCase() + name.slice(1),
+                      18,
+                    )}
+                  </Typography>
+                  <Stack direction="row" alignItems="center" gap={0.5}>
+                    <Button
+                      onClick={() => handleQuantityChange(name, Math.max(0, count - 1))}
+                      sx={{
+                        height: 28, minWidth: 28, borderRadius: "50%",
+                        bgcolor: "action.hover", color: "text.primary", p: 0,
+                        "&:hover": { bgcolor: "text.primary", color: "background.default" },
+                      }}
+                    >
+                      −
+                    </Button>
+                    <TextField
+                      variant="outlined"
+                      value={parseInt(count)}
+                      onChange={(e) =>
+                        handleQuantityChange(name, parseInt(e.target.value) || 0)
+                      }
+                      sx={{
+                        width: 44,
+                        "& .MuiOutlinedInput-root": {
+                          color: "text.primary",
+                          "& fieldset": { borderColor: "divider" },
+                        },
+                      }}
+                      InputProps={{
+                        inputProps: {
+                          style: { textAlign: "center", fontSize: "0.8rem", fontWeight: 700, padding: "4px 0" },
+                        },
+                      }}
+                    />
+                    <Button
+                      onClick={() => handleQuantityChange(name, count + 1)}
+                      sx={{
+                        height: 28, minWidth: 28, borderRadius: "50%",
+                        bgcolor: "action.hover", color: "text.primary", p: 0,
+                        "&:hover": { bgcolor: "text.primary", color: "background.default" },
+                      }}
+                    >
+                      +
+                    </Button>
+                  </Stack>
+                </Stack>
+
+                {/* Image */}
+                <Image
+                  src={image || "/equipment.png"}
+                  alt={name}
+                  width={88}
+                  height={88}
+                  style={{ borderRadius: 10, objectFit: "cover" }}
+                />
+              </Box>
+            </Grid>
+          ))}
+
+          {/* Empty state */}
+          {filteredEquipmentList.length === 0 && (
+            <Grid item xs={12}>
+              <Box
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+                py={8}
+                gap={1}
+              >
+                <Typography color="text.disabled" fontSize="0.9rem">
+                  {searchTerm
+                    ? t("No equipment matches your search.")
+                    : t("No equipment yet. Tap + to add your first item.")}
+                </Typography>
+              </Box>
+            </Grid>
+          )}
+        </Grid>
       </Box>
     </ThemeProvider>
   );

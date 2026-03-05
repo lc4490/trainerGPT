@@ -535,6 +535,17 @@ const PlanPage = () => {
               onChange={(e) => handleChange(e.target.value)}
               placeholder={t("Title")}
             />
+            <TextField
+              type="date"
+              fullWidth
+              variant="outlined"
+              size="small"
+              value={newEvent.start ? newEvent.start.slice(0, 10) : new Date().toISOString().slice(0, 10)}
+              onChange={(e) =>
+                setNewEvent({ ...newEvent, start: e.target.value, allDay: true })
+              }
+              sx={{ "& input::-webkit-calendar-picker-indicator": { cursor: "pointer" } }}
+            />
             <Stack flexDirection="row" justifyContent="space-between" gap={1}>
               <Button
                 onClick={() => setShowAddModal(false)}

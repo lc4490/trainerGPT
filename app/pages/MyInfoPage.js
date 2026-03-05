@@ -875,14 +875,14 @@ const HomePage = ({
   ];
 
   const cardGradients = [
-    "linear-gradient(135deg, #224061 0%, #433B5F 100%)",
-    "linear-gradient(135deg, #433B5F 0%, #6A385C 100%)",
-    "linear-gradient(135deg, #6A385C 0%, #923258 100%)",
-    "linear-gradient(135deg, #923258 0%, #BB2D55 100%)",
-    "linear-gradient(135deg, #BB2D55 0%, #E53935 100%)",
     "linear-gradient(135deg, #E53935 0%, #FB8C00 100%)",
-    "linear-gradient(135deg, #224061 0%, #BB2D55 100%)",
-    "linear-gradient(135deg, #433B5F 0%, #E53935 100%)",
+    "linear-gradient(135deg, #C62828 0%, #E53935 100%)",
+    "linear-gradient(135deg, #FB8C00 0%, #FFC107 100%)",
+    "linear-gradient(135deg, #BF360C 0%, #FB8C00 100%)",
+    "linear-gradient(135deg, #E53935 0%, #FF7043 100%)",
+    "linear-gradient(135deg, #D84315 0%, #E53935 100%)",
+    "linear-gradient(135deg, #FF5722 0%, #FB8C00 100%)",
+    "linear-gradient(135deg, #C62828 0%, #FF7043 100%)",
   ];
 
   return (
@@ -2034,7 +2034,7 @@ const MyInfoPage = ({ setValue }) => {
               transform: "translate(-50%, -50%)",
               width: "60%",
               height: "60%",
-              background: "linear-gradient(180deg, #BB2D55 25%, #224061 100%)",
+              background: "linear-gradient(180deg, #E53935 25%, #BF360C 100%)",
               border: "2px solid #000",
               boxShadow: 24,
               p: 4,
